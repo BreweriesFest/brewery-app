@@ -4,6 +4,7 @@ import com.brewery.app.inventory.domain.BeerInventory;
 import com.brewery.app.inventory.repository.BeerInventoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -20,6 +21,7 @@ public class InventoryController {
     public static final Supplier<Mono<String>> uuid = () -> Mono.just(UUID.randomUUID().toString())
             .subscribeOn(Schedulers.boundedElastic());
     private final BeerInventoryRepository beerInventoryRepository;
+    private final TransactionalOperator transactionalOperator;
 
     @GetMapping("/save")
     public Mono<BeerInventory> saveInventory() {
@@ -29,6 +31,6 @@ public class InventoryController {
         return uuidMono.map(uuid -> BeerInventory.builder().upc("upc").beerId(uuid).quantityOnHand(10).build())
                 .flatMap(beerInventoryRepository::save)
                 .contextWrite(__ -> __.putAllMap(Map.of("tenantId", "shubham", "customerId", "goel")))
-                .subscribeOn(Schedulers.boundedElastic());
+                .as(transactionalOperator::transactional).subscribeOn(Schedulers.boundedElastic());
     }
 }
