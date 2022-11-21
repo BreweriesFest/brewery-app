@@ -1,1 +1,7 @@
-
+spring:
+  data:
+    mongodb:
+      authentication-database: admin
+      username: username
+      password: password
+      database: inventory
