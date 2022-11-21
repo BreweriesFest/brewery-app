@@ -1,0 +1,12 @@
+type Query {
+
+    hello: String
+    helloWithName(name:String): String
+    inventory: BeerInventory
+    inventories: [BeerInventory]
+}
+type BeerInventory{
+    upc: String
+    beerId: String
+    quantityOnHand: Int
+}
