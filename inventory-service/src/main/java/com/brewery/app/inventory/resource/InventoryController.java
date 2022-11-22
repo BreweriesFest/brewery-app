@@ -1,10 +1,15 @@
 package com.brewery.app.inventory.resource;
 
 import com.brewery.app.inventory.domain.BeerInventory;
+import com.brewery.app.inventory.domain.Inventory;
+import com.brewery.app.inventory.domain.MetaData;
 import com.brewery.app.inventory.repository.BeerInventoryRepository;
+import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.BatchMapping;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,18 +46,19 @@ public class InventoryController {
     }
 
     @QueryMapping
-    String hello() {
-        return "hello graphql";
+    Mono<String> hello() {
+        return Mono.just("hello graphql");
     }
 
     @QueryMapping
-    String helloWithName(@Argument String name) {
-        return "hello " + name + "!";
+    Mono<String> helloWithName(@Argument String name) {
+        return Mono.just("hello " + name + "!");
     }
 
     @QueryMapping
-    BeerInventory inventory() {
-        return BeerInventory.builder().beerId(UUID.randomUUID().toString()).upc("upc").quantityOnHand(100001).build();
+    Mono<BeerInventory> inventory() {
+        return Mono.just(
+                BeerInventory.builder().beerId(UUID.randomUUID().toString()).upc("upc").quantityOnHand(100001).build());
     }
 
     @QueryMapping
@@ -60,5 +67,20 @@ public class InventoryController {
                 BeerInventory.builder().beerId(UUID.randomUUID().toString()).upc("upc1").quantityOnHand(100001).build(),
                 BeerInventory.builder().beerId(UUID.randomUUID().toString()).upc("upc2").quantityOnHand(100002)
                         .build()));
+    }
+
+    record Beer(String beerId) {
+    };
+
+    @BatchMapping
+    Mono<Map<BeerInventory, Beer>> beer(List<BeerInventory> beerInventories) {
+        return Mono.just(beerInventories.stream()
+                .collect(Collectors.toMap(inventory -> inventory, inventory -> new Beer(inventory.getBeerId()))));
+    }
+
+    @MutationMapping
+    Mono<BeerInventory> addInventory(@Argument Inventory inventory, @Argument MetaData metaData) {
+        return Mono.just(BeerInventory.builder().upc(inventory.upc()).beerId(inventory.beerId())
+                .quantityOnHand(inventory.quantityOnHand()).build());
     }
 }
