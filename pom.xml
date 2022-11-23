@@ -50,6 +50,11 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.33</version>
+        </dependency>
+        <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-mongodb</artifactId>
             <version>5.0.0</version>
@@ -182,7 +187,7 @@
     </dependencyManagement>
 
     <build>
-        <finalName>${project.artifactId}-${version.number}</finalName>
+<!--        <finalName>${project.artifactId}-${version.number}</finalName>-->
         <plugins>
             <plugin>
                 <groupId>pl.project13.maven</groupId>
@@ -310,5 +315,18 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>github</id>
+            <distributionManagement>
+                <repository>
+                    <id>github</id>
+                    <name>GitHub Packages</name>
+                    <url>https://maven.pkg.github.com/BreweriesFest/brewery-app</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 
 </project>
