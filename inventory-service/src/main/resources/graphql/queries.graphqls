@@ -5,8 +5,33 @@ type Query {
     inventory: BeerInventory
     inventories: [BeerInventory]
 }
+type Mutation {
+    addInventory(inventory:Inventory!): InventoryDTO
+}
 type BeerInventory{
     upc: String
     beerId: String
     quantityOnHand: Int
+    beer: Beer
+}
+type Beer {
+    beerId: String
+}
+
+input Inventory {
+    upc: String
+    beerId: String!
+    quantityOnHand: Int!
+}
+
+type InventoryDTO {
+    id: ID
+    upc: String
+    beerId: String
+    quantityOnHand: Int
+}
+
+input MetaData {
+    tenantId: String!
+    customerId: String!
 }
