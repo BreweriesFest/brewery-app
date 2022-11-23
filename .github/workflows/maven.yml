@@ -28,7 +28,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Set version
-      if: github.head.ref == 'main'
+      if: github.ref == 'refs/heads/workflow'
       run: mvn versions:set -DnewVersion=${GITHUB_HEAD_REF}.${GITHUB_SHA::7} -DprocessDependencies=false
     - name: Deploy
       if: github.head.ref == 'main'
