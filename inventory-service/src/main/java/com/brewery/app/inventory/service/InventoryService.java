@@ -29,9 +29,10 @@ public class InventoryService {
     public Mono<InventoryDTO> saveInventory(InventoryDTO inventoryDTO) {
         // reactiveMongoOperations.upsert();
 
-        var validation = validateInventoryDTO(inventoryDTO).doOnNext(validationResult -> {
+        var validation = validateInventoryDTO(inventoryDTO).flatMap(validationResult -> {
             if (validationResult != ValidationResult.SUCCESS)
-                throw new BadRequestException(validationResult.name());
+                return Mono.error(new BadRequestException(validationResult.name()));
+            return Mono.empty();
         });
 
         var persist = Mono.deferContextual(ctx -> {
@@ -44,8 +45,7 @@ public class InventoryService {
                 .flatMap(beerInventory -> beerInventoryRepository.save(beerInventory))
                 .map(inventoryMapper::fromBeerInventory);
 
-        return validation.then(persist)
-                // .doOnError(exc->log.error("exception",exc))
+        return validation.then(persist).doOnError(exc -> log.error("exception", exc))
                 // .onErrorResume(throwable -> Mono.error(new BadRequestException(throwable.getMessage())))
                 // .as(transactionalOperator::transactional)
                 .subscribeOn(Schedulers.boundedElastic());
