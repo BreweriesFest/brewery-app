@@ -323,7 +323,7 @@
                 <repository>
                     <id>github</id>
                     <name>GitHub Packages</name>
-                    <url>https://maven.pkg.github.com/topfind/topfindscraper</url>
+                    <url>https://maven.pkg.github.com/BreweriesFest/brewery-app</url>
                 </repository>
             </distributionManagement>
         </profile>
