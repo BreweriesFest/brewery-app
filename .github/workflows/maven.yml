@@ -28,18 +28,18 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Set version
-      if: GITHUB_HEAD_REF == 'main'
+      if: github.head.ref == 'main'
       run: mvn versions:set -DnewVersion=${GITHUB_HEAD_REF}.${GITHUB_SHA::7} -DprocessDependencies=false
     - name: Deploy
-      if: GITHUB_HEAD_REF == 'main'
+      if: github.head.ref == 'main'
       run: mvn -B -Pgithub deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Compile
-      if: GITHUB_HEAD_REF != 'main'
+      if: github.head.ref != 'main'
       run: mvn -B -DskipTests clean install --file pom.xml
     - name: Build Docker image
-      if: GITHUB_HEAD_REF == 'main'
+      if: github.head.ref == 'main'
       run: mvn -B -pl inventory-service -DskipTests spring-boot:build-image --file pom.xml
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
