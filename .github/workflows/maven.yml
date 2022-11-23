@@ -28,15 +28,18 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Set version
-      uses: actions/cache@v3
+      with:
+        cache: maven
       run: mvn versions:use-next-versions -DprocessDependencies=false
     - name: Deploy
-      uses: actions/cache@v3
+      with:
+        cache: maven
       run: mvn -B -Pgithub deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Docker image
-      uses: actions/cache@v3
+      with:
+        cache: maven
       run: mvn -B -pl inventory-service -DskipTests spring-boot:build-image --file pom.xml
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
