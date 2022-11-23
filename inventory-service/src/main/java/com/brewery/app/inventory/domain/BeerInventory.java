@@ -1,9 +1,6 @@
 package com.brewery.app.inventory.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -15,6 +12,7 @@ public class BeerInventory extends Auditable {
 
     private String upc;
     private String beerId;
+    @Setter
     private Integer quantityOnHand;
 
 }

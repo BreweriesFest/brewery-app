@@ -1,10 +1,9 @@
 package com.brewery.app.inventory.resource;
 
 import com.brewery.app.inventory.domain.BeerInventory;
-import com.brewery.app.inventory.domain.Inventory;
-import com.brewery.app.inventory.domain.MetaData;
+import com.brewery.app.inventory.domain.InventoryDTO;
 import com.brewery.app.inventory.repository.BeerInventoryRepository;
-import graphql.schema.DataFetchingEnvironment;
+import com.brewery.app.inventory.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -18,7 +17,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,6 +31,8 @@ public class InventoryController {
             .subscribeOn(Schedulers.boundedElastic());
     private final BeerInventoryRepository beerInventoryRepository;
     private final TransactionalOperator transactionalOperator;
+
+    private final InventoryService inventoryService;
 
     @GetMapping("/save")
     public Mono<BeerInventory> saveInventory() {
@@ -69,18 +69,19 @@ public class InventoryController {
                         .build()));
     }
 
-    record Beer(String beerId) {
-    };
-
     @BatchMapping
     Mono<Map<BeerInventory, Beer>> beer(List<BeerInventory> beerInventories) {
         return Mono.just(beerInventories.stream()
                 .collect(Collectors.toMap(inventory -> inventory, inventory -> new Beer(inventory.getBeerId()))));
     }
 
+    ;
+
     @MutationMapping
-    Mono<BeerInventory> addInventory(@Argument Inventory inventory, @Argument MetaData metaData) {
-        return Mono.just(BeerInventory.builder().upc(inventory.upc()).beerId(inventory.beerId())
-                .quantityOnHand(inventory.quantityOnHand()).build());
+    Mono<InventoryDTO> addInventory(@Argument InventoryDTO inventory) {
+        return inventoryService.saveInventory(inventory);
+    }
+
+    record Beer(String beerId) {
     }
 }
