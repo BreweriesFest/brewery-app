@@ -323,7 +323,7 @@
                 <repository>
                     <id>github</id>
                     <name>GitHub Packages</name>
-                    <url>https://maven.pkg.github.com/dreitier/library-a</url>
+                    <url>https://maven.pkg.github.com/topfind/topfindscraper</url>
                 </repository>
             </distributionManagement>
         </profile>

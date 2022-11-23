@@ -28,7 +28,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Deploy
-      run: mvn -B -Pgithub deploy --file pom.xml
+      run: mvn -B -Pgithub deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Inventory Service
