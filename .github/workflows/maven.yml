@@ -27,10 +27,10 @@ jobs:
         java-version: '19'
         distribution: 'temurin'
         cache: maven
+    - name: Set version
+      run: mvn versions:set -DnewVesion=${GITHUB_SHA::7} -DprocessDependencies=false
     - name: Deploy
-      run: |
-        mvn versions:set -DnewVesion=${GITHUB_SHA::7} -DprocessDependencies=false
-        mvn -B -Pgithub deploy
+      run: mvn -B -Pgithub deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Inventory Service
