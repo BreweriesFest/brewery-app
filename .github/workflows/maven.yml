@@ -28,7 +28,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Set version
-      run: mvn versions:use-next-versions -DprocessDependencies=false
+      run: mvn versions:set -DnewVersion=${GITHUB_SHA::7} -DprocessDependencies=false
     - name: Deploy
       run: mvn -B -Pgithub deploy
       env:
