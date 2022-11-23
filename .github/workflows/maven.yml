@@ -27,6 +27,10 @@ jobs:
         java-version: '19'
         distribution: 'temurin'
         cache: maven
+    - name: Deploy
+      run: mvn -B -Pgithub deploy --file pom.xml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Inventory Service
       run: mvn -B -pl inventory-service -am -DskipTests package --file pom.xml
     - name: Build Docker image
