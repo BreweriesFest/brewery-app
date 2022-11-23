@@ -28,7 +28,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Deploy
-      run: mvn versions:set -DnewVersions=${GITHUB_SHA::7} -B -Pgithub deploy
+      run: mvn -DnewVersions=${GITHUB_SHA::7} -B -Pgithub deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Inventory Service
