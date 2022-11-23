@@ -28,7 +28,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Create Release version
-      run: mvn versions:set -DnewVersions={parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.nextIncrementalVersion}.${GITHUB_SHA::7} versions:commit
+      run: mvn versions:set -DnewVersions=${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.nextIncrementalVersion}.${GITHUB_SHA::7} versions:commit
     - name: Deploy
       run: mvn -B -Pgithub deploy
       env:
