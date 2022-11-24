@@ -27,8 +27,7 @@ public class ErrorInterceptor implements WebGraphQlInterceptor {
             log.info("[ErrorInterceptor] Intercepting response... ");
 
             List<GraphQLError> graphQLErrors = response.getErrors().stream()
-                    .filter(responseError -> !(responseError
-                            .getErrorType() instanceof com.brewery.app.inventory.exception.ErrorType))
+                    .filter(responseError -> !(responseError.getErrorType() instanceof ExceptionType))
                     .map(this::resolveException).collect(Collectors.toList());
 
             if (!graphQLErrors.isEmpty()) {
@@ -52,21 +51,21 @@ public class ErrorInterceptor implements WebGraphQlInterceptor {
                     .equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
                 String errorMessage = "Field " + StringUtils.substringBetween(message, "argument ", " @")
                         + " cannot be null";
-                return new BusinessException(ErrorReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
-                        com.brewery.app.inventory.exception.ErrorType.ValidationError, errorMessage);
+                return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
+                        ExceptionType.ValidationException, errorMessage);
             }
             if (ValidationErrorType.WrongType
                     .equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
                 String errorMessage = "Field " + StringUtils.substringBetween(message, "fields ", " @")
                         + " cannot be null";
-                return new BusinessException(ErrorReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
-                        com.brewery.app.inventory.exception.ErrorType.ValidationError, errorMessage);
+                return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
+                        ExceptionType.ValidationException, errorMessage);
             }
         }
 
         log.info("[ErrorInterceptor] Returning unknown query validation error ");
-        return new BusinessException(ErrorReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
-                com.brewery.app.inventory.exception.ErrorType.ValidationError, responseError.getMessage());
+        return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
+                ExceptionType.ValidationException, responseError.getMessage());
     }
 
     private ValidationErrorType extractValidationErrorFromErrorMessage(String message) {

@@ -26,7 +26,7 @@ public class BusinessException extends RuntimeException implements GraphQLError,
     protected final String code;
     protected final String message;
     protected final HttpStatus httpStatus;
-    protected final ErrorType errorType;
+    protected final ExceptionType errorType;
 
     /**
      * Constructor accepting an exception reason.
@@ -34,7 +34,7 @@ public class BusinessException extends RuntimeException implements GraphQLError,
      * @param reason
      *            the reason of the exception
      */
-    public BusinessException(final ErrorReason reason) {
+    public BusinessException(final ExceptionReason reason) {
         super(reason.getMessage());
         this.code = reason.getCode();
         this.message = reason.getMessage();
@@ -42,7 +42,7 @@ public class BusinessException extends RuntimeException implements GraphQLError,
         this.errorType = reason.getErrorType();
     }
 
-    public BusinessException(final ErrorReason reason, final String message) {
+    public BusinessException(final ExceptionReason reason, final String message) {
         super(reason.getMessage());
         this.code = reason.getCode();
         this.message = message;
@@ -58,7 +58,7 @@ public class BusinessException extends RuntimeException implements GraphQLError,
      * @param overridingHttpStatus
      *            the http status which overrides the one from the reason
      */
-    public BusinessException(final ErrorReason reason, final HttpStatus overridingHttpStatus) {
+    public BusinessException(final ExceptionReason reason, final HttpStatus overridingHttpStatus) {
         this.code = reason.getCode();
         this.message = reason.getMessage();
         this.httpStatus = overridingHttpStatus;
@@ -73,7 +73,7 @@ public class BusinessException extends RuntimeException implements GraphQLError,
      * @param parameters
      *            the optional parameters
      */
-    public BusinessException(final ErrorReason reason, final Object... parameters) {
+    public BusinessException(final ExceptionReason reason, final Object... parameters) {
         if (parameters != null) {
             this.message = format(reason.getMessage(), parameters);
         } else {
@@ -86,8 +86,8 @@ public class BusinessException extends RuntimeException implements GraphQLError,
 
     }
 
-    public BusinessException(final ErrorReason reason, final HttpStatus overridingHttpStatus, final ErrorType errorType,
-            final Object... parameters) {
+    public BusinessException(final ExceptionReason reason, final HttpStatus overridingHttpStatus,
+            final ExceptionType errorType, final Object... parameters) {
         if (parameters != null) {
             this.message = format(reason.getMessage(), parameters);
         } else {

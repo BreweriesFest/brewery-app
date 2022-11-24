@@ -19,7 +19,7 @@ public class BusinessExceptionResolver implements DataFetcherExceptionResolver {
                     .extensions(((BusinessException) exception).getExtensions()).message(exception.getMessage())
                     .build();
         else {
-            var internalServerError = new BusinessException(ErrorReason.INTERNAL_SERVER_ERROR);
+            var internalServerError = new BusinessException(ExceptionReason.INTERNAL_SERVER_ERROR);
             error = GraphqlErrorBuilder.newError().errorType(internalServerError.getErrorType())
                     .extensions(internalServerError.getExtensions()).message(exception.getMessage()).build();
         }

@@ -13,7 +13,7 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import static com.brewery.app.inventory.exception.ErrorReason.INVALID_SHOPPING_LIST_ID;
+import static com.brewery.app.inventory.exception.ExceptionReason.INVALID_SHOPPING_LIST_ID;
 import static com.brewery.app.inventory.util.Validator.validateInventoryDTO;
 
 @Service
