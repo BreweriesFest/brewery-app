@@ -1,6 +1,5 @@
 package com.brewery.app.inventory.service;
 
-import com.brewery.app.inventory.config.BadRequestException;
 import com.brewery.app.inventory.domain.InventoryDTO;
 import com.brewery.app.inventory.domain.QBeerInventory;
 import com.brewery.app.inventory.mapper.InventoryMapper;
@@ -14,6 +13,7 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import static com.brewery.app.inventory.exception.ExceptionReason.INVALID_SHOPPING_LIST_ID;
 import static com.brewery.app.inventory.util.Validator.validateInventoryDTO;
 
 @Service
@@ -31,7 +31,7 @@ public class InventoryService {
 
         var validation = validateInventoryDTO(inventoryDTO).flatMap(validationResult -> {
             if (validationResult != ValidationResult.SUCCESS)
-                return Mono.error(new BadRequestException(validationResult.name()));
+                return Mono.error(new RuntimeException(INVALID_SHOPPING_LIST_ID.getMessage()));
             return Mono.empty();
         });
 

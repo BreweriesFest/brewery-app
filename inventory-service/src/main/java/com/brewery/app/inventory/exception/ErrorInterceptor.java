@@ -1,4 +1,4 @@
-package com.brewery.app.inventory.config;
+package com.brewery.app.inventory.exception;
 
 import graphql.ErrorClassification;
 import graphql.ErrorType;
@@ -10,6 +10,7 @@ import org.springframework.graphql.ResponseError;
 import org.springframework.graphql.server.WebGraphQlInterceptor;
 import org.springframework.graphql.server.WebGraphQlRequest;
 import org.springframework.graphql.server.WebGraphQlResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -25,8 +26,9 @@ public class ErrorInterceptor implements WebGraphQlInterceptor {
         return chain.next(request).map(response -> {
             log.info("[ErrorInterceptor] Intercepting response... ");
 
-            List<GraphQLError> graphQLErrors = response.getErrors().stream().map(this::resolveException)
-                    .collect(Collectors.toList());
+            List<GraphQLError> graphQLErrors = response.getErrors().stream()
+                    .filter(responseError -> !(responseError.getErrorType() instanceof ExceptionType))
+                    .map(this::resolveException).collect(Collectors.toList());
 
             if (!graphQLErrors.isEmpty()) {
                 log.info("[ErrorInterceptor] Found invalid syntax error! Overriding the message.");
@@ -49,18 +51,21 @@ public class ErrorInterceptor implements WebGraphQlInterceptor {
                     .equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
                 String errorMessage = "Field " + StringUtils.substringBetween(message, "argument ", " @")
                         + " cannot be null";
-                return new BadRequestException(errorMessage);
+                return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
+                        ExceptionType.ValidationException, errorMessage);
             }
             if (ValidationErrorType.WrongType
                     .equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
                 String errorMessage = "Field " + StringUtils.substringBetween(message, "fields ", " @")
                         + " cannot be null";
-                return new BadRequestException(errorMessage);
+                return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
+                        ExceptionType.ValidationException, errorMessage);
             }
         }
 
         log.info("[ErrorInterceptor] Returning unknown query validation error ");
-        return new BadRequestException(responseError.getMessage());
+        return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
+                ExceptionType.ValidationException, responseError.getMessage());
     }
 
     private ValidationErrorType extractValidationErrorFromErrorMessage(String message) {
