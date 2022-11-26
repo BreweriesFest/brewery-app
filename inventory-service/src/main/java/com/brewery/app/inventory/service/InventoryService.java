@@ -5,8 +5,12 @@ import com.brewery.app.inventory.domain.QBeerInventory;
 import com.brewery.app.inventory.mapper.InventoryMapper;
 import com.brewery.app.inventory.repository.BeerInventoryRepository;
 import com.brewery.app.inventory.util.ValidationResult;
+import io.github.resilience4j.reactor.retry.RetryOperator;
+import io.github.resilience4j.retry.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -25,6 +29,8 @@ public class InventoryService {
     private final InventoryMapper inventoryMapper;
     private final TransactionalOperator transactionalOperator;
     private final ReactiveMongoOperations reactiveMongoOperations;
+    private final ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory;
+    private final Retry retry;
 
     public Mono<InventoryDTO> saveInventory(InventoryDTO inventoryDTO) {
         // reactiveMongoOperations.upsert();
@@ -43,7 +49,12 @@ public class InventoryService {
         }).map(beerInventory -> inventoryMapper.fromInventoryDTO(inventoryDTO, beerInventory))
                 .switchIfEmpty(Mono.just(inventoryMapper.fromInventoryDTO(inventoryDTO)))
                 .flatMap(beerInventory -> beerInventoryRepository.save(beerInventory))
-                .map(inventoryMapper::fromBeerInventory);
+                .map(inventoryMapper::fromBeerInventory).transform(it -> {
+                    ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create("mongo");
+                    return rcb.run(it.doFirst(() -> log.info("circuit breaker wrapper")),
+                            throwable -> Mono.error(new RuntimeException(throwable.getMessage())));
+                }).doOnError(exc -> log.error("exception", exc))
+                .transformDeferred(RetryOperator.of(Retry.ofDefaults("mongodb")));
 
         return validation.then(persist).doOnError(exc -> log.error("exception", exc))
                 // .onErrorResume(throwable -> Mono.error(new BadRequestException(throwable.getMessage())))

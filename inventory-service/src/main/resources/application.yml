@@ -6,3 +6,19 @@ spring:
     database: inventory
   graphql.graphiql:
     enabled: true
+
+management.health.circuitbreakers.enabled: true
+management:
+  endpoint:
+    health:
+      show-details: always
+    probes:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
