@@ -1,6 +1,6 @@
 package com.brewery.app.inventory.util;
 
-import com.brewery.app.inventory.domain.InventoryDTO;
+import com.brewery.app.domain.InventoryDTO;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;

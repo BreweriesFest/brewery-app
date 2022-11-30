@@ -1,4 +1,4 @@
-package com.brewery.app.inventory.config;
+package com.brewery.app.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

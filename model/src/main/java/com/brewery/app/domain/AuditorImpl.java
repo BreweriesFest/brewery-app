@@ -1,4 +1,4 @@
-package com.brewery.app.inventory.domain;
+package com.brewery.app.domain;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.ReactiveAuditorAware;

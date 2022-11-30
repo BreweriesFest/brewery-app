@@ -1,4 +1,4 @@
-package com.brewery.app.inventory.config;
+package com.brewery.app.config;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;

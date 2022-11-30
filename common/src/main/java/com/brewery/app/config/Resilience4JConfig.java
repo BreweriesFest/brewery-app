@@ -1,4 +1,4 @@
-package com.brewery.app.inventory.config;
+package com.brewery.app.config;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.retry.Retry;
