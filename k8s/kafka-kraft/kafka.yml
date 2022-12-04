@@ -72,7 +72,7 @@ spec:
             claimName: kafka-pv-claim
       containers:
         - name: kafka-container
-          image: shubhamgoel23/kafka-kraft:1.0
+          image: bashj79/kafka-kraft
           ports:
             - containerPort: 9092
             - containerPort: 9093

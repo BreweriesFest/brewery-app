@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 NODE_ID=${HOSTNAME:6}
 LISTENERS="PLAINTEXT://:9092,CONTROLLER://:9093"

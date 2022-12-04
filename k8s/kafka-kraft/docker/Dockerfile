@@ -7,7 +7,7 @@ ENV PATH=${PATH}:${KAFKA_HOME}/bin
 
 LABEL name="kafka" version=${KAFKA_VERSION}
 RUN apk add --no-cache wget \
- && apk add openjdk17
+ && apk add openjdk11
 
 RUN wget -O /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz https://downloads.apache.org/kafka/${KAFKA_VERSION}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz \
  && tar xfz /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -C /opt \
