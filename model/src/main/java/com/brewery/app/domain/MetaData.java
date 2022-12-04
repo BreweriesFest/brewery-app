@@ -1,4 +1,4 @@
-package com.brewery.app.inventory.domain;
+package com.brewery.app.domain;
 
 public record MetaData(String tenantId, String customerId) {
 }

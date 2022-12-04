@@ -1,4 +1,4 @@
-package com.brewery.app.inventory.domain;
+package com.brewery.app.domain;
 
 import lombok.AccessLevel;
 import lombok.Getter;

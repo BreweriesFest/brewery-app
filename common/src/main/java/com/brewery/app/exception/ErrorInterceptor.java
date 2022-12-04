@@ -1,4 +1,4 @@
-package com.brewery.app.inventory.exception;
+package com.brewery.app.exception;
 
 import graphql.ErrorClassification;
 import graphql.ErrorType;
@@ -24,15 +24,16 @@ public class ErrorInterceptor implements WebGraphQlInterceptor {
     @Override
     public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
         return chain.next(request).map(response -> {
-            log.info("[ErrorInterceptor] Intercepting response... ");
-
+            if (response.isValid()) {
+                return response;
+            }
             List<GraphQLError> graphQLErrors = response.getErrors().stream()
                     .filter(responseError -> !(responseError.getErrorType() instanceof ExceptionType))
                     .map(this::resolveException).collect(Collectors.toList());
 
             if (!graphQLErrors.isEmpty()) {
                 log.info("[ErrorInterceptor] Found invalid syntax error! Overriding the message.");
-                return response.transform(builder -> builder.errors(graphQLErrors));
+                return response.transform(builder -> builder.errors(graphQLErrors).build());
             }
 
             return response;

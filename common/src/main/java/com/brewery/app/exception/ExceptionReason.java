@@ -1,4 +1,4 @@
-package com.brewery.app.inventory.exception;
+package com.brewery.app.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

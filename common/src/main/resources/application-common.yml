@@ -1,0 +1,38 @@
+logging:
+  level:
+    root: info
+    web: trace
+  pattern:
+    dateformat: yyyy-MM-dd HH:mm:ss.SSS,${app.default.timezone}
+app:
+  default:
+    timezone: ${APP__TIMEZONE:UTC}
+  circuit-breaker:
+    default:
+      failureRateThreshold: ${CB__DEFAULT__FAILURE_RATE_THRESHOLD:50}
+      permittedNumberOfCallsInHalfOpenState: ${CB__DEFAULT__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:10}
+      slidingWindowSize: ${CB__DEFAULT__SLIDING_WINDOW_SIZE:100}
+      slidingWindowType: ${CB__DEFAULT__SLIDING_WINDOW_TYPE:COUNT_BASED}
+      minimumNumberOfCalls: ${CB__DEFAULT__MIN_NO_OF_CALLS:100}
+      slowCallRateThreshold: ${CB__DEFAULT__SLOW_CALL_RATE_THRESHOLD:100}
+      slowCallDurationThreshold: ${CB__DEFAULT__SLOW_CALL_DURATION_THRESHOLD:60000}
+      maxWaitDurationInHalfOpenState: ${CB__DEFAULT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:100}
+    mongo-service:
+      failureRateThreshold: ${CB__MONGO_SERVICE__FAILURE_RATE_THRESHOLD:10}
+      permittedNumberOfCallsInHalfOpenState: ${CB__MONGO_SERVICE__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:${app.circuit-breaker.default.permittedNumberOfCallsInHalfOpenState}}
+      slidingWindowSize: ${CB__MONGO_SERVICE__SLIDING_WINDOW_SIZE:${app.circuit-breaker.default.slidingWindowSize}}
+      slidingWindowType: ${CB__MONGO_SERVICE__SLIDING_WINDOW_TYPE:${app.circuit-breaker.default.slidingWindowType}}
+      minimumNumberOfCalls: ${CB__MONGO_SERVICE__MIN_NO_OF_CALLS:${app.circuit-breaker.default.minimumNumberOfCalls}}
+      slowCallRateThreshold: ${CB__MONGO_SERVICE__SLOW_CALL_RATE_THRESHOLD:${app.circuit-breaker.default.slowCallRateThreshold}}
+      slowCallDurationThreshold: ${CB__MONGO_SERVICE__SLOW_CALL_DURATION_THRESHOLD:10000}
+      maxWaitDurationInHalfOpenState: ${CB__MONGO_SERVICE__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.circuit-breaker.default.maxWaitDurationInHalfOpenState}}
+  time-limiter:
+    default:
+      timeoutDuration: ${TL__DEFAULT__TIMEOUT_DURATION:1000}
+    mongoService:
+      timeoutDuration: ${TL__MONGO_SERVICE__TIMEOUT_DURATION:5000}
+  retry:
+    default:
+      maxAttempts: ${RT__DEFAULT__MAX_ATTEMPT:3}
+    mongoService:
+      maxAttempts: ${RT__MONGO_SERVICE__MAX_ATTEMPT:${app.retry.default.maxAttempts}}

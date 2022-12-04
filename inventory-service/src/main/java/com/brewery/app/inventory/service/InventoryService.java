@@ -1,9 +1,9 @@
 package com.brewery.app.inventory.service;
 
-import com.brewery.app.inventory.domain.InventoryDTO;
-import com.brewery.app.inventory.domain.QBeerInventory;
+import com.brewery.app.domain.InventoryDTO;
 import com.brewery.app.inventory.mapper.InventoryMapper;
 import com.brewery.app.inventory.repository.BeerInventoryRepository;
+import com.brewery.app.inventory.repository.QBeerInventory;
 import com.brewery.app.inventory.util.ValidationResult;
 import io.github.resilience4j.reactor.retry.RetryOperator;
 import io.github.resilience4j.retry.Retry;
@@ -17,7 +17,7 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import static com.brewery.app.inventory.exception.ExceptionReason.INVALID_SHOPPING_LIST_ID;
+import static com.brewery.app.exception.ExceptionReason.INVALID_SHOPPING_LIST_ID;
 import static com.brewery.app.inventory.util.Validator.validateInventoryDTO;
 
 @Service
@@ -30,7 +30,7 @@ public class InventoryService {
     private final TransactionalOperator transactionalOperator;
     private final ReactiveMongoOperations reactiveMongoOperations;
     private final ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory;
-    private final Retry retry;
+    private final Retry mongoServiceRetryCustomizer;
 
     public Mono<InventoryDTO> saveInventory(InventoryDTO inventoryDTO) {
         // reactiveMongoOperations.upsert();
@@ -54,7 +54,7 @@ public class InventoryService {
                     return rcb.run(it.doFirst(() -> log.info("circuit breaker wrapper")),
                             throwable -> Mono.error(new RuntimeException(throwable.getMessage())));
                 }).doOnError(exc -> log.error("exception", exc))
-                .transformDeferred(RetryOperator.of(Retry.ofDefaults("mongodb")));
+                .transformDeferred(RetryOperator.of(mongoServiceRetryCustomizer));
 
         return validation.then(persist).doOnError(exc -> log.error("exception", exc))
                 // .onErrorResume(throwable -> Mono.error(new BadRequestException(throwable.getMessage())))
