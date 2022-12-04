@@ -33,7 +33,7 @@ public class ErrorInterceptor implements WebGraphQlInterceptor {
 
             if (!graphQLErrors.isEmpty()) {
                 log.info("[ErrorInterceptor] Found invalid syntax error! Overriding the message.");
-                return response.transform(builder -> builder.errors(graphQLErrors));
+                return response.transform(builder -> builder.errors(graphQLErrors).build());
             }
 
             return response;
