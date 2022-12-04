@@ -6,7 +6,9 @@ spring:
     database: inventory
   graphql.graphiql:
     enabled: true
-
+  profiles:
+    include:
+      - common
 management.health.circuitbreakers.enabled: true
 management:
   endpoint:

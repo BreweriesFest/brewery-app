@@ -30,7 +30,7 @@ public class InventoryService {
     private final TransactionalOperator transactionalOperator;
     private final ReactiveMongoOperations reactiveMongoOperations;
     private final ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory;
-    private final Retry retry;
+    private final Retry mongoServiceRetryCustomizer;
 
     public Mono<InventoryDTO> saveInventory(InventoryDTO inventoryDTO) {
         // reactiveMongoOperations.upsert();
@@ -54,7 +54,7 @@ public class InventoryService {
                     return rcb.run(it.doFirst(() -> log.info("circuit breaker wrapper")),
                             throwable -> Mono.error(new RuntimeException(throwable.getMessage())));
                 }).doOnError(exc -> log.error("exception", exc))
-                .transformDeferred(RetryOperator.of(Retry.ofDefaults("mongodb")));
+                .transformDeferred(RetryOperator.of(mongoServiceRetryCustomizer));
 
         return validation.then(persist).doOnError(exc -> log.error("exception", exc))
                 // .onErrorResume(throwable -> Mono.error(new BadRequestException(throwable.getMessage())))

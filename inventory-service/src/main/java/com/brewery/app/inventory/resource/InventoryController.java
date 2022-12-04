@@ -1,7 +1,7 @@
 package com.brewery.app.inventory.resource;
 
-import com.brewery.app.inventory.repository.BeerInventory;
 import com.brewery.app.domain.InventoryDTO;
+import com.brewery.app.inventory.repository.BeerInventory;
 import com.brewery.app.inventory.repository.BeerInventoryRepository;
 import com.brewery.app.inventory.service.InventoryService;
 import lombok.RequiredArgsConstructor;
