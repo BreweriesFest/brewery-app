@@ -10,6 +10,7 @@ import java.util.Map;
 
 import static com.brewery.app.util.AppConstant.CUSTOMER_ID;
 import static com.brewery.app.util.AppConstant.TENANT_ID;
+import static com.brewery.app.util.Helper.getHeader;
 
 @Component
 public class HeaderInterceptor implements WebGraphQlInterceptor {
@@ -17,6 +18,6 @@ public class HeaderInterceptor implements WebGraphQlInterceptor {
     @Override
     public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
         return chain.next(request).contextWrite(__ -> __.putAllMap(Map.of(TENANT_ID,
-                request.getHeaders().getFirst(TENANT_ID), CUSTOMER_ID, request.getHeaders().getFirst(CUSTOMER_ID))));
+                getHeader.apply(request, TENANT_ID), CUSTOMER_ID, getHeader.apply(request, CUSTOMER_ID))));
     }
 }
