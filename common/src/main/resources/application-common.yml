@@ -1,4 +1,12 @@
+logging:
+  level:
+    root: info
+    web: trace
+  pattern:
+    dateformat: yyyy-MM-dd HH:mm:ss.SSS,${app.default.timezone}
 app:
+  default:
+    timezone: ${APP__TIMEZONE:UTC}
   circuit-breaker:
     default:
       failureRateThreshold: ${CB__DEFAULT__FAILURE_RATE_THRESHOLD:50}

@@ -24,6 +24,9 @@ public class ErrorInterceptor implements WebGraphQlInterceptor {
     @Override
     public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
         return chain.next(request).map(response -> {
+            if (response.isValid()) {
+                return response;
+            }
             List<GraphQLError> graphQLErrors = response.getErrors().stream()
                     .filter(responseError -> !(responseError.getErrorType() instanceof ExceptionType))
                     .map(this::resolveException).collect(Collectors.toList());
