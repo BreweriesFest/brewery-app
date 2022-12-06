@@ -1,7 +1,7 @@
 logging:
   level:
     root: info
-    web: trace
+    web: info
   pattern:
     dateformat: yyyy-MM-dd HH:mm:ss.SSS,${app.default.timezone}
 app:
