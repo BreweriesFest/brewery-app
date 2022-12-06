@@ -24,7 +24,7 @@ public abstract class ReactiveConsumerConfig<K, V> {
 
     protected final ReactiveKafkaConsumerTemplate<K, V> reactiveKafkaConsumerTemplate;
 
-    protected final Flux<V> consumedRecord;
+    protected final Flux<ConsumerRecord<K, V>> consumerRecord;
 
     protected ReactiveConsumerConfig(KafkaProperties kafkaProperties, Class<?> serializer, Class<?> deSerializer,
             MeterRegistry meterRegistry) {
@@ -32,20 +32,23 @@ public abstract class ReactiveConsumerConfig<K, V> {
         MicrometerConsumerListener<K, V> micro = new MicrometerConsumerListener<K, V>(meterRegistry);
         reactiveKafkaConsumerTemplate = new ReactiveKafkaConsumerTemplate<>(kafkaReceiverOptions);
 
-        consumedRecord = reactiveKafkaConsumerTemplate
+        consumerRecord = reactiveKafkaConsumerTemplate
                 // .assignment().flatMap(a->reactiveKafkaConsumerTemplate.resume(a)).subscribe()
-                .receiveAutoAck().publishOn(Schedulers.boundedElastic())
+                .receiveAutoAck()
+                // .publishOn(Schedulers.boundedElastic())
                 // .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
                 .doOnNext(consumerRecord -> log.info("received key={}, value={} from topic={}, offset={}",
                         consumerRecord.key(), consumerRecord.value(), consumerRecord.topic(), consumerRecord.offset()))
-                .map(ConsumerRecord::value).doOnSubscribe(subs -> {
+                // .map(ConsumerRecord::value)
+                .doOnSubscribe(subs -> {
                     reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
                         micro.consumerAdded("myConsumer", consumer);
                         return Mono.empty();
                     }).subscribe();
                 })
-                .doOnNext(fakeConsumerDTO -> log.info("successfully consumed {}={}", InventoryDTO.class.getSimpleName(),
-                        fakeConsumerDTO))
+                // .doOnNext(fakeConsumerDTO -> log.info("successfully consumed {}={}",
+                // InventoryDTO.class.getSimpleName(),
+                // fakeConsumerDTO))
                 .doOnError(
                         throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()));
 

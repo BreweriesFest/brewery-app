@@ -3,6 +3,7 @@ package com.brewery.app.inventory.kafka;
 import com.brewery.app.domain.InventoryDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
@@ -20,9 +21,10 @@ public class ReactiveConsumerService {
     private Disposable.Composite disposables = Disposables.composite();
 
     @Bean
-    ApplicationListener<ApplicationReadyEvent> factoryBeanListener(Flux<InventoryDTO> reactiveKafkaConsumer) {
+    ApplicationListener<ApplicationReadyEvent> factoryBeanListener(
+            Flux<ConsumerRecord<String, InventoryDTO>> reactiveKafkaConsumer) {
         return event -> disposables.add(reactiveKafkaConsumer
-                .subscribe((c) -> log.info("processing record", c.beerId()), err -> log.error("err")));
+                .subscribe((c) -> log.info("processing record::{}", c.value()), err -> log.error("err")));
     }
 
     @PreDestroy
