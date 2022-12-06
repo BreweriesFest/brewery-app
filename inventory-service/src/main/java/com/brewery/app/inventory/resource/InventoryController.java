@@ -1,6 +1,7 @@
 package com.brewery.app.inventory.resource;
 
 import com.brewery.app.domain.InventoryDTO;
+import com.brewery.app.inventory.kafka.ReactiveProducerService;
 import com.brewery.app.inventory.repository.BeerInventory;
 import com.brewery.app.inventory.repository.BeerInventoryRepository;
 import com.brewery.app.inventory.service.InventoryService;
@@ -33,10 +34,12 @@ public class InventoryController {
     private final TransactionalOperator transactionalOperator;
 
     private final InventoryService inventoryService;
+    private final ReactiveProducerService reactiveProducerService;
 
     @GetMapping("/save")
     public Mono<BeerInventory> saveInventory() {
         log.info("inside controller {}", Thread.currentThread().getName());
+
         var uuidMono = uuid.get();
         uuidMono.flatMap(strg -> Mono.just(BeerInventory.builder().upc(strg).build()));
         return uuidMono.map(uuid -> BeerInventory.builder().upc("upc").beerId(uuid).quantityOnHand(10).build())
@@ -79,6 +82,7 @@ public class InventoryController {
 
     @MutationMapping
     Mono<InventoryDTO> addInventory(@Argument InventoryDTO inventory) {
+        reactiveProducerService.send(inventory);
         return inventoryService.saveInventory(inventory);
     }
 

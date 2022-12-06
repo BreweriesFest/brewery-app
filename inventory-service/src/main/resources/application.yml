@@ -44,3 +44,5 @@ server:
     mime-types: application/json
     min-response-size: 2KB
   use-forward-headers: true
+
+  spring.kafka.bootstrap-servers: localhost:9092
