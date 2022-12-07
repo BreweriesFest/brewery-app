@@ -4,6 +4,7 @@ import com.brewery.app.domain.Record;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.kafka.core.MicrometerProducerListener;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import reactor.kafka.sender.SenderOptions;
 
@@ -11,13 +12,13 @@ import java.util.Map;
 
 public abstract class ReactiveProducerConfig<K, V extends Record<K>> {
 
-    protected ReactiveKafkaProducerTemplate<K, V> reactiveKafkaProducerTemplate;
-    protected MeterRegistry meterRegistry;
-    protected String topic;
+    protected final ReactiveKafkaProducerTemplate<K, V> reactiveKafkaProducerTemplate;
+    protected final MicrometerProducerListener<K, V> micrometerProducerListener;
+    protected final String topic;
 
     ReactiveProducerConfig(KafkaProperties kafkaProperties, Class<?> serializer, Class<?> deSerializer,
             MeterRegistry meterRegistry) {
-        this.meterRegistry = meterRegistry;
+        this.micrometerProducerListener = new MicrometerProducerListener<>(meterRegistry);
         this.topic = "test";
         Map<String, Object> props = kafkaProperties.buildProducerProperties();
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, serializer);

@@ -82,8 +82,7 @@ public class InventoryController {
 
     @MutationMapping
     Mono<InventoryDTO> addInventory(@Argument InventoryDTO inventory) {
-        reactiveProducerService.send(inventory, Map.of());
-        return inventoryService.saveInventory(inventory);
+        return reactiveProducerService.send(inventory, Map.of()).then(inventoryService.saveInventory(inventory));
     }
 
     record Beer(String beerId) {
