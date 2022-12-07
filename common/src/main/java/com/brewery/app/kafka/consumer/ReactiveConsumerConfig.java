@@ -1,30 +1,29 @@
-package com.brewery.app.kafka;
+package com.brewery.app.kafka.consumer;
 
-import com.brewery.app.domain.InventoryDTO;
+import com.brewery.app.domain.Record;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.kafka.core.MicrometerConsumerListener;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.kafka.receiver.ReceiverOptions;
+import reactor.kafka.receiver.ReceiverRecord;
 
 import java.util.Collections;
 import java.util.Map;
 
 @Getter
 @Slf4j
-public abstract class ReactiveConsumerConfig<K, V> {
+public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 
     protected final ReactiveKafkaConsumerTemplate<K, V> reactiveKafkaConsumerTemplate;
 
-    protected final Flux<ConsumerRecord<K, V>> consumerRecord;
+    protected final Flux<ReceiverRecord<K, V>> receiverRecordFlux;
 
     protected ReactiveConsumerConfig(KafkaProperties kafkaProperties, Class<?> serializer, Class<?> deSerializer,
             MeterRegistry meterRegistry) {
@@ -32,9 +31,9 @@ public abstract class ReactiveConsumerConfig<K, V> {
         MicrometerConsumerListener<K, V> micro = new MicrometerConsumerListener<K, V>(meterRegistry);
         reactiveKafkaConsumerTemplate = new ReactiveKafkaConsumerTemplate<>(kafkaReceiverOptions);
 
-        consumerRecord = reactiveKafkaConsumerTemplate
+        receiverRecordFlux = reactiveKafkaConsumerTemplate
                 // .assignment().flatMap(a->reactiveKafkaConsumerTemplate.resume(a)).subscribe()
-                .receiveAutoAck()
+                .receive()
                 // .publishOn(Schedulers.boundedElastic())
                 // .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
                 .doOnNext(consumerRecord -> log.info("received key={}, value={} from topic={}, offset={}",
@@ -50,7 +49,8 @@ public abstract class ReactiveConsumerConfig<K, V> {
                 // InventoryDTO.class.getSimpleName(),
                 // fakeConsumerDTO))
                 .doOnError(
-                        throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()));
+                        throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()))
+                .retry(2);
 
     }
 
@@ -61,7 +61,10 @@ public abstract class ReactiveConsumerConfig<K, V> {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deSerializer);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "test_consumer_group");
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        return ReceiverOptions.<K, V> create(props).subscription(Collections.singletonList("test"));
+        return ReceiverOptions.<K, V> create(props)
+                .addAssignListener(receiverPartitions -> log.info("assigned partition {}", receiverPartitions))
+                .addRevokeListener(receiverPartitions -> log.info("revoke partition {}", receiverPartitions))
+                .subscription(Collections.singletonList("test"));
     }
 
 }

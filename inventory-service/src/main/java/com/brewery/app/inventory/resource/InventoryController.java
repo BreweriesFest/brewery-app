@@ -1,10 +1,10 @@
 package com.brewery.app.inventory.resource;
 
 import com.brewery.app.domain.InventoryDTO;
-import com.brewery.app.inventory.kafka.ReactiveProducerService;
 import com.brewery.app.inventory.repository.BeerInventory;
 import com.brewery.app.inventory.repository.BeerInventoryRepository;
 import com.brewery.app.inventory.service.InventoryService;
+import com.brewery.app.kafka.producer.ReactiveProducerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -34,7 +34,7 @@ public class InventoryController {
     private final TransactionalOperator transactionalOperator;
 
     private final InventoryService inventoryService;
-    private final ReactiveProducerService reactiveProducerService;
+    private final ReactiveProducerService<String, InventoryDTO> reactiveProducerService;
 
     @GetMapping("/save")
     public Mono<BeerInventory> saveInventory() {
@@ -82,7 +82,7 @@ public class InventoryController {
 
     @MutationMapping
     Mono<InventoryDTO> addInventory(@Argument InventoryDTO inventory) {
-        reactiveProducerService.send(inventory);
+        reactiveProducerService.send(inventory, Map.of());
         return inventoryService.saveInventory(inventory);
     }
 
