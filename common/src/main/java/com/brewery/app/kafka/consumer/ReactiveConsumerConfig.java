@@ -11,24 +11,30 @@ import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.kafka.receiver.ReceiverOptions;
 import reactor.kafka.receiver.ReceiverRecord;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
+
+import static com.brewery.app.util.AppConstant.CUSTOMER_ID;
+import static com.brewery.app.util.AppConstant.TENANT_ID;
 
 @Getter
 @Slf4j
 public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 
     protected final ReactiveKafkaConsumerTemplate<K, V> reactiveKafkaConsumerTemplate;
+    protected final MicrometerConsumerListener<K, V> micrometerConsumerListener;
 
     protected final Flux<ReceiverRecord<K, V>> receiverRecordFlux;
 
     protected ReactiveConsumerConfig(KafkaProperties kafkaProperties, Class<?> serializer, Class<?> deSerializer,
             MeterRegistry meterRegistry) {
         var kafkaReceiverOptions = kafkaReceiverOptions(kafkaProperties, serializer, deSerializer);
-        MicrometerConsumerListener<K, V> micro = new MicrometerConsumerListener<K, V>(meterRegistry);
+        micrometerConsumerListener = new MicrometerConsumerListener<>(meterRegistry);
         reactiveKafkaConsumerTemplate = new ReactiveKafkaConsumerTemplate<>(kafkaReceiverOptions);
 
         receiverRecordFlux = reactiveKafkaConsumerTemplate
@@ -36,12 +42,44 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
                 .receive()
                 // .publishOn(Schedulers.boundedElastic())
                 // .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
-                .doOnNext(consumerRecord -> log.info("received key={}, value={} from topic={}, offset={}",
-                        consumerRecord.key(), consumerRecord.value(), consumerRecord.topic(), consumerRecord.offset()))
+                .doOnNext(consumerRecord -> {
+                    log.info("received key={}, value={} from topic={}, offset={}", consumerRecord.key(),
+                            consumerRecord.value(), consumerRecord.topic(), consumerRecord.offset());
+                })
                 // .map(ConsumerRecord::value)
                 .doOnSubscribe(subs -> {
                     reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
-                        micro.consumerAdded("myConsumer", consumer);
+                        micrometerConsumerListener.consumerAdded("myConsumer", consumer);
+                        return Mono.empty();
+                    }).subscribe();
+                })
+                // .doOnNext(fakeConsumerDTO -> log.info("successfully consumed {}={}",
+                // InventoryDTO.class.getSimpleName(),
+                // fakeConsumerDTO))
+                .doOnError(
+                        throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()))
+                .retry(2);
+
+    }
+
+    public <T> Flux<T> consumerRecord(Function<ReceiverRecord<K, V>, Mono<T>> input) {
+        return reactiveKafkaConsumerTemplate
+                // .assignment().flatMap(a->reactiveKafkaConsumerTemplate.resume(a)).subscribe()
+                .receive().publishOn(Schedulers.boundedElastic())
+                // .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
+                .doOnNext(consumerRecord -> {
+                    log.info("received key={}, value={} from topic={}, offset={}", consumerRecord.key(),
+                            consumerRecord.value(), consumerRecord.topic(), consumerRecord.offset());
+                })
+                // .map(ConsumerRecord::value)
+                .flatMap(
+                        rec -> input.apply(rec)
+                                .contextWrite(__ -> __.putAllMap(Map.of(TENANT_ID,
+                                        new String(rec.headers().lastHeader(TENANT_ID).value()), CUSTOMER_ID,
+                                        new String(rec.headers().lastHeader(CUSTOMER_ID).value())))))
+                .doOnSubscribe(subs -> {
+                    reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
+                        micrometerConsumerListener.consumerAdded("myConsumer", consumer);
                         return Mono.empty();
                     }).subscribe();
                 })
