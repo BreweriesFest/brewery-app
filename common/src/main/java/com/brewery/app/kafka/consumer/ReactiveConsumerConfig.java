@@ -62,7 +62,7 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 
     }
 
-    public <T> Flux<T> consumerRecord(Function<ReceiverRecord<K, V>, Mono<T>> input) {
+    public Flux<ReceiverRecord<K, V>> consumerRecord(Function<ReceiverRecord<K, V>, Mono<ReceiverRecord<K, V>>> input) {
         return reactiveKafkaConsumerTemplate
                 // .assignment().flatMap(a->reactiveKafkaConsumerTemplate.resume(a)).subscribe()
                 .receive().publishOn(Schedulers.boundedElastic())
@@ -82,7 +82,7 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
                         micrometerConsumerListener.consumerAdded("myConsumer", consumer);
                         return Mono.empty();
                     }).subscribe();
-                })
+                }).doOnNext(receiverRecordFlux -> receiverRecordFlux.receiverOffset().acknowledge())
                 // .doOnNext(fakeConsumerDTO -> log.info("successfully consumed {}={}",
                 // InventoryDTO.class.getSimpleName(),
                 // fakeConsumerDTO))

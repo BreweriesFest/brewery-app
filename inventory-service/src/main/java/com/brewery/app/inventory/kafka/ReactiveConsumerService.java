@@ -22,16 +22,17 @@ import static com.brewery.app.util.AppConstant.TENANT_ID;
 @RequiredArgsConstructor
 @Slf4j
 public class ReactiveConsumerService {
-    Function<ReceiverRecord<String, InventoryDTO>, Mono<Void>> processRecord = record -> Mono.deferContextual(ctx -> {
-        String tenant = ctx.get(TENANT_ID);
-        log.info("getting context:: {}", tenant);
-        return Mono.just(record);
-    }).flatMap(receiverRecord1 -> {
-        log.info("consumeing");
-        return Mono.empty();
-    }
+    Function<ReceiverRecord<String, InventoryDTO>, Mono<ReceiverRecord<String, InventoryDTO>>> processRecord = record -> Mono
+            .deferContextual(ctx -> {
+                String tenant = ctx.get(TENANT_ID);
+                log.info("getting context:: {}", tenant);
+                return Mono.just(record);
+            }).map(receiverRecord1 -> {
+                log.info("consumeing");
+                return receiverRecord1;
+            }
 
-    );
+            );
     private Disposable.Composite disposables = Disposables.composite();
 
     @Bean
