@@ -36,3 +36,14 @@ app:
       maxAttempts: ${RT__DEFAULT__MAX_ATTEMPT:3}
     mongoService:
       maxAttempts: ${RT__MONGO_SERVICE__MAX_ATTEMPT:${app.retry.default.maxAttempts}}
+
+  kafka:
+    inventory:
+      producer:
+        bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
+        topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:test}
+        idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
+      consumer:
+        bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:localhost:9092}
+        topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:test}
+        consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:test-consumer-group}

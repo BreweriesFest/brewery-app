@@ -1,9 +1,9 @@
 package com.brewery.app.kafka.producer;
 
 import com.brewery.app.domain.Record;
+import com.brewery.app.properties.kafka.KafkaProducerProps;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
@@ -22,8 +22,11 @@ import static com.brewery.app.util.AppConstant.TENANT_ID;
 @Slf4j
 public abstract class ReactiveProducerServiceImpl<K, V extends Record<K>> extends ReactiveProducerConfig<K, V>
         implements ReactiveProducerService<K, V> {
-    protected ReactiveProducerServiceImpl(KafkaProperties kafkaProperties, Class<?> serializer, Class<?> deSerializer,
-            MeterRegistry meterRegistry) {
+
+    private static final String PRODUCER = "producer_";
+
+    protected ReactiveProducerServiceImpl(KafkaProducerProps kafkaProperties, Class<?> serializer,
+            Class<?> deSerializer, MeterRegistry meterRegistry) {
         super(kafkaProperties, serializer, deSerializer, meterRegistry);
     }
 
@@ -31,9 +34,7 @@ public abstract class ReactiveProducerServiceImpl<K, V extends Record<K>> extend
     public Mono<SenderResult<Void>> send(V value, Map<String, Object> header) {
         // put tenant, banner, key in headers
         // get tenant banner from reactive context
-        var clazz = (Class<V>) Arrays
-                .stream(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments())
-                .reduce((first, second) -> second).orElse(null);
+        Class<V> clazz = getClazz();
 
         return Mono.deferContextual(ctx -> Mono.just(MessageBuilder.withPayload(value)
                 .copyHeaders(generateHeaders(value.key(), ctx.get(TENANT_ID), ctx.get(CUSTOMER_ID), header)).build()))
@@ -47,7 +48,7 @@ public abstract class ReactiveProducerServiceImpl<K, V extends Record<K>> extend
                         senderResult -> log.info("sent {} offset : {}", msg, senderResult.recordMetadata().offset()))
                 .doOnSubscribe(subs -> {
                     reactiveKafkaProducerTemplate.doOnProducer(producer -> {
-                        micrometerProducerListener.producerAdded("myProducer", producer);
+                        micrometerProducerListener.producerAdded(PRODUCER + topic, producer);
                         return Mono.empty();
                     }).subscribe();
                 });
@@ -56,9 +57,17 @@ public abstract class ReactiveProducerServiceImpl<K, V extends Record<K>> extend
     Map<String, Object> generateHeaders(K key, String tenantId, String customerId, Map<String, Object> customHeaders) {
         var header = new HashMap<String, Object>();
         header.put(KafkaHeaders.MESSAGE_KEY, key);
+        // header.put(KafkaHeaders.TOPIC, "test");
         header.put(TENANT_ID, tenantId);
         header.put(CUSTOMER_ID, customerId);
         header.putAll(customHeaders);
         return header;
     }
+
+    public <T> Class<T> getClazz() {
+        return (Class<T>) Arrays
+                .stream(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments())
+                .reduce((first, second) -> second).orElse(null);
+    }
+
 }
