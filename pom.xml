@@ -30,7 +30,7 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <owasp-html-sanitizer.version>20220608.1</owasp-html-sanitizer.version>
         <formatter-maven-plugin.version>2.21.0</formatter-maven-plugin.version>
-        <dependency-check-maven.version>7.4.0</dependency-check-maven.version>
+        <dependency-check-maven.version>7.4.1</dependency-check-maven.version>
         <bcpkix-jdk15on.version>1.70</bcpkix-jdk15on.version>
         <guava.version>31.1-jre</guava.version>
         <jacoco.version>0.8.8</jacoco.version>
@@ -287,13 +287,13 @@
                     <skipRuntimeScope>true</skipRuntimeScope>
                     <failBuildOnCVSS>10</failBuildOnCVSS>
                 </configuration>
-                <!--				<executions>-->
-                <!--					<execution>-->
-                <!--						<goals>-->
-                <!--							<goal>check</goal>-->
-                <!--						</goals>-->
-                <!--					</execution>-->
-                <!--				</executions>-->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
