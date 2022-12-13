@@ -18,6 +18,7 @@
         <module>common</module>
         <module>model</module>
         <module>inventory-service</module>
+        <module>beer-service</module>
     </modules>
     <properties>
         <!--suppress UnresolvedMavenProperty -->

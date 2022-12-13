@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: beer-service
+  data.mongodb:
+    authentication-database: admin
+    username: username
+    password: password
+    database: beer
+  graphql.graphiql:
+    enabled: true
+  profiles:
+    include:
+      - common
+management.health.circuitbreakers.enabled: true
+management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoint:
+    health:
+      show-details: always
+    probes:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  info:
+    java:
+      enabled: true
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+server:
+  shutdown: graceful
+  port: 8080
+  error:
+    whitelabel:
+      enabled: false
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 2KB
+  use-forward-headers: true
+
+  spring.kafka.bootstrap-servers: localhost:9092

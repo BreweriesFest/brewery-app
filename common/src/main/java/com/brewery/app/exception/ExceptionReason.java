@@ -18,6 +18,8 @@ public enum ExceptionReason implements ErrorPolicy {
             ExceptionType.ValidationException),
     SPECIAL_CHARACTERS_NOT_ALLOWED("Special Characters are not allowed as input", HttpStatus.BAD_REQUEST,
             ExceptionType.ValidationException),
+    BEER_ALREADY_PRESENT("Beer already present", HttpStatus.BAD_REQUEST, ExceptionType.ValidationException),
+    BEER_NOT_FOUND("Beer not found", HttpStatus.BAD_REQUEST, ExceptionType.ValidationException),
     INTERNAL_SERVER_ERROR("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, ExceptionType.ServerException),
     CUSTOMIZE_REASON("%s", HttpStatus.BAD_REQUEST, ExceptionType.ValidationException);
 
