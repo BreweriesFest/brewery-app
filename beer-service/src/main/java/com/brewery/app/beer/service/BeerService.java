@@ -26,7 +26,8 @@ public class BeerService {
     public Mono<BeerDto> findBeerById(String beerId) {
         return Mono.deferContextual(ctx -> {
             QBeer qBeer = QBeer.beer;
-            return beerRepository.findOne((qBeer.id.eq(beerId)).and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID))));
+            return beerRepository.findOne((qBeer.id.eq(beerId)).and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID)))
+                    .and(qBeer.active.eq(true)));
         }).switchIfEmpty(Mono.just(new Beer())).map(beerMapper::fromBeer);
     }
 
@@ -51,29 +52,30 @@ public class BeerService {
 
         return Mono.deferContextual(ctx -> {
             QBeer qBeer = QBeer.beer;
-            return beerRepository.findOne((qBeer.id.eq(beerId)).and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID))));
+            return beerRepository.findOne((qBeer.id.eq(beerId)).and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID)))
+                    .and(qBeer.active.eq(true)));
         }).switchIfEmpty(Mono.error(new BusinessException(BEER_NOT_FOUND)))
                 .map(beer -> beerMapper.fromBeerDto(beerDto, beer)).flatMap(beerRepository::save)
                 .map(beerMapper::fromBeer);
     }
 
-    public Mono<Void> deleteById(String beerId) {
+    public Mono<String> deleteById(String beerId) {
         return Mono.deferContextual(ctx -> {
             QBeer qBeer = QBeer.beer;
-            return beerRepository.exists((qBeer.id.eq(beerId)).and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID))));
+            return beerRepository.exists((qBeer.id.eq(beerId)).and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID)))
+                    .and(qBeer.active.eq(true)));
         }).flatMap(__ -> {
             if (__.booleanValue())
-                return beerRepository.deleteById(beerId);
+                return beerRepository.deleteById(beerId).map(___ -> beerId);
             return Mono.error(new BusinessException(BEER_NOT_FOUND));
-
         });
     }
 
     public Mono<BeerDto> findBeerByUpc(String upc) {
         return Mono.deferContextual(ctx -> {
             QBeer qBeer = QBeer.beer;
-            return beerRepository
-                    .findOne((qBeer.upc.equalsIgnoreCase(upc)).and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID))));
+            return beerRepository.findOne((qBeer.upc.equalsIgnoreCase(upc))
+                    .and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID))).and(qBeer.active.eq(true)));
         }).switchIfEmpty(Mono.just(new Beer())).map(beerMapper::fromBeer);
     }
 }

@@ -27,8 +27,18 @@ public class BeerController {
         return beerService.updateBeer(beerId, beerDto);
     }
 
+    @MutationMapping
+    Mono<String> deleteBeer(@Argument String beerId) {
+        return beerService.deleteById(beerId);
+    }
+
     @QueryMapping
-    Mono<String> hello() {
-        return Mono.just("hello graphql");
+    Mono<BeerDto> findBeerByUpc(@Argument String upc) {
+        return beerService.findBeerByUpc(upc);
+    }
+
+    @QueryMapping
+    Mono<BeerDto> findBeerById(@Argument String id) {
+        return beerService.findBeerByUpc(id);
     }
 }

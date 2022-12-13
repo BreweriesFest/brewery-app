@@ -1,9 +1,11 @@
 type Query {
-hello: String
+    findBeerByUpc(upc:String!): BeerOut
+    findBeerById(id:String!): BeerOut
 }
 type Mutation {
     addBeer(beerDto:BeerIn!): BeerOut
     updateBeer(beerId:String!, beerDto:BeerIn!): BeerOut
+    deleteBeer(beerId:String!): String
 }
 
 input BeerIn {
