@@ -1,4 +1,4 @@
-package com.brewery.app.order.repository;
+package com.brewery.app.model;
 
 public enum OrderStatus {
     NEW, CANCELLED, PENDING_VALIDATION, VALIDATED, VALIDATION_EXCEPTION, PENDING_ALLOCATION, ALLOCATED,

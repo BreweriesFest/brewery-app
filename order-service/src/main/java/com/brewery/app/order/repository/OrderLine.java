@@ -1,9 +1,11 @@
 package com.brewery.app.order.repository;
 
 import com.brewery.app.domain.Auditable;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 @Getter
 @NoArgsConstructor
@@ -16,8 +18,4 @@ public class OrderLine extends Auditable {
     private int orderQuantity = 0;
     @Builder.Default
     private int quantityAllocated = 0;
-
-    @Setter
-    @DocumentReference
-    private Order order;
 }

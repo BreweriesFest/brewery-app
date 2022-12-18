@@ -1,8 +1,8 @@
 type Query {
-    listOrderLine(orderId:String): [OrderLineDtoOut]
+    findOrder(orderId:[String]): [OrderDtoOut]
 }
 type Mutation {
-    placeOrder(orderDto:OrderDtoIn!): OrderDtoOut
+    placeOrder(orderLines:[OrderLineDtoIn]!): OrderDtoOut
 }
 
 input OrderDtoIn {
@@ -12,12 +12,11 @@ input OrderDtoIn {
 input OrderLineDtoIn {
     beerId: String
     orderQuantity: Int
-    quantityAllocated: Int
 }
 
 type OrderDtoOut {
     id: ID
-    orderLineSet: [OrderLineDtoOut]
+    orderLine: [OrderLineDtoOut]
     status: OrderStatus
 }
 

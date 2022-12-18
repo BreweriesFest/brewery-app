@@ -8,8 +8,7 @@ import org.springframework.data.annotation.*;
 @Getter
 public abstract class Auditable {
     @Id
-    @Setter
-    private String id;
+    protected String id;
     @Version
     private Integer version;
     @CreatedDate

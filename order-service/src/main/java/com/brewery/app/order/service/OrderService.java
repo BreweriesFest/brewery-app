@@ -1,19 +1,23 @@
 package com.brewery.app.order.service;
 
-import com.brewery.app.order.dto.OrderDto;
+import com.brewery.app.model.OrderDto;
+import com.brewery.app.model.OrderLineDto;
 import com.brewery.app.order.mapper.OrderMapper;
-import com.brewery.app.order.repository.OrderLine;
-import com.brewery.app.order.repository.OrderLineRepository;
-import com.brewery.app.order.repository.OrderRepository;
-import com.brewery.app.order.repository.QOrder;
+import com.brewery.app.order.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.util.UUID;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.brewery.app.model.OrderStatus.NEW;
 
 @Service
 @RequiredArgsConstructor
@@ -25,35 +29,30 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderLineRepository orderLineRepository;
 
-    // BeerOrderPagedList listOrders(UUID customerId, Pageable pageable);
-    //
-    public Mono<OrderDto> placeOrder(OrderDto orderDto) {
-
-        return Mono.just(orderDto).map(__ -> orderDto.orderLineSet()).map(orderMapper::fromOrderLineDto).map(__ -> {
-            for (OrderLine ___ : __) {
-                var res = orderMapper.fromOrderDto(orderDto);
-                res.setId(UUID.randomUUID().toString());
-                ___.setOrder(res);
-            }
-            return __;
-        }).map(__ -> orderLineRepository.saveAll(__)).flatMap(__ -> __.collectList()).map(__ -> {
-            var res = __.stream().findAny().map(___ -> ___.getOrder()).orElse(orderMapper.fromOrderDto(orderDto));
-            res.setOrderLineSet(__.stream().collect(Collectors.toSet()));
-            return res;
-        }).flatMap(orderRepository::save).map(orderMapper::fromOrder);
+    public Mono<OrderDto> placeOrder(Collection<OrderLineDto> orderLineDtos) {
+        var orderLineMono = Mono.just(orderLineDtos).map(orderMapper::fromOrderLineDto)
+                .map(orderLineRepository::saveAll);
+        return orderLineMono.flatMap(__ -> __.collectList())
+                .map(__ -> __.stream().map(OrderLine::getId).collect(Collectors.toList()))
+                .flatMap(__ -> orderRepository.save(Order.builder().orderLineId(__).status(NEW).build()))
+                .map(orderMapper::fromOrder).subscribeOn(Schedulers.boundedElastic());
     }
 
-    public Flux<OrderLine> findOrderLineByOrderId(String orderId) {
+    public Flux<OrderDto> findOrderById(List<String> orderId) {
         QOrder qOrder = QOrder.order;
-        return orderRepository.findAll(qOrder.id.eq(orderId)).map(order -> {
-            var res = order.getOrderLineSet();
-            return res;
-        }).flatMap(o -> Flux.fromIterable(o));
-        // return res.map(orderLines -> orderMapper.fromOrderLine(orderLines))
-        // .flatMap(orderLineDtos -> Flux.fromIterable(orderLineDtos));
+        return orderRepository.findAll(qOrder.id.in(orderId)).map(__ -> orderMapper.fromOrder(__));
     }
-    //
-    // BeerOrderDto getOrderById(UUID customerId, UUID orderId);
-    //
-    // void pickupOrder(UUID customerId, UUID orderId);
+
+    public Mono<Map<OrderDto, List<OrderLineDto>>> orderLine(List<OrderDto> orders) {
+        QOrderLine orderLine = QOrderLine.orderLine;
+
+        var orderLines = Flux.fromIterable(orders).map(OrderDto::orderLineId)
+                .flatMap(__ -> orderLineRepository.findAll(orderLine.id.in(__)));
+        return orderLines.collectList()
+                .map(__ -> orders.stream()
+                        .collect(Collectors.toMap(Function.identity(),
+                                o -> __.stream().filter(___ -> o.orderLineId().contains(___.getId()))
+                                        .map(orderMapper::fromOrderLine).collect(Collectors.toList()))));
+    }
+
 }

@@ -5,4 +5,6 @@ import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor;
 
 public interface OrderLineRepository
         extends ReactiveMongoRepository<OrderLine, String>, ReactiveQuerydslPredicateExecutor<OrderLine> {
+
+    // Flux<OrderLine> findAllByOrderIdIn(List<ObjectId> o);
 }
