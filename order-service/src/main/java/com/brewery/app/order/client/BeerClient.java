@@ -10,6 +10,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -23,7 +24,8 @@ public class BeerClient {
 
     private final HttpGraphQlClient httpGraphQlClient;
 
-    public BeerClient(@Value("") String url, WebClient webClient, HttpGraphQlClient httpGraphQlClient) {
+    public BeerClient(@Value("${app.client.beer.url}") String url, WebClient webClient,
+            HttpGraphQlClient httpGraphQlClient) {
         this.url = url;
         this.webClient = webClient;
         this.httpGraphQlClient = httpGraphQlClient;
@@ -31,14 +33,23 @@ public class BeerClient {
 
     public Mono<Collection<BeerDto>> getAllBeer() throws IOException {
 
-        final String query = GraphqlSchemaReaderUtil.getSchemaFromFileName("findBeer/findAllBeer");
+        final String query = GraphqlSchemaReaderUtil.getSchemaFromFileName("client/findBeer/findAllBeer");
 
         var request = GraphqlRequest.builder().query(query).build();
 
-        httpGraphQlClient.document(query).retrieve("");
+        return httpGraphQlClient.mutate().url(url).headers(httpHeaders -> {
+            httpHeaders.add("tenantId", "txt");
+            httpHeaders.add("customerId", "test");
+        }).build().document(query).retrieve("data").toEntity(new ParameterizedTypeReference<>() {
+        });
 
-        return webClient.post().uri(url).bodyValue(request).retrieve()
-                .bodyToMono(new ParameterizedTypeReference<GraphqlResponse<Collection<BeerDto>>>() {
-                }).map(GraphqlResponse::getData).map(GraphqlResponse.Data::getData);
+        // return webClient.post().uri(url).bodyValue(request)
+        // .headers(httpHeaders -> {
+        // httpHeaders.add("tenantId","txt");
+        // httpHeaders.add("customerId","test");
+        // })
+        // .retrieve()
+        // .bodyToMono(new ParameterizedTypeReference<GraphqlResponse<Collection<BeerDto>>>() {})
+        // .map(GraphqlResponse::getData).map(GraphqlResponse.Data::getData);
     }
 }
