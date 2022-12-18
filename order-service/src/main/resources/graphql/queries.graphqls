@@ -1,0 +1,32 @@
+type Query {
+    findOrder(orderId:[String]): [OrderDtoOut]
+}
+type Mutation {
+    placeOrder(orderLines:[OrderLineDtoIn]!): OrderDtoOut
+}
+
+input OrderDtoIn {
+    orderLineSet: [OrderLineDtoIn]!
+}
+
+input OrderLineDtoIn {
+    beerId: String
+    orderQuantity: Int
+}
+
+type OrderDtoOut {
+    id: ID
+    orderLine: [OrderLineDtoOut]
+    status: OrderStatus
+}
+
+type OrderLineDtoOut {
+    beerId: String
+    orderQuantity: Int
+    quantityAllocated: Int
+}
+
+enum OrderStatus {
+    NEW, CANCELLED, PENDING_VALIDATION, VALIDATED, VALIDATION_EXCEPTION, PENDING_ALLOCATION, ALLOCATED,
+        ALLOCATION_ERROR, PENDING_INVENTORY, PICKED_UP, DELIVERED, DELIVERY_EXCEPTION
+}
