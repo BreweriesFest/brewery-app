@@ -44,6 +44,11 @@ public class OrderController {
         return orderService.orderLine(orders);
     }
 
+    @BatchMapping(typeName = "OrderLineDtoOut")
+    public Mono<Map<OrderLineDto, BeerDto>> beer(List<OrderLineDto> orders) {
+        return orderService.beer(orders);
+    }
+
     @GetMapping("/beer")
     public Mono<Collection<BeerDto>> getAll() throws IOException {
         return beerClient.getAllBeer();
