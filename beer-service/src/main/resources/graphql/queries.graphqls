@@ -1,6 +1,7 @@
 type Query {
-    findBeerByUpc(upc:String!): BeerOut
-    findBeerById(id:String!): BeerOut
+    beerByUpc(upc:String!): BeerOut
+    beerById(id:String!): BeerOut
+    beer:[BeerOut]
 }
 type Mutation {
     addBeer(beerDto:BeerIn!): BeerOut

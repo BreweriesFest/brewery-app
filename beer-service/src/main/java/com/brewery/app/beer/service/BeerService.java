@@ -10,6 +10,7 @@ import com.brewery.app.model.BeerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static com.brewery.app.exception.ExceptionReason.BEER_NOT_FOUND;
@@ -76,6 +77,13 @@ public class BeerService {
             QBeer qBeer = QBeer.beer;
             return beerRepository.findOne((qBeer.upc.equalsIgnoreCase(upc))
                     .and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID))).and(qBeer.active.eq(true)));
+        }).switchIfEmpty(Mono.just(new Beer())).map(beerMapper::fromBeer);
+    }
+
+    public Flux<BeerDto> findAllBeer() {
+        return Flux.deferContextual(ctx -> {
+            QBeer qBeer = QBeer.beer;
+            return beerRepository.findAll(qBeer.tenantId.eq((String) ctx.get(TENANT_ID)).and(qBeer.active.eq(true)));
         }).switchIfEmpty(Mono.just(new Beer())).map(beerMapper::fromBeer);
     }
 }

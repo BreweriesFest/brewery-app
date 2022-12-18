@@ -8,6 +8,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -33,12 +34,17 @@ public class BeerController {
     }
 
     @QueryMapping
-    Mono<BeerDto> findBeerByUpc(@Argument String upc) {
+    Mono<BeerDto> beerByUpc(@Argument String upc) {
         return beerService.findBeerByUpc(upc);
     }
 
     @QueryMapping
-    Mono<BeerDto> findBeerById(@Argument String id) {
+    Mono<BeerDto> beerById(@Argument String id) {
         return beerService.findBeerByUpc(id);
+    }
+
+    @QueryMapping
+    Flux<BeerDto> beer() {
+        return beerService.findAllBeer();
     }
 }
