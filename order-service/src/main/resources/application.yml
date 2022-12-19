@@ -6,8 +6,11 @@ spring:
     username: username
     password: password
     database: beer
-  graphql.graphiql:
-    enabled: true
+  graphql:
+    graphiql:
+      enabled: true
+    schema:
+      locations: 'classpath*:graphql/**/'
   profiles:
     include:
       - common
