@@ -17,6 +17,7 @@ import java.util.Collection;
 
 import static com.brewery.app.exception.ExceptionReason.BEER_NOT_FOUND;
 import static com.brewery.app.util.AppConstant.TENANT_ID;
+import static com.brewery.app.util.Helper.fetchHeaderFromContext;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +41,8 @@ public class BeerService {
             QBeer qBeer = QBeer.beer;
             return beerRepository
                     .exists((qBeer.name.equalsIgnoreCase(beerDto.name()).or(qBeer.upc.equalsIgnoreCase(beerDto.upc())))
-                            .and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID))).and(qBeer.active.eq(true)));
+                            .and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx)))
+                            .and(qBeer.active.eq(true)));
         }).handle((__, sink) -> {
             if (__.equals(Boolean.TRUE))
                 sink.error(new BusinessException(ExceptionReason.BEER_ALREADY_PRESENT));
@@ -55,8 +57,8 @@ public class BeerService {
 
         return Mono.deferContextual(ctx -> {
             QBeer qBeer = QBeer.beer;
-            return beerRepository.findOne((qBeer.id.eq(beerId)).and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID)))
-                    .and(qBeer.active.eq(true)));
+            return beerRepository.findOne((qBeer.id.eq(beerId))
+                    .and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
         }).switchIfEmpty(Mono.error(new BusinessException(BEER_NOT_FOUND)))
                 .map(beer -> beerMapper.fromBeerDto(beerDto, beer)).flatMap(beerRepository::save)
                 .map(beerMapper::fromBeer);
@@ -65,8 +67,8 @@ public class BeerService {
     public Mono<String> deleteById(String beerId) {
         return Mono.deferContextual(ctx -> {
             QBeer qBeer = QBeer.beer;
-            return beerRepository.exists((qBeer.id.eq(beerId)).and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID)))
-                    .and(qBeer.active.eq(true)));
+            return beerRepository.exists((qBeer.id.eq(beerId))
+                    .and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
         }).flatMap(__ -> {
             if (__.booleanValue())
                 return beerRepository.deleteById(beerId).map(___ -> beerId);
@@ -78,14 +80,15 @@ public class BeerService {
         return Mono.deferContextual(ctx -> {
             QBeer qBeer = QBeer.beer;
             return beerRepository.findOne((qBeer.upc.equalsIgnoreCase(upc))
-                    .and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID))).and(qBeer.active.eq(true)));
+                    .and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
         }).switchIfEmpty(Mono.just(new Beer())).map(beerMapper::fromBeer);
     }
 
     public Flux<BeerDto> findAllBeer() {
         return Flux.deferContextual(ctx -> {
             QBeer qBeer = QBeer.beer;
-            return beerRepository.findAll(qBeer.tenantId.eq((String) ctx.get(TENANT_ID)).and(qBeer.active.eq(true)));
+            return beerRepository.findAll(
+                    qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx)).and(qBeer.active.eq(true)));
         }).switchIfEmpty(Mono.just(new Beer())).map(beerMapper::fromBeer);
     }
 }

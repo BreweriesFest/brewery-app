@@ -20,6 +20,7 @@ import reactor.core.scheduler.Schedulers;
 import static com.brewery.app.exception.ExceptionReason.INVALID_SHOPPING_LIST_ID;
 import static com.brewery.app.inventory.util.Validator.validateInventoryDTO;
 import static com.brewery.app.util.AppConstant.TENANT_ID;
+import static com.brewery.app.util.Helper.fetchHeaderFromContext;
 
 @Service
 @Slf4j
@@ -44,8 +45,9 @@ public class InventoryService {
 
         var persist = Mono.deferContextual(ctx -> {
             QBeerInventory inventory = QBeerInventory.beerInventory;
-            return beerInventoryRepository.findOne(inventory.beerId.eq(inventoryDTO.beerId())
-                    .and(inventory.upc.eq(inventoryDTO.upc())).and(inventory.tenantId.eq((String) ctx.get(TENANT_ID))));
+            return beerInventoryRepository
+                    .findOne(inventory.beerId.eq(inventoryDTO.beerId()).and(inventory.upc.eq(inventoryDTO.upc()))
+                            .and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))));
         }).map(beerInventory -> inventoryMapper.fromInventoryDTO(inventoryDTO, beerInventory))
                 .switchIfEmpty(Mono.just(inventoryMapper.fromInventoryDTO(inventoryDTO)))
                 .flatMap(beerInventory -> beerInventoryRepository.save(beerInventory))

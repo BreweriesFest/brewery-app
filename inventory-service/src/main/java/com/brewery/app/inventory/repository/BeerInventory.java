@@ -1,6 +1,6 @@
 package com.brewery.app.inventory.repository;
 
-import com.brewery.app.domain.Auditable;
+import com.brewery.app.audit.Auditable;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
