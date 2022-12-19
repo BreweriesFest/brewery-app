@@ -1,6 +1,6 @@
 package com.brewery.app.order.repository;
 
-import com.brewery.app.domain.Auditable;
+import com.brewery.app.audit.Auditable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
