@@ -17,6 +17,8 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.brewery.app.util.Helper.collectionAsStream;
+
 @Slf4j
 @Component
 public class ErrorInterceptor implements WebGraphQlInterceptor {
@@ -27,7 +29,7 @@ public class ErrorInterceptor implements WebGraphQlInterceptor {
             if (response.isValid()) {
                 return response;
             }
-            List<GraphQLError> graphQLErrors = response.getErrors().stream()
+            List<GraphQLError> graphQLErrors = collectionAsStream(response.getErrors())
                     .filter(responseError -> !(responseError.getErrorType() instanceof ExceptionType))
                     .map(this::resolveException).collect(Collectors.toList());
 

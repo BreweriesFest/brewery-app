@@ -24,6 +24,8 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.brewery.app.util.Helper.collectionAsStream;
+
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -74,7 +76,7 @@ public class InventoryController {
 
     @BatchMapping
     Mono<Map<BeerInventory, Beer>> beer(List<BeerInventory> beerInventories) {
-        return Mono.just(beerInventories.stream()
+        return Mono.just(collectionAsStream(beerInventories)
                 .collect(Collectors.toMap(inventory -> inventory, inventory -> new Beer(inventory.getBeerId()))));
     }
 

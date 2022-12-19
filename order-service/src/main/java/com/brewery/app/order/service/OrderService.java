@@ -20,6 +20,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.brewery.app.model.OrderStatus.NEW;
+import static com.brewery.app.util.Helper.collectionAsStream;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class OrderService {
         var orderLineMono = Mono.just(orderLineDtos).map(orderMapper::fromOrderLineDto)
                 .map(orderLineRepository::saveAll);
         return orderLineMono.flatMap(__ -> __.collectList())
-                .map(__ -> __.stream().map(OrderLine::getId).collect(Collectors.toList()))
+                .map(__ -> collectionAsStream(__).map(OrderLine::getId).collect(Collectors.toList()))
                 .flatMap(__ -> orderRepository.save(Order.builder().orderLineId(__).status(NEW).build()))
                 .map(orderMapper::fromOrder).subscribeOn(Schedulers.boundedElastic());
     }
@@ -53,10 +54,9 @@ public class OrderService {
         var orderLines = Flux.fromIterable(orders).map(OrderDto::orderLineId)
                 .flatMap(__ -> orderLineRepository.findAll(orderLine.id.in(__)));
         return orderLines.collectList()
-                .map(__ -> orders.stream()
-                        .collect(Collectors.toMap(Function.identity(),
-                                o -> __.stream().filter(___ -> o.orderLineId().contains(___.getId()))
-                                        .map(orderMapper::fromOrderLine).collect(Collectors.toList()))));
+                .map(__ -> collectionAsStream(orders).collect(Collectors.toMap(Function.identity(),
+                        o -> collectionAsStream(__).filter(___ -> o.orderLineId().contains(___.getId()))
+                                .map(orderMapper::fromOrderLine).collect(Collectors.toList()))));
     }
 
     public Mono<Map<OrderLineDto, BeerDto>> beer(List<OrderLineDto> orderLines) {
@@ -64,8 +64,8 @@ public class OrderService {
         var beerCollection = Flux.fromIterable(orderLines).map(OrderLineDto::beerId).collectList()
                 .flatMap(beerClient::getBeerById);
 
-        return beerCollection.map(__ -> orderLines.stream().collect(Collectors.toMap(Function.identity(),
-                o -> __.stream().filter(___ -> o.beerId().equals(___.id())).findFirst().orElse(null))));
+        return beerCollection.map(__ -> collectionAsStream(orderLines).collect(Collectors.toMap(Function.identity(),
+                o -> collectionAsStream(__).filter(___ -> o.beerId().equals(___.id())).findFirst().orElse(null))));
 
     }
 }
