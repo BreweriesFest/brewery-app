@@ -21,12 +21,24 @@ type OrderDtoOut {
 }
 
 type OrderLineDtoOut {
-    beerId: String
+    beer: BeerOut
     orderQuantity: Int
     quantityAllocated: Int
+}
+
+type BeerOut {
+    id: ID
+    name: String
+    upc: String
+    price: String
+    style: BeerStyle
 }
 
 enum OrderStatus {
     NEW, CANCELLED, PENDING_VALIDATION, VALIDATED, VALIDATION_EXCEPTION, PENDING_ALLOCATION, ALLOCATED,
         ALLOCATION_ERROR, PENDING_INVENTORY, PICKED_UP, DELIVERED, DELIVERY_EXCEPTION
+}
+
+enum BeerStyle {
+    LAGER, PILSNER, STOUT, GOSE, PORTER, ALE, WHEAT, IPA, PALE_ALE, SAISON
 }

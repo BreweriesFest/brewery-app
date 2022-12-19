@@ -1,0 +1,8 @@
+query {
+  data: beer {
+    id
+    name
+    upc
+    style
+  }
+}

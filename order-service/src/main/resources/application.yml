@@ -35,7 +35,7 @@ resilience4j.circuitbreaker:
       registerHealthIndicator: true
 server:
   shutdown: graceful
-  port: 8080
+  port: 8082
   error:
     whitelabel:
       enabled: false
@@ -46,3 +46,5 @@ server:
   use-forward-headers: true
 
   spring.kafka.bootstrap-servers: localhost:9092
+
+app.client.beer.url: localhost:8080/graphql
