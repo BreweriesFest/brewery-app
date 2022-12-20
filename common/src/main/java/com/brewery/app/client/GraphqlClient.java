@@ -30,14 +30,14 @@ public abstract class GraphqlClient {
         return getHttpGraphQlClient(List.of());
     }
 
-    protected <T> Mono<T> getHttpGraphQlResponse(Collection<String> headers, String document) {
-        return getHttpGraphQlResponse(headers, document, Map.of());
+    protected <T> Mono<T> getHttpGraphQlResponse(Collection<String> headers, String document,
+            ParameterizedTypeReference<T> entityType) {
+        return getHttpGraphQlResponse(headers, document, Map.of(), entityType);
     }
 
     protected <T> Mono<T> getHttpGraphQlResponse(Collection<String> headers, String document,
-            Map<String, Object> variables) {
-        return getHttpGraphQlClient(headers).flatMap(__ -> __.document(document).variables(variables).retrieve("data")
-                .toEntity(new ParameterizedTypeReference<>() {
-                }));
+            Map<String, Object> variables, ParameterizedTypeReference<T> entityType) {
+        return getHttpGraphQlClient(headers)
+                .flatMap(__ -> __.document(document).variables(variables).retrieve("data").toEntity(entityType));
     }
 }

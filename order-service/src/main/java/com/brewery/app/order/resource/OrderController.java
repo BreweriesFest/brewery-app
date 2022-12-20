@@ -41,7 +41,7 @@ public class OrderController {
 
     @BatchMapping(typeName = "OrderDtoOut")
     public Mono<Map<OrderDto, List<OrderLineDto>>> orderLine(List<OrderDto> orders) {
-        return orderService.orderLine(orders);
+        return orderService.orderLine(orders).doOnError(ex -> log.error("", ex));
     }
 
     @BatchMapping(typeName = "OrderLineDtoOut")

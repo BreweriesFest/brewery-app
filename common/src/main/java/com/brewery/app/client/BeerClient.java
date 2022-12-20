@@ -4,6 +4,7 @@ import com.brewery.app.model.BeerDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -29,25 +30,35 @@ public class BeerClient extends GraphqlClient {
         final var query = """
                 query {
                   data: beer {
-                    id, name, upc, style
+                    id
+                    name
+                    upc
+                    style
                   }
                 }
                 """;
 
-        return getHttpGraphQlResponse(List.of(TENANT_ID, CUSTOMER_ID), query);
+        return getHttpGraphQlResponse(List.of(TENANT_ID, CUSTOMER_ID), query, new ParameterizedTypeReference<>() {
+        });
     }
 
     public Mono<Collection<BeerDto>> getBeerById(Collection<String> beerId) {
 
         final var query = """
-                query($id: [String!]!)  {
+                query test($id: [String!]!) {
                     data: beerById(id: $id) {
-                        id, name, upc, price, style
+                        id
+                        name
+                        upc
+                        price
+                        style
                     }
                 }
                 """;
 
-        return getHttpGraphQlResponse(List.of(TENANT_ID, CUSTOMER_ID), query, Map.of("id", beerId));
+        return getHttpGraphQlResponse(List.of(TENANT_ID, CUSTOMER_ID), query, Map.of("id", beerId),
+                new ParameterizedTypeReference<>() {
+                });
 
     }
 }

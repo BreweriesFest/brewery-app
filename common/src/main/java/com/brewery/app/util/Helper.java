@@ -44,7 +44,7 @@ public class Helper {
     }
 
     public static <T> Optional<T> getHeader(String header, ContextView ctx) {
-        return ctx.getOrEmpty(header);
+        return ctx.getOrDefault(header, Optional.empty());
     }
 
 }

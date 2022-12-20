@@ -30,8 +30,8 @@ public class BeerService {
     public Flux<BeerDto> findBeerById(Collection<String> beerId) {
         return Flux.deferContextual(ctx -> {
             QBeer qBeer = QBeer.beer;
-            return beerRepository.findAll((qBeer.id.in(beerId)).and(qBeer.tenantId.eq((String) ctx.get(TENANT_ID)))
-                    .and(qBeer.active.eq(true)));
+            return beerRepository.findAll((qBeer.id.in(beerId))
+                    .and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
         }).map(beerMapper::fromBeer);
     }
 
