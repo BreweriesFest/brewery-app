@@ -1,9 +1,9 @@
 package com.brewery.app.order.service;
 
+import com.brewery.app.client.BeerClient;
 import com.brewery.app.model.BeerDto;
 import com.brewery.app.model.OrderDto;
 import com.brewery.app.model.OrderLineDto;
-import com.brewery.app.order.client.BeerClient;
 import com.brewery.app.order.mapper.OrderMapper;
 import com.brewery.app.order.repository.*;
 import lombok.RequiredArgsConstructor;

@@ -24,11 +24,11 @@ public class CacheService {
     }
 
     public void save() {
-        reactiveRedisTemplate.opsForSet().add("test", "value").subscribe();
+        reactiveRedisTemplate.opsForSet().add("test", "value");
     }
 
     public void get() {
-        reactiveRedisTemplate.opsForSet().pop("test").subscribe(System.out::println);
+        reactiveRedisTemplate.opsForSet().pop("test");
     }
 
 }
