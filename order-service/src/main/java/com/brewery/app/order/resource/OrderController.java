@@ -1,9 +1,9 @@
 package com.brewery.app.order.resource;
 
+import com.brewery.app.client.BeerClient;
 import com.brewery.app.model.BeerDto;
 import com.brewery.app.model.OrderDto;
 import com.brewery.app.model.OrderLineDto;
-import com.brewery.app.order.client.BeerClient;
 import com.brewery.app.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class OrderController {
 
     @BatchMapping(typeName = "OrderDtoOut")
     public Mono<Map<OrderDto, List<OrderLineDto>>> orderLine(List<OrderDto> orders) {
-        return orderService.orderLine(orders);
+        return orderService.orderLine(orders).doOnError(ex -> log.error("", ex));
     }
 
     @BatchMapping(typeName = "OrderLineDtoOut")

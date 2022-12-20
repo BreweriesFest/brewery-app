@@ -42,7 +42,7 @@ public class BeerController {
 
     @QueryMapping
     Flux<BeerDto> beerById(@Argument Collection<String> id) {
-        return beerService.findBeerById(id);
+        return beerService.findBeerById(id).doOnError(ex -> log.error("", ex));
     }
 
     @QueryMapping

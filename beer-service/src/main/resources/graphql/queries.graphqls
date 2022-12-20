@@ -15,15 +15,3 @@ input BeerIn {
     price: String
     style: BeerStyle
 }
-
-type BeerOut {
-    id: ID
-    name: String
-    upc: String
-    price: String
-    style: BeerStyle
-}
-
-enum BeerStyle {
-    LAGER, PILSNER, STOUT, GOSE, PORTER, ALE, WHEAT, IPA, PALE_ALE, SAISON
-}

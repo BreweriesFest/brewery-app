@@ -1,9 +1,9 @@
 package com.brewery.app.order.service;
 
+import com.brewery.app.client.BeerClient;
 import com.brewery.app.model.BeerDto;
 import com.brewery.app.model.OrderDto;
 import com.brewery.app.model.OrderLineDto;
-import com.brewery.app.order.client.BeerClient;
 import com.brewery.app.order.mapper.OrderMapper;
 import com.brewery.app.order.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +65,8 @@ public class OrderService {
                 .flatMap(beerClient::getBeerById);
 
         return beerCollection.map(__ -> collectionAsStream(orderLines).collect(Collectors.toMap(Function.identity(),
-                o -> collectionAsStream(__).filter(___ -> o.beerId().equals(___.id())).findFirst().orElse(null))));
+                o -> collectionAsStream(__).filter(___ -> o.beerId().equals(___.id())).findFirst()
+                        .orElse(new BeerDto(o.beerId(), null, null, null, null)))));
 
     }
 }
