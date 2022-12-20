@@ -49,7 +49,7 @@ public class BeerService {
         });
         var persist = Mono.just(beerDto).map(beerMapper::fromBeerDto).flatMap(beerRepository::save)
                 .map(beerMapper::fromBeer);
-        return validate.then(persist).doOnError(exc -> log.error("exception {}", exc.getMessage()));
+        return validate.then(persist).doOnError(exc -> log.error("exception {}", exc));
 
     }
 

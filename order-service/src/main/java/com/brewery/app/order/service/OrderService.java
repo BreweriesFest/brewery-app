@@ -64,9 +64,9 @@ public class OrderService {
         var beerCollection = Flux.fromIterable(orderLines).map(OrderLineDto::beerId).collectList()
                 .flatMap(beerClient::getBeerById);
 
-        return beerCollection.map(__ -> collectionAsStream(orderLines)
-                .collect(Collectors.toMap(Function.identity(), o -> collectionAsStream(__)
-                        .filter(___ -> o.beerId().equals(___.id())).findFirst().orElse(new BeerDto(o.beerId())))));
+        return beerCollection.map(__ -> collectionAsStream(orderLines).collect(Collectors.toMap(Function.identity(),
+                o -> collectionAsStream(__).filter(___ -> o.beerId().equals(___.id())).findFirst()
+                        .orElse(new BeerDto(o.beerId(), null, null, null, null)))));
 
     }
 }
