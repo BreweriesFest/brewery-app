@@ -45,7 +45,7 @@ public class BeerClient extends GraphqlClient {
     public Mono<Collection<BeerDto>> getBeerById(Collection<String> beerId) {
 
         final var query = """
-                query test($id: [String!]!) {
+                query($id: [String!]!) {
                     data: beerById(id: $id) {
                         id
                         name
