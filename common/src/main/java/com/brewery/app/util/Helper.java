@@ -8,6 +8,8 @@ import reactor.core.publisher.Mono;
 import reactor.util.context.ContextView;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -45,6 +47,12 @@ public class Helper {
 
     public static <T> Optional<T> getHeader(String header, ContextView ctx) {
         return ctx.getOrDefault(header, Optional.empty());
+    }
+
+    public static Map<String, Optional<String>> extractHeaders(Collection<String> headers, WebGraphQlRequest request) {
+        var headerMap = new HashMap<String, Optional<String>>();
+        headers.forEach(__ -> headerMap.put(__, getHeader.apply(request, __)));
+        return headerMap;
     }
 
 }

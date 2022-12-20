@@ -6,18 +6,18 @@ import org.springframework.graphql.server.WebGraphQlResponse;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
+import java.util.List;
 
 import static com.brewery.app.util.AppConstant.CUSTOMER_ID;
 import static com.brewery.app.util.AppConstant.TENANT_ID;
-import static com.brewery.app.util.Helper.getHeader;
+import static com.brewery.app.util.Helper.extractHeaders;
 
 @Component
 public class HeaderInterceptor implements WebGraphQlInterceptor {
 
     @Override
     public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
-        return chain.next(request).contextWrite(__ -> __.putAllMap(Map.of(TENANT_ID,
-                getHeader.apply(request, TENANT_ID), CUSTOMER_ID, getHeader.apply(request, CUSTOMER_ID))));
+        return chain.next(request)
+                .contextWrite(__ -> __.putAllMap(extractHeaders(List.of(TENANT_ID, CUSTOMER_ID), request)));
     }
 }
