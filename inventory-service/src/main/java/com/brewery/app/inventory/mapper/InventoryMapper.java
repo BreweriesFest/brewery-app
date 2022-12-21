@@ -11,8 +11,8 @@ public interface InventoryMapper {
 
     Inventory fromInventoryDTO(InventoryDTO inventoryDTO);
 
-    Inventory fromInventoryDTO(InventoryDTO inventoryDTO, @MappingTarget Inventory beerInventory);
+    Inventory fromInventoryDTO(InventoryDTO inventoryDTO, @MappingTarget Inventory inventory);
 
-    InventoryDTO fromBeerInventory(Inventory beerInventory);
+    InventoryDTO fromInventory(Inventory inventory);
 
 }

@@ -1,7 +1,6 @@
 package com.brewery.app.beer.service;
 
 import com.brewery.app.beer.mapper.BeerMapper;
-import com.brewery.app.beer.repository.Beer;
 import com.brewery.app.beer.repository.BeerRepository;
 import com.brewery.app.beer.repository.QBeer;
 import com.brewery.app.exception.BusinessException;
@@ -81,7 +80,7 @@ public class BeerService {
             QBeer qBeer = QBeer.beer;
             return beerRepository.findOne((qBeer.upc.equalsIgnoreCase(upc))
                     .and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
-        }).switchIfEmpty(Mono.just(new Beer())).map(beerMapper::fromBeer);
+        }).map(beerMapper::fromBeer);
     }
 
     public Flux<BeerDto> findAllBeer() {
@@ -89,6 +88,6 @@ public class BeerService {
             QBeer qBeer = QBeer.beer;
             return beerRepository.findAll(
                     qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx)).and(qBeer.active.eq(true)));
-        }).switchIfEmpty(Flux.just(new Beer())).map(beerMapper::fromBeer);
+        }).map(beerMapper::fromBeer);
     }
 }
