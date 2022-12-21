@@ -47,7 +47,7 @@ public class CustomResilience4JConfig {
     }
 
     @Bean
-    public Retry configureRetryCustomizer(RetryProps mongoRetryProps, MeterRegistry meterRegistry) {
+    public Retry mongoServiceRetry(RetryProps mongoRetryProps, MeterRegistry meterRegistry) {
         return resilience4JConfig.configureRetryCustomizer(RESILIENCE_ID_MONGO, mongoRetryProps, meterRegistry);
     }
 

@@ -39,7 +39,7 @@ public class InventoryService {
     private final TransactionalOperator transactionalOperator;
     private final ReactiveMongoOperations reactiveMongoOperations;
     private final ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory;
-    private final Retry mongoServiceRetryCustomizer;
+    private final Retry mongoServiceRetry;
 
     public Mono<InventoryDTO> addInventory(InventoryDTO inventoryDTO) {
         // reactiveMongoOperations.upsert();
@@ -63,7 +63,7 @@ public class InventoryService {
                     });
                 })
                 // .as(transactionalOperator::transactional)
-                .transformDeferred(RetryOperator.of(mongoServiceRetryCustomizer));
+                .transformDeferred(RetryOperator.of(mongoServiceRetry));
 
         return validateHeaders.then(validateRequest).then(persist)
                 .onErrorResume(throwable -> Mono.error(new BusinessException(CUSTOMIZE_REASON, throwable.getMessage())))
@@ -84,7 +84,7 @@ public class InventoryService {
                 log.error("exception::", throwable);
                 return Flux.error(new BusinessException(INTERNAL_SERVER_ERROR));
             });
-        }).transformDeferred(RetryOperator.of(mongoServiceRetryCustomizer));
+        }).transformDeferred(RetryOperator.of(mongoServiceRetry));
 
         return validate.thenMany(beerInventory);
 
