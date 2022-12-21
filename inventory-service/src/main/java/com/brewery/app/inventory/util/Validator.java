@@ -1,6 +1,7 @@
 package com.brewery.app.inventory.util;
 
 import com.brewery.app.domain.InventoryDTO;
+import com.brewery.app.event.BrewBeerEvent;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
@@ -9,26 +10,26 @@ import java.util.function.Function;
 import static com.brewery.app.inventory.util.HelperClass.isBlankString;
 import static com.brewery.app.inventory.util.ValidationResult.*;
 
-public interface Validator extends Function<InventoryDTO, ValidationResult> {
+public interface Validator extends Function<BrewBeerEvent, ValidationResult> {
 
     static Validator isBeerIdValid() {
-        return inventoryDTO -> isBlankString.test(inventoryDTO.beerId()) ? BEER_ID_NOT_VALID : SUCCESS;
+        return brewBeerEvent -> isBlankString.test(brewBeerEvent.beerId()) ? BEER_ID_NOT_VALID : SUCCESS;
     }
 
-    static Validator isQuantityOnHandValid() {
-        return inventoryDTO -> Objects.nonNull(inventoryDTO.quantityOnHand())
-                && Integer.compare(inventoryDTO.quantityOnHand(), 0) != -1 ? SUCCESS : QUANTITY_ON_HAND_NOT_VALID;
+    static Validator isQtyToBrewValid() {
+        return brewBeerEvent -> Objects.nonNull(brewBeerEvent.qtyToBrew())
+                && Integer.compare(brewBeerEvent.qtyToBrew(), 0) != -1 ? SUCCESS : QUANTITY_ON_HAND_NOT_VALID;
 
     }
 
-    static Mono<ValidationResult> validateInventoryDTO(InventoryDTO inventoryDTO) {
-        return Mono.just(isBeerIdValid().and(isQuantityOnHandValid()).apply(inventoryDTO));
+    static Mono<ValidationResult> validateInventoryDTO(BrewBeerEvent brewBeerEvent) {
+        return Mono.just(isBeerIdValid().and(isQtyToBrewValid()).apply(brewBeerEvent));
     }
 
     default Validator and(Validator validator) {
-        return inventoryDTO -> {
-            ValidationResult result = this.apply(inventoryDTO);
-            return result.equals(SUCCESS) ? validator.apply(inventoryDTO) : result;
+        return brewBeerEvent -> {
+            ValidationResult result = this.apply(brewBeerEvent);
+            return result.equals(SUCCESS) ? validator.apply(brewBeerEvent) : result;
         };
     }
 }

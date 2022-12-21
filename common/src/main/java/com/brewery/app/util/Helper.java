@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.graphql.server.WebGraphQlRequest;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.kafka.receiver.ReceiverRecord;
 import reactor.util.context.ContextView;
 
 import java.util.*;
@@ -16,6 +17,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.brewery.app.exception.ExceptionReason.CUSTOMIZE_REASON;
+import static com.brewery.app.util.AppConstant.TENANT_ID;
 import static com.brewery.app.util.ContextValidator.ValidationResult.SUCCESS;
 import static com.brewery.app.util.ContextValidator.isCustomerIdValid;
 import static com.brewery.app.util.ContextValidator.isTenantIdValid;
@@ -53,6 +55,14 @@ public class Helper {
     public static Map<String, Optional<String>> extractHeaders(Collection<String> headers, WebGraphQlRequest request) {
         var headerMap = new HashMap<String, Optional<String>>();
         headers.forEach(__ -> headerMap.put(__, getHeader.apply(request, __)));
+        return headerMap;
+    }
+
+    public static Map<String, Optional<String>> extractHeaders(Collection<String> headers,
+            ReceiverRecord<?, ?> receiverRecord) {
+        var headerMap = new HashMap<String, Optional<String>>();
+        headers.forEach(__ -> headerMap.put(__,
+                Optional.of(new String(receiverRecord.headers().lastHeader(TENANT_ID).value()))));
         return headerMap;
     }
 

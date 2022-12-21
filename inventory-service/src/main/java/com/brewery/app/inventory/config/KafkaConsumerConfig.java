@@ -1,6 +1,6 @@
 package com.brewery.app.inventory.config;
 
-import com.brewery.app.domain.InventoryDTO;
+import com.brewery.app.event.BrewBeerEvent;
 import com.brewery.app.kafka.consumer.ReactiveConsumerConfig;
 import com.brewery.app.properties.kafka.KafkaConsumerProps;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 @Configuration
-public class ReactiveKafkaConsumerConfig {
+public class KafkaConsumerConfig {
 
     @Bean
     @ConfigurationProperties(prefix = "app.kafka.inventory.consumer")
@@ -20,7 +20,7 @@ public class ReactiveKafkaConsumerConfig {
     }
 
     @Bean
-    public ReactiveConsumerConfig<String, InventoryDTO> reactiveConsumer(KafkaConsumerProps kafkaConsumerProps,
+    public ReactiveConsumerConfig<String, BrewBeerEvent> reactiveConsumer(KafkaConsumerProps kafkaConsumerProps,
             MeterRegistry meterRegistry) {
         return new ReactiveConsumerConfig<>(kafkaConsumerProps, StringDeserializer.class, JsonDeserializer.class,
                 meterRegistry) {

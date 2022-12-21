@@ -1,6 +1,7 @@
 package com.brewery.app.inventory.service;
 
 import com.brewery.app.domain.InventoryDTO;
+import com.brewery.app.event.BrewBeerEvent;
 import com.brewery.app.exception.BusinessException;
 import com.brewery.app.inventory.mapper.InventoryMapper;
 import com.brewery.app.inventory.repository.InventoryRepository;
@@ -41,21 +42,23 @@ public class InventoryService {
     private final ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory;
     private final Retry mongoServiceRetry;
 
-    public Mono<InventoryDTO> addInventory(InventoryDTO inventoryDTO) {
+    public Mono<InventoryDTO> addInventory(BrewBeerEvent brewBeerEvent) {
         // reactiveMongoOperations.upsert();
 
         var validateHeaders = validateContext();
 
-        var validateRequest = validateInventoryDTO(inventoryDTO).flatMap(result -> SUCCESS.equals(result) ? Mono.empty()
-                : Mono.error(new BusinessException(CUSTOMIZE_REASON, result.name())));
+        var validateRequest = validateInventoryDTO(brewBeerEvent).flatMap(result -> SUCCESS.equals(result)
+                ? Mono.empty() : Mono.error(new BusinessException(CUSTOMIZE_REASON, result.name())));
 
         var persist = Mono.deferContextual(ctx -> {
             QInventory inventory = QInventory.inventory;
-            return inventoryRepository.findOne(inventory.beerId.eq(inventoryDTO.beerId())
+            return inventoryRepository.findOne(inventory.beerId.eq(brewBeerEvent.beerId())
                     .and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))));
-        }).map(inventory -> inventoryMapper.fromInventoryDTO(inventoryDTO, inventory))
-                .switchIfEmpty(Mono.just(inventoryMapper.fromInventoryDTO(inventoryDTO)))
-                .flatMap(inventoryRepository::save).map(inventoryMapper::fromInventory).transform(it -> {
+        }).map(inventory -> {
+            inventory.setQuantityOnHand(inventory.getQuantityOnHand() + brewBeerEvent.qtyToBrew());
+            return inventory;
+        }).switchIfEmpty(Mono.just(inventoryMapper.fromBrewBeerEvent(brewBeerEvent))).flatMap(inventoryRepository::save)
+                .map(inventoryMapper::fromInventory).transform(it -> {
                     ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(RESILIENCE_ID_MONGO);
                     return rcb.run(it, throwable -> {
                         log.error("exception::", throwable);
@@ -65,9 +68,8 @@ public class InventoryService {
                 // .as(transactionalOperator::transactional)
                 .transformDeferred(RetryOperator.of(mongoServiceRetry));
 
-        return validateHeaders.then(validateRequest).then(persist)
-                .onErrorResume(throwable -> Mono.error(new BusinessException(CUSTOMIZE_REASON, throwable.getMessage())))
-                .subscribeOn(Schedulers.boundedElastic());
+        return validateHeaders.then(validateRequest).then(persist).onErrorResume(
+                throwable -> Mono.error(new BusinessException(CUSTOMIZE_REASON, throwable.getMessage())));
     }
 
     public Flux<InventoryDTO> inventoryByBeerId(Collection<String> beerId) {
