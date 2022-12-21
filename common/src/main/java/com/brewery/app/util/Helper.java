@@ -61,8 +61,8 @@ public class Helper {
     public static Map<String, Optional<String>> extractHeaders(Collection<String> headers,
             ReceiverRecord<?, ?> receiverRecord) {
         var headerMap = new HashMap<String, Optional<String>>();
-        headers.forEach(__ -> headerMap.put(__,
-                Optional.of(new String(receiverRecord.headers().lastHeader(TENANT_ID).value()))));
+        headers.forEach(
+                __ -> headerMap.put(__, Optional.of(new String(receiverRecord.headers().lastHeader(__).value()))));
         return headerMap;
     }
 
