@@ -1,6 +1,5 @@
 package com.brewery.app.inventory.util;
 
-import com.brewery.app.domain.InventoryDTO;
 import com.brewery.app.event.BrewBeerEvent;
 import reactor.core.publisher.Mono;
 

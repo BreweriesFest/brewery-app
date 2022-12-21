@@ -1,6 +1,5 @@
 package com.brewery.app.inventory.config;
 
-import com.brewery.app.domain.InventoryDTO;
 import com.brewery.app.event.BrewBeerEvent;
 import com.brewery.app.kafka.producer.ReactiveProducerService;
 import com.brewery.app.kafka.producer.ReactiveProducerServiceImpl;

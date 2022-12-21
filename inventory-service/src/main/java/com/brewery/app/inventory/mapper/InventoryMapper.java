@@ -5,7 +5,6 @@ import com.brewery.app.event.BrewBeerEvent;
 import com.brewery.app.inventory.repository.Inventory;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

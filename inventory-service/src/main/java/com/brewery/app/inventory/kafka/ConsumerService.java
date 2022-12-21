@@ -1,11 +1,8 @@
 package com.brewery.app.inventory.kafka;
 
-import com.brewery.app.domain.InventoryDTO;
 import com.brewery.app.event.BrewBeerEvent;
-import com.brewery.app.inventory.mapper.InventoryMapper;
 import com.brewery.app.inventory.service.InventoryService;
 import com.brewery.app.kafka.consumer.ReactiveConsumerConfig;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -18,8 +15,6 @@ import reactor.kafka.receiver.ReceiverRecord;
 
 import javax.annotation.PreDestroy;
 import java.util.function.Function;
-
-import static com.brewery.app.util.AppConstant.TENANT_ID;
 
 @Service
 @Slf4j
