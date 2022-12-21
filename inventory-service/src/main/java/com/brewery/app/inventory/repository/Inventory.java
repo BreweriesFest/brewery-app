@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Builder
 @Document
-public class BeerInventory extends Auditable {
+public class Inventory extends Auditable {
 
     private String upc;
     private String beerId;

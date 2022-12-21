@@ -89,6 +89,6 @@ public class BeerService {
             QBeer qBeer = QBeer.beer;
             return beerRepository.findAll(
                     qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx)).and(qBeer.active.eq(true)));
-        }).switchIfEmpty(Mono.just(new Beer())).map(beerMapper::fromBeer);
+        }).switchIfEmpty(Flux.just(new Beer())).map(beerMapper::fromBeer);
     }
 }

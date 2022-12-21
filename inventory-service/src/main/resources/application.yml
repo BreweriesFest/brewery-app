@@ -6,8 +6,11 @@ spring:
     username: username
     password: password
     database: inventory
-  graphql.graphiql:
-    enabled: true
+  graphql:
+    graphiql:
+      enabled: true
+    schema:
+      locations: 'classpath*:graphql/**/'
   profiles:
     include:
       - common
@@ -35,7 +38,7 @@ resilience4j.circuitbreaker:
       registerHealthIndicator: true
 server:
   shutdown: graceful
-  port: 8080
+  port: 8083
   error:
     whitelabel:
       enabled: false
@@ -46,3 +49,19 @@ server:
   use-forward-headers: true
 
   spring.kafka.bootstrap-servers: localhost:9092
+
+logging:
+  level:
+    root: info
+    web: trace
+app:
+  kafka:
+    inventory:
+      producer:
+        bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
+        topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:test}
+        idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
+      consumer:
+        bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:localhost:9092}
+        topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:inventory}
+        consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:inventory-consumer}

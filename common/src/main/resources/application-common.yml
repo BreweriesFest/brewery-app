@@ -15,7 +15,7 @@ app:
       slidingWindowType: ${CB__DEFAULT__SLIDING_WINDOW_TYPE:COUNT_BASED}
       minimumNumberOfCalls: ${CB__DEFAULT__MIN_NO_OF_CALLS:100}
       slowCallRateThreshold: ${CB__DEFAULT__SLOW_CALL_RATE_THRESHOLD:100}
-      slowCallDurationThreshold: ${CB__DEFAULT__SLOW_CALL_DURATION_THRESHOLD:60000}
+      slowCallDurationThreshold: ${CB__DEFAULT__SLOW_CALL_DURATION_THRESHOLD:40}
       maxWaitDurationInHalfOpenState: ${CB__DEFAULT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:100}
     mongo-service:
       failureRateThreshold: ${CB__MONGO_SERVICE__FAILURE_RATE_THRESHOLD:10}
@@ -28,22 +28,11 @@ app:
       maxWaitDurationInHalfOpenState: ${CB__MONGO_SERVICE__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.circuit-breaker.default.maxWaitDurationInHalfOpenState}}
   time-limiter:
     default:
-      timeoutDuration: ${TL__DEFAULT__TIMEOUT_DURATION:1000}
+      timeoutDuration: ${TL__DEFAULT__TIMEOUT_DURATION:200}
     mongoService:
-      timeoutDuration: ${TL__MONGO_SERVICE__TIMEOUT_DURATION:5000}
+      timeoutDuration: ${TL__MONGO_SERVICE__TIMEOUT_DURATION:50}
   retry:
     default:
       maxAttempts: ${RT__DEFAULT__MAX_ATTEMPT:3}
     mongoService:
       maxAttempts: ${RT__MONGO_SERVICE__MAX_ATTEMPT:${app.retry.default.maxAttempts}}
-
-  kafka:
-    inventory:
-      producer:
-        bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
-        topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:test}
-        idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
-      consumer:
-        bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:localhost:9092}
-        topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:test}
-        consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:test-consumer-group}

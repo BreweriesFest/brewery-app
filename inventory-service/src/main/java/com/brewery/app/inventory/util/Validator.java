@@ -11,10 +11,6 @@ import static com.brewery.app.inventory.util.ValidationResult.*;
 
 public interface Validator extends Function<InventoryDTO, ValidationResult> {
 
-    static Validator isUpcValid() {
-        return inventoryDTO -> isBlankString.test(inventoryDTO.upc()) ? UPC_NOT_VALID : SUCCESS;
-    }
-
     static Validator isBeerIdValid() {
         return inventoryDTO -> isBlankString.test(inventoryDTO.beerId()) ? BEER_ID_NOT_VALID : SUCCESS;
     }
@@ -26,7 +22,7 @@ public interface Validator extends Function<InventoryDTO, ValidationResult> {
     }
 
     static Mono<ValidationResult> validateInventoryDTO(InventoryDTO inventoryDTO) {
-        return Mono.just(isUpcValid().and(isBeerIdValid()).and(isQuantityOnHandValid()).apply(inventoryDTO));
+        return Mono.just(isBeerIdValid().and(isQuantityOnHandValid()).apply(inventoryDTO));
     }
 
     default Validator and(Validator validator) {

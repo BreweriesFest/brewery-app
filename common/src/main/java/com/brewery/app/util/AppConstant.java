@@ -6,4 +6,6 @@ import lombok.experimental.UtilityClass;
 public class AppConstant {
     public static final String TENANT_ID = "tenantId";
     public static final String CUSTOMER_ID = "customerId";
+
+    public static final String RESILIENCE_ID_MONGO = "mongo";
 }

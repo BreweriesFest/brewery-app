@@ -1,7 +1,7 @@
 package com.brewery.app.inventory.mapper;
 
 import com.brewery.app.domain.InventoryDTO;
-import com.brewery.app.inventory.repository.BeerInventory;
+import com.brewery.app.inventory.repository.Inventory;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -9,10 +9,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface InventoryMapper {
 
-    BeerInventory fromInventoryDTO(InventoryDTO inventoryDTO);
+    Inventory fromInventoryDTO(InventoryDTO inventoryDTO);
 
-    BeerInventory fromInventoryDTO(InventoryDTO inventoryDTO, @MappingTarget BeerInventory beerInventory);
+    Inventory fromInventoryDTO(InventoryDTO inventoryDTO, @MappingTarget Inventory beerInventory);
 
-    InventoryDTO fromBeerInventory(BeerInventory beerInventory);
+    InventoryDTO fromBeerInventory(Inventory beerInventory);
 
 }

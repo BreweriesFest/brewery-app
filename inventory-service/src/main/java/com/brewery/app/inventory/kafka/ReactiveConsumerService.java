@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
 import reactor.core.Disposables;
@@ -35,7 +34,7 @@ public class ReactiveConsumerService {
             );
     private Disposable.Composite disposables = Disposables.composite();
 
-    @Bean
+    // @Bean
     ApplicationListener<ApplicationReadyEvent> factoryBeanListener(
             ReactiveConsumerConfig<String, InventoryDTO> reactiveConsumer) {
         return event -> disposables.add(reactiveConsumer.consumerRecord(processRecord).subscribe());

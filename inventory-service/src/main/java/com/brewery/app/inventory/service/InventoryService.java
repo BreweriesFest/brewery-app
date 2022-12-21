@@ -1,9 +1,11 @@
 package com.brewery.app.inventory.service;
 
 import com.brewery.app.domain.InventoryDTO;
+import com.brewery.app.exception.BusinessException;
 import com.brewery.app.inventory.mapper.InventoryMapper;
-import com.brewery.app.inventory.repository.BeerInventoryRepository;
-import com.brewery.app.inventory.repository.QBeerInventory;
+import com.brewery.app.inventory.repository.Inventory;
+import com.brewery.app.inventory.repository.InventoryRepository;
+import com.brewery.app.inventory.repository.QInventory;
 import com.brewery.app.inventory.util.ValidationResult;
 import io.github.resilience4j.reactor.retry.RetryOperator;
 import io.github.resilience4j.retry.Retry;
@@ -14,20 +16,25 @@ import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFac
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Collection;
+
+import static com.brewery.app.exception.ExceptionReason.INTERNAL_SERVER_ERROR;
 import static com.brewery.app.exception.ExceptionReason.INVALID_SHOPPING_LIST_ID;
 import static com.brewery.app.inventory.util.Validator.validateInventoryDTO;
 import static com.brewery.app.util.AppConstant.TENANT_ID;
 import static com.brewery.app.util.Helper.fetchHeaderFromContext;
+import static com.brewery.app.util.Helper.validateContext;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class InventoryService {
 
-    private final BeerInventoryRepository beerInventoryRepository;
+    private final InventoryRepository inventoryRepository;
     private final InventoryMapper inventoryMapper;
     private final TransactionalOperator transactionalOperator;
     private final ReactiveMongoOperations reactiveMongoOperations;
@@ -44,13 +51,12 @@ public class InventoryService {
         });
 
         var persist = Mono.deferContextual(ctx -> {
-            QBeerInventory inventory = QBeerInventory.beerInventory;
-            return beerInventoryRepository
-                    .findOne(inventory.beerId.eq(inventoryDTO.beerId()).and(inventory.upc.eq(inventoryDTO.upc()))
-                            .and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))));
+            QInventory inventory = QInventory.inventory;
+            return inventoryRepository.findOne(inventory.beerId.eq(inventoryDTO.beerId())
+                    .and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))));
         }).map(beerInventory -> inventoryMapper.fromInventoryDTO(inventoryDTO, beerInventory))
                 .switchIfEmpty(Mono.just(inventoryMapper.fromInventoryDTO(inventoryDTO)))
-                .flatMap(beerInventory -> beerInventoryRepository.save(beerInventory))
+                .flatMap(beerInventory -> inventoryRepository.save(beerInventory))
                 .map(inventoryMapper::fromBeerInventory).transform(it -> {
                     ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create("mongo");
                     return rcb.run(it.doFirst(() -> log.info("circuit breaker wrapper")),
@@ -62,5 +68,26 @@ public class InventoryService {
                 // .onErrorResume(throwable -> Mono.error(new BadRequestException(throwable.getMessage())))
                 // .as(transactionalOperator::transactional)
                 .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Flux<InventoryDTO> inventoryByBeerId(Collection<String> beerId) {
+
+        var validate = validateContext();
+
+        var beerInventory = Flux.deferContextual(ctx -> {
+            QInventory inventory = QInventory.inventory;
+            return inventoryRepository.findAll(inventory.beerId.in(beerId)
+                    .and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))));
+        }).switchIfEmpty(Flux.just(new Inventory())).map(inventoryMapper::fromBeerInventory)
+                .onErrorReturn(new InventoryDTO(null, null, null)).transform(it -> {
+                    var rcb = reactiveCircuitBreakerFactory.create("mongo");
+                    return rcb.run(it, throwable -> {
+                        log.error("exception::", throwable);
+                        return Flux.error(new BusinessException(INTERNAL_SERVER_ERROR));
+                    });
+                }).transformDeferred(RetryOperator.of(mongoServiceRetryCustomizer));
+
+        return validate.thenMany(beerInventory).onErrorReturn(new InventoryDTO(null, null, null));
+
     }
 }
