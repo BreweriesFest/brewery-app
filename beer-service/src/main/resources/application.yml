@@ -14,6 +14,8 @@ spring:
   profiles:
     include:
       - common
+    active:
+      - inventory-client-service
 management.health.circuitbreakers.enabled: true
 management:
   metrics:
@@ -49,3 +51,10 @@ server:
   use-forward-headers: true
 
   spring.kafka.bootstrap-servers: localhost:9092
+app:
+  kafka:
+    beer:
+      producer:
+        bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
+        topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:brewery-brew-event}
+        idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}

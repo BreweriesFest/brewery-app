@@ -1,21 +1,32 @@
 package com.brewery.app.beer.service;
 
 import com.brewery.app.beer.mapper.BeerMapper;
+import com.brewery.app.beer.repository.Beer;
 import com.brewery.app.beer.repository.BeerRepository;
 import com.brewery.app.beer.repository.QBeer;
+import com.brewery.app.client.InventoryClient;
+import com.brewery.app.domain.InventoryDTO;
+import com.brewery.app.event.BrewBeerEvent;
 import com.brewery.app.exception.BusinessException;
 import com.brewery.app.exception.ExceptionReason;
+import com.brewery.app.kafka.producer.ReactiveProducerService;
 import com.brewery.app.model.BeerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.kafka.sender.SenderResult;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.brewery.app.exception.ExceptionReason.BEER_NOT_FOUND;
 import static com.brewery.app.util.AppConstant.TENANT_ID;
+import static com.brewery.app.util.Helper.collectionAsStream;
 import static com.brewery.app.util.Helper.fetchHeaderFromContext;
 
 @Service
@@ -25,6 +36,10 @@ public class BeerService {
 
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
+
+    private final ReactiveProducerService<String, BrewBeerEvent> reactiveProducerService;
+
+    private final InventoryClient inventoryClient;
 
     public Flux<BeerDto> findBeerById(Collection<String> beerId) {
         return Flux.deferContextual(ctx -> {
@@ -89,5 +104,32 @@ public class BeerService {
             return beerRepository.findAll(
                     qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx)).and(qBeer.active.eq(true)));
         }).map(beerMapper::fromBeer);
+    }
+
+    public Flux<SenderResult<Void>> checkBeerInventory() {
+        return Flux.deferContextual(ctx -> {
+            QBeer qBeer = QBeer.beer;
+            return beerRepository.findAll(
+                    qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx)).and(qBeer.active.eq(true)));
+        }).flatMap(this::checkBeerInventory);
+
+    }
+
+    public Flux<SenderResult<Void>> checkBeerInventory(Beer beer) {
+        return inventoryClient.getInventoryByBeerId(List.of(beer.getId()))
+                .switchIfEmpty(Flux.just(new InventoryDTO(null, beer.getId(), 0)))
+                .filter(__ -> beer.getMinQty() > __.qtyOnHand())
+                .map(___ -> new BrewBeerEvent(___.beerId(), beer.getMinQty() - ___.qtyOnHand()))
+                .flatMap(__ -> reactiveProducerService.send(__, Map.of()));
+
+    }
+
+    public Mono<Map<BeerDto, InventoryDTO>> inventory(List<BeerDto> beerDtos) {
+        var beerCollection = Mono.just(beerDtos).map(__ -> __.stream().map(BeerDto::id).collect(Collectors.toList()))
+                .map(inventoryClient::getInventoryByBeerId).flatMapMany(Flux::concat).collectList();
+
+        return beerCollection.map(__ -> collectionAsStream(beerDtos).collect(Collectors.toMap(Function.identity(),
+                o -> collectionAsStream(__).filter(___ -> o.id().equals(___.beerId())).findFirst()
+                        .orElse(new InventoryDTO(null, o.id(), null)))));
     }
 }

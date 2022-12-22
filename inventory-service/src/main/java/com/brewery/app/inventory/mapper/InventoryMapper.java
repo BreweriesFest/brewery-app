@@ -12,7 +12,7 @@ public interface InventoryMapper {
 
     InventoryDTO fromInventory(Inventory inventory);
 
-    @Mapping(source = "qtyToBrew", target = "quantityOnHand")
+    @Mapping(source = "qtyToBrew", target = "qtyOnHand")
     Inventory fromBrewBeerEvent(BrewBeerEvent brewBeerEvent);
 
 }

@@ -62,11 +62,11 @@ public class OrderService {
     public Mono<Map<OrderLineDto, BeerDto>> beer(List<OrderLineDto> orderLines) {
 
         var beerCollection = Flux.fromIterable(orderLines).map(OrderLineDto::beerId).collectList()
-                .flatMap(beerClient::getBeerById);
+                .map(beerClient::getBeerById).flatMapMany(Flux::concat).collectList();
 
         return beerCollection.map(__ -> collectionAsStream(orderLines).collect(Collectors.toMap(Function.identity(),
                 o -> collectionAsStream(__).filter(___ -> o.beerId().equals(___.id())).findFirst()
-                        .orElse(new BeerDto(o.beerId(), null, null, null, null)))));
+                        .orElse(new BeerDto(o.beerId(), null, null, null, null, null)))));
 
     }
 }

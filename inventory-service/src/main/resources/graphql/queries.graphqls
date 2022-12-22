@@ -1,3 +1,11 @@
 type Query {
-    inventory(beerId:[String!]!): [InventoryDTO]
+    inventory(beerId: [String!]!): [InventoryDTO]
+}
+type Mutation {
+    addInventory(inventory: InventoryIn!): InventoryDTO
+}
+
+input InventoryIn {
+    beerId: String!
+    qtyToBrew: Int!
 }

@@ -57,11 +57,21 @@ logging:
 app:
   kafka:
     inventory:
-      producer:
-        bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
-        topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:test}
-        idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
       consumer:
         bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:localhost:9092}
-        topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:inventory}
+        topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:brewery-brew-event}
         consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:inventory-consumer}
+  mongo-service:
+    circuit-breaker:
+      failureRateThreshold: ${CB__MONGO_SERVICE__FAILURE_RATE_THRESHOLD:10}
+      permittedNumberOfCallsInHalfOpenState: ${CB__MONGO_SERVICE__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.permittedNumberOfCallsInHalfOpenState}}
+      slidingWindowSize: ${CB__MONGO_SERVICE__SLIDING_WINDOW_SIZE:${app.default.circuit-breaker.slidingWindowSize}}
+      slidingWindowType: ${CB__MONGO_SERVICE__SLIDING_WINDOW_TYPE:${app.default.circuit-breaker.slidingWindowType}}
+      minimumNumberOfCalls: ${CB__MONGO_SERVICE__MIN_NO_OF_CALLS:${app.default.circuit-breaker.minimumNumberOfCalls}}
+      slowCallRateThreshold: ${CB__MONGO_SERVICE__SLOW_CALL_RATE_THRESHOLD:${app.default.circuit-breaker.slowCallRateThreshold}}
+      slowCallDurationThreshold: ${CB__MONGO_SERVICE__SLOW_CALL_DURATION_THRESHOLD:10000}
+      maxWaitDurationInHalfOpenState: ${CB__MONGO_SERVICE__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}
+    time-limiter:
+      timeoutDuration: ${TL__MONGO_SERVICE__TIMEOUT_DURATION:50}
+    retry:
+      maxAttempts: ${RT__MONGO_SERVICE__MAX_ATTEMPT:${app.default.retry.maxAttempts}}

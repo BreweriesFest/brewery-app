@@ -1,10 +1,12 @@
 package com.brewery.app.beer.resource;
 
 import com.brewery.app.beer.service.BeerService;
+import com.brewery.app.domain.InventoryDTO;
 import com.brewery.app.model.BeerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +14,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,5 +52,10 @@ public class BeerController {
     @QueryMapping
     Flux<BeerDto> beer() {
         return beerService.findAllBeer();
+    }
+
+    @BatchMapping(typeName = "BeerOut")
+    public Mono<Map<BeerDto, InventoryDTO>> inventory(List<BeerDto> beerDtos) {
+        return beerService.inventory(beerDtos);
     }
 }

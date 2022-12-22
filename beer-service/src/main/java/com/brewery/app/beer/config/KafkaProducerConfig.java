@@ -1,4 +1,4 @@
-package com.brewery.app.inventory.config;
+package com.brewery.app.beer.config;
 
 import com.brewery.app.event.BrewBeerEvent;
 import com.brewery.app.kafka.producer.ReactiveProducerService;
@@ -16,7 +16,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 public class KafkaProducerConfig {
 
     @Bean
-    @ConfigurationProperties(prefix = "app.kafka.inventory.producer")
+    @ConfigurationProperties(prefix = "app.kafka.beer.producer")
     public KafkaProducerProps kafkaProducerProps() {
         return new KafkaProducerProps();
     }

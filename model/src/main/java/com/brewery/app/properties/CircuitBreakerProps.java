@@ -12,20 +12,20 @@ import org.springframework.beans.factory.annotation.Value;
 @Getter
 @Setter
 public class CircuitBreakerProps {
-    @Value("${failureRateThreshold:${app.circuit-breaker.default.failureRateThreshold}}")
+    @Value("${failureRateThreshold:${app.default.circuit-breaker.failureRateThreshold}}")
     private float failureRateThreshold;
-    @Value("${permittedNumberOfCallsInHalfOpenState:${app.circuit-breaker.default.permittedNumberOfCallsInHalfOpenState}}")
+    @Value("${permittedNumberOfCallsInHalfOpenState:${app.default.circuit-breaker.permittedNumberOfCallsInHalfOpenState}}")
     private int permittedNumberOfCallsInHalfOpenState;
-    @Value("${slidingWindowSize:${app.circuit-breaker.default.slidingWindowSize}}")
+    @Value("${slidingWindowSize:${app.default.circuit-breaker.slidingWindowSize}}")
     private int slidingWindowSize;
-    @Value("${slidingWindowType:${app.circuit-breaker.default.slidingWindowType}}")
+    @Value("${slidingWindowType:${app.default.circuit-breaker.slidingWindowType}}")
     private CircuitBreakerConfig.SlidingWindowType slidingWindowType;
-    @Value("${minimumNumberOfCalls:${app.circuit-breaker.default.minimumNumberOfCalls}}")
+    @Value("${minimumNumberOfCalls:${app.default.circuit-breaker.minimumNumberOfCalls}}")
     private int minimumNumberOfCalls;
-    @Value("${slowCallRateThreshold:${app.circuit-breaker.default.slowCallRateThreshold}}")
+    @Value("${slowCallRateThreshold:${app.default.circuit-breaker.slowCallRateThreshold}}")
     private float slowCallRateThreshold;
-    @Value("${slowCallDurationThreshold:${app.circuit-breaker.default.slowCallDurationThreshold}}")
+    @Value("${slowCallDurationThreshold:${app.default.circuit-breaker.slowCallDurationThreshold}}")
     private long slowCallDurationThreshold;
-    @Value("${maxWaitDurationInHalfOpenState:${app.circuit-breaker.default.maxWaitDurationInHalfOpenState}}")
+    @Value("${maxWaitDurationInHalfOpenState:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}")
     private long maxWaitDurationInHalfOpenState;
 }

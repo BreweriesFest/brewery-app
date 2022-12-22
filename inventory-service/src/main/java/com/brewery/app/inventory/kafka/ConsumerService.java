@@ -21,14 +21,13 @@ import java.util.function.Function;
 public class ConsumerService {
 
     private static InventoryService INVENTORY_SERVICE;
+    private Function<ReceiverRecord<String, BrewBeerEvent>, Mono<ReceiverRecord<String, BrewBeerEvent>>> processRecord = record -> INVENTORY_SERVICE
+            .addInventory(record.value()).map(__ -> record);
+    private Disposable.Composite disposables = Disposables.composite();
 
     public ConsumerService(InventoryService inventoryService) {
         INVENTORY_SERVICE = inventoryService;
     }
-
-    private Function<ReceiverRecord<String, BrewBeerEvent>, Mono<ReceiverRecord<String, BrewBeerEvent>>> processRecord = record -> INVENTORY_SERVICE
-            .addInventory(record.value()).map(__ -> record);
-    private Disposable.Composite disposables = Disposables.composite();
 
     @Bean
     public ApplicationListener<ApplicationReadyEvent> factoryBeanListener(

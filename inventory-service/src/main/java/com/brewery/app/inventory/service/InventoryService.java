@@ -42,7 +42,6 @@ public class InventoryService {
     private final Retry mongoServiceRetry;
 
     public Mono<InventoryDTO> addInventory(BrewBeerEvent brewBeerEvent) {
-        // reactiveMongoOperations.upsert();
 
         var validateHeaders = validateContext();
 
@@ -54,7 +53,7 @@ public class InventoryService {
             return inventoryRepository.findOne(inventory.beerId.eq(brewBeerEvent.beerId())
                     .and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))));
         }).map(inventory -> {
-            inventory.setQuantityOnHand(inventory.getQuantityOnHand() + brewBeerEvent.qtyToBrew());
+            inventory.setQtyOnHand(inventory.getQtyOnHand() + brewBeerEvent.qtyToBrew());
             return inventory;
         }).switchIfEmpty(Mono.just(inventoryMapper.fromBrewBeerEvent(brewBeerEvent))).flatMap(inventoryRepository::save)
                 .map(inventoryMapper::fromInventory).transform(it -> {

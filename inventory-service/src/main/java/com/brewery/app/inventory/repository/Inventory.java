@@ -14,6 +14,6 @@ public class Inventory extends Auditable {
     private String upc;
     private String beerId;
     @Setter
-    private Integer quantityOnHand;
+    private Integer qtyOnHand;
 
 }

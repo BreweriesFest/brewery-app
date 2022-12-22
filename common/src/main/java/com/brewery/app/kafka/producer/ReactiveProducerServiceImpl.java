@@ -18,6 +18,7 @@ import java.util.Map;
 
 import static com.brewery.app.util.AppConstant.CUSTOMER_ID;
 import static com.brewery.app.util.AppConstant.TENANT_ID;
+import static com.brewery.app.util.Helper.fetchHeaderFromContext;
 
 @Slf4j
 public abstract class ReactiveProducerServiceImpl<K, V extends Record<K>> extends ReactiveProducerConfig<K, V>
@@ -36,8 +37,11 @@ public abstract class ReactiveProducerServiceImpl<K, V extends Record<K>> extend
         // get tenant banner from reactive context
         Class<V> clazz = getClazz();
 
-        return Mono.deferContextual(ctx -> Mono.just(MessageBuilder.withPayload(value)
-                .copyHeaders(generateHeaders(value.key(), ctx.get(TENANT_ID), ctx.get(CUSTOMER_ID), header)).build()))
+        return Mono
+                .deferContextual(ctx -> Mono.just(MessageBuilder.withPayload(value)
+                        .copyHeaders(generateHeaders(value.key(), fetchHeaderFromContext.apply(TENANT_ID, ctx),
+                                fetchHeaderFromContext.apply(CUSTOMER_ID, ctx), header))
+                        .build()))
                 .flatMap(msg -> send(msg)).subscribeOn(Schedulers.boundedElastic());
 
     }

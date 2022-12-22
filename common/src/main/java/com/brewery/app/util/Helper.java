@@ -17,7 +17,6 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.brewery.app.exception.ExceptionReason.CUSTOMIZE_REASON;
-import static com.brewery.app.util.AppConstant.TENANT_ID;
 import static com.brewery.app.util.ContextValidator.ValidationResult.SUCCESS;
 import static com.brewery.app.util.ContextValidator.isCustomerIdValid;
 import static com.brewery.app.util.ContextValidator.isTenantIdValid;

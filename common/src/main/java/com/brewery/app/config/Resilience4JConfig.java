@@ -25,13 +25,13 @@ import java.time.Duration;
 public class Resilience4JConfig {
 
     @Bean
-    @ConfigurationProperties(prefix = "app.circuit-breaker.default")
+    @ConfigurationProperties(prefix = "app.default.circuit-breaker")
     public CircuitBreakerProps defaultCircuitBreakerProps() {
         return new CircuitBreakerProps();
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "app.time-limiter.default")
+    @ConfigurationProperties(prefix = "app.default.time-limiter")
     public TimeLimiterProps defaultTimeLimiterProps() {
         return new TimeLimiterProps();
     }

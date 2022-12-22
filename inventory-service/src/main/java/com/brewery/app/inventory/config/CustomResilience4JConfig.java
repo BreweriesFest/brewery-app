@@ -22,19 +22,19 @@ public class CustomResilience4JConfig {
     private final Resilience4JConfig resilience4JConfig;
 
     @Bean
-    @ConfigurationProperties(prefix = "app.circuit-breaker.mongo-service")
+    @ConfigurationProperties(prefix = "app.mongo-service.circuit-breaker")
     public CircuitBreakerProps monoCircuitBreakerProps() {
         return new CircuitBreakerProps();
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "app.time-limiter.mongo-service")
+    @ConfigurationProperties(prefix = "app.mongo-service.time-limiter")
     public TimeLimiterProps mongoTimeLimiterProps() {
         return new TimeLimiterProps();
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "app.retry.mongo-service")
+    @ConfigurationProperties(prefix = "app.mongo-service.retry")
     public RetryProps mongoRetryProps() {
         return new RetryProps();
     }
