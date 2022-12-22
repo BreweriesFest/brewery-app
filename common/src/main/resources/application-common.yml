@@ -23,7 +23,7 @@ app:
 
   client:
     beer:
-      url: ${BEER_SERVICE_HOST:localhost:8080/graphql}
+      url: ${BEER_SERVICE_HOST:localhost:8080}/graphql
       circuit-breaker:
         failureRateThreshold: ${CB__BEER_CLIENT__FAILURE_RATE_THRESHOLD:10}
         permittedNumberOfCallsInHalfOpenState: ${CB__BEER_CLIENT__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.permittedNumberOfCallsInHalfOpenState}}
@@ -38,7 +38,7 @@ app:
       retry:
         maxAttempts: ${RT__BEER_CLIENT__MAX_ATTEMPT:${app.default.retry.maxAttempts}}
     inventory:
-      url: ${INVENTORY_SERVICE_HOST:localhost:8083/graphql}
+      url: ${INVENTORY_SERVICE_HOST:localhost:8083}/graphql
       circuit-breaker:
         failureRateThreshold: ${CB__INVENTORY_CLIENT__FAILURE_RATE_THRESHOLD:10}
         permittedNumberOfCallsInHalfOpenState: ${CB__INVENTORY_CLIENT__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.permittedNumberOfCallsInHalfOpenState}}
