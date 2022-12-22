@@ -4,46 +4,93 @@ logging:
     web: info
   pattern:
     dateformat: yyyy-MM-dd HH:mm:ss.SSS,${app.default.timezone}
+
+spring:
+  graphql:
+    graphiql:
+      enabled: true
+    schema:
+      locations: 'classpath*:graphql/**/'
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  info:
+    java:
+      enabled: true
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+server:
+  shutdown: graceful
+  error:
+    whitelabel:
+      enabled: false
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 2KB
+  use-forward-headers: true
 app:
   default:
     timezone: ${APP__TIMEZONE:UTC}
-  circuit-breaker:
-    default:
+    circuit-breaker:
       failureRateThreshold: ${CB__DEFAULT__FAILURE_RATE_THRESHOLD:50}
       permittedNumberOfCallsInHalfOpenState: ${CB__DEFAULT__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:10}
       slidingWindowSize: ${CB__DEFAULT__SLIDING_WINDOW_SIZE:100}
       slidingWindowType: ${CB__DEFAULT__SLIDING_WINDOW_TYPE:COUNT_BASED}
       minimumNumberOfCalls: ${CB__DEFAULT__MIN_NO_OF_CALLS:100}
       slowCallRateThreshold: ${CB__DEFAULT__SLOW_CALL_RATE_THRESHOLD:100}
-      slowCallDurationThreshold: ${CB__DEFAULT__SLOW_CALL_DURATION_THRESHOLD:60000}
+      slowCallDurationThreshold: ${CB__DEFAULT__SLOW_CALL_DURATION_THRESHOLD:40}
       maxWaitDurationInHalfOpenState: ${CB__DEFAULT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:100}
-    mongo-service:
-      failureRateThreshold: ${CB__MONGO_SERVICE__FAILURE_RATE_THRESHOLD:10}
-      permittedNumberOfCallsInHalfOpenState: ${CB__MONGO_SERVICE__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:${app.circuit-breaker.default.permittedNumberOfCallsInHalfOpenState}}
-      slidingWindowSize: ${CB__MONGO_SERVICE__SLIDING_WINDOW_SIZE:${app.circuit-breaker.default.slidingWindowSize}}
-      slidingWindowType: ${CB__MONGO_SERVICE__SLIDING_WINDOW_TYPE:${app.circuit-breaker.default.slidingWindowType}}
-      minimumNumberOfCalls: ${CB__MONGO_SERVICE__MIN_NO_OF_CALLS:${app.circuit-breaker.default.minimumNumberOfCalls}}
-      slowCallRateThreshold: ${CB__MONGO_SERVICE__SLOW_CALL_RATE_THRESHOLD:${app.circuit-breaker.default.slowCallRateThreshold}}
-      slowCallDurationThreshold: ${CB__MONGO_SERVICE__SLOW_CALL_DURATION_THRESHOLD:10000}
-      maxWaitDurationInHalfOpenState: ${CB__MONGO_SERVICE__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.circuit-breaker.default.maxWaitDurationInHalfOpenState}}
-  time-limiter:
-    default:
-      timeoutDuration: ${TL__DEFAULT__TIMEOUT_DURATION:1000}
-    mongoService:
-      timeoutDuration: ${TL__MONGO_SERVICE__TIMEOUT_DURATION:5000}
-  retry:
-    default:
+    time-limiter:
+      timeoutDuration: ${TL__DEFAULT__TIMEOUT_DURATION:200}
+    retry:
       maxAttempts: ${RT__DEFAULT__MAX_ATTEMPT:3}
-    mongoService:
-      maxAttempts: ${RT__MONGO_SERVICE__MAX_ATTEMPT:${app.retry.default.maxAttempts}}
 
-  kafka:
+  client:
+    beer:
+      url: ${BEER_SERVICE_HOST:localhost:8080}/graphql
+      circuit-breaker:
+        failureRateThreshold: ${CB__BEER_CLIENT__FAILURE_RATE_THRESHOLD:10}
+        permittedNumberOfCallsInHalfOpenState: ${CB__BEER_CLIENT__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.permittedNumberOfCallsInHalfOpenState}}
+        slidingWindowSize: ${CB__BEER_CLIENT__SLIDING_WINDOW_SIZE:${app.default.circuit-breaker.slidingWindowSize}}
+        slidingWindowType: ${CB__BEER_CLIENT__SLIDING_WINDOW_TYPE:${app.default.circuit-breaker.slidingWindowType}}
+        minimumNumberOfCalls: ${CB__BEER_CLIENT__MIN_NO_OF_CALLS:${app.default.circuit-breaker.minimumNumberOfCalls}}
+        slowCallRateThreshold: ${CB__BEER_CLIENT__SLOW_CALL_RATE_THRESHOLD:${app.default.circuit-breaker.slowCallRateThreshold}}
+        slowCallDurationThreshold: ${CB__BEER_CLIENT__SLOW_CALL_DURATION_THRESHOLD:10000}
+        maxWaitDurationInHalfOpenState: ${CB__BEER_CLIENT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}
+      time-limiter:
+        timeoutDuration: ${TL__BEER_CLIENT__TIMEOUT_DURATION:100}
+      retry:
+        maxAttempts: ${RT__BEER_CLIENT__MAX_ATTEMPT:${app.default.retry.maxAttempts}}
     inventory:
-      producer:
-        bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
-        topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:test}
-        idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
-      consumer:
-        bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:localhost:9092}
-        topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:test}
-        consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:test-consumer-group}
+      url: ${INVENTORY_SERVICE_HOST:localhost:8083}/graphql
+      circuit-breaker:
+        failureRateThreshold: ${CB__INVENTORY_CLIENT__FAILURE_RATE_THRESHOLD:10}
+        permittedNumberOfCallsInHalfOpenState: ${CB__INVENTORY_CLIENT__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.permittedNumberOfCallsInHalfOpenState}}
+        slidingWindowSize: ${CB__INVENTORY_CLIENT__SLIDING_WINDOW_SIZE:${app.default.circuit-breaker.slidingWindowSize}}
+        slidingWindowType: ${CB__INVENTORY_CLIENT__SLIDING_WINDOW_TYPE:${app.default.circuit-breaker.slidingWindowType}}
+        minimumNumberOfCalls: ${CB__INVENTORY_CLIENT__MIN_NO_OF_CALLS:${app.default.circuit-breaker.minimumNumberOfCalls}}
+        slowCallRateThreshold: ${CB__INVENTORY_CLIENT__SLOW_CALL_RATE_THRESHOLD:${app.default.circuit-breaker.slowCallRateThreshold}}
+        slowCallDurationThreshold: ${CB__INVENTORY_CLIENT__SLOW_CALL_DURATION_THRESHOLD:10000}
+        maxWaitDurationInHalfOpenState: ${CB__INVENTORY_CLIENT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}
+      time-limiter:
+        timeoutDuration: ${TL__INVENTORY_CLIENT__TIMEOUT_DURATION:100}
+      retry:
+        maxAttempts: ${RT__INVENTORY_CLIENT__MAX_ATTEMPT:${app.default.retry.maxAttempts}}

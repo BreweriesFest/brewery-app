@@ -5,51 +5,14 @@ spring:
     authentication-database: admin
     username: username
     password: password
-    database: beer
-  graphql:
-    graphiql:
-      enabled: true
-    schema:
-      locations: 'classpath*:graphql/**/'
+    database: brewery
   profiles:
     include:
       - common
     active:
       - beer-client-service
-management.health.circuitbreakers.enabled: true
-management:
-  metrics:
-    tags:
-      application: ${spring.application.name}
-  endpoint:
-    health:
-      show-details: always
-    probes:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  info:
-    java:
-      enabled: true
 
-resilience4j.circuitbreaker:
-  configs:
-    default:
-      registerHealthIndicator: true
 server:
-  shutdown: graceful
-  port: 8082
-  error:
-    whitelabel:
-      enabled: false
-  compression:
-    enabled: true
-    mime-types: application/json
-    min-response-size: 2KB
-  use-forward-headers: true
+  port: ${DEFAULT__APP__PORT:8082}
 
-  spring.kafka.bootstrap-servers: localhost:9092
-
-app.client.beer.url: localhost:8080/graphql
+spring.kafka.bootstrap-servers: localhost:9092

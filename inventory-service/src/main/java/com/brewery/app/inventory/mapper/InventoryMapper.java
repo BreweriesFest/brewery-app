@@ -1,18 +1,18 @@
 package com.brewery.app.inventory.mapper;
 
 import com.brewery.app.domain.InventoryDTO;
-import com.brewery.app.inventory.repository.BeerInventory;
+import com.brewery.app.event.BrewBeerEvent;
+import com.brewery.app.inventory.repository.Inventory;
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface InventoryMapper {
 
-    BeerInventory fromInventoryDTO(InventoryDTO inventoryDTO);
+    InventoryDTO fromInventory(Inventory inventory);
 
-    BeerInventory fromInventoryDTO(InventoryDTO inventoryDTO, @MappingTarget BeerInventory beerInventory);
-
-    InventoryDTO fromBeerInventory(BeerInventory beerInventory);
+    @Mapping(source = "qtyToBrew", target = "qtyOnHand")
+    Inventory fromBrewBeerEvent(BrewBeerEvent brewBeerEvent);
 
 }

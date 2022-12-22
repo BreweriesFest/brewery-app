@@ -1,37 +1,11 @@
 type Query {
-
-    hello: String
-    helloWithName(name:String): String
-    inventory: BeerInventory
-    inventories: [BeerInventory]
+    inventory(beerId: [String!]!): [InventoryDTO]
 }
 type Mutation {
-    addInventory(inventory:Inventory!): InventoryDTO
-}
-type BeerInventory{
-    upc: String
-    beerId: String
-    quantityOnHand: Int
-    beer: Beer
-}
-type Beer {
-    beerId: String
+    addInventory(inventory: InventoryIn!): InventoryDTO
 }
 
-input Inventory {
-    upc: String
+input InventoryIn {
     beerId: String!
-    quantityOnHand: Int!
-}
-
-type InventoryDTO {
-    id: ID
-    upc: String
-    beerId: String
-    quantityOnHand: Int
-}
-
-input MetaData {
-    tenantId: String!
-    customerId: String!
+    qtyToBrew: Int!
 }

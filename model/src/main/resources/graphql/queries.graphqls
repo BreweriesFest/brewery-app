@@ -1,3 +1,9 @@
+type InventoryDTO {
+    id: ID
+    beerId: String
+    qtyOnHand: Int
+}
+
 enum BeerStyle {
     LAGER, PILSNER, STOUT, GOSE, PORTER, ALE, WHEAT, IPA, PALE_ALE, SAISON
 }
@@ -13,4 +19,5 @@ type BeerOut {
     upc: String
     price: String
     style: BeerStyle
+    inventory: InventoryDTO
 }

@@ -17,11 +17,13 @@ import reactor.kafka.receiver.ReceiverRecord;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import static com.brewery.app.util.AppConstant.CUSTOMER_ID;
 import static com.brewery.app.util.AppConstant.TENANT_ID;
+import static com.brewery.app.util.Helper.extractHeaders;
 
 @Getter
 @Slf4j
@@ -48,11 +50,8 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
                             consumerRecord.value(), consumerRecord.topic(), consumerRecord.offset());
                 })
                 // .map(ConsumerRecord::value)
-                .flatMap(
-                        rec -> input.apply(rec)
-                                .contextWrite(__ -> __.putAllMap(Map.of(TENANT_ID,
-                                        new String(rec.headers().lastHeader(TENANT_ID).value()), CUSTOMER_ID,
-                                        new String(rec.headers().lastHeader(CUSTOMER_ID).value())))))
+                .flatMap(rec -> input.apply(rec)
+                        .contextWrite(__ -> __.putAllMap(extractHeaders(List.of(TENANT_ID, CUSTOMER_ID), rec))))
                 .doOnSubscribe(subs -> {
                     reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
                         micrometerConsumerListener.consumerAdded("myConsumer", consumer);

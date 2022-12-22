@@ -11,6 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 @Getter
 @Setter
 public class TimeLimiterProps {
-    @Value("${timeoutDuration:${app.time-limiter.default.timeoutDuration}}")
+    @Value("${timeoutDuration:${app.default.time-limiter.timeoutDuration}}")
     private long timeoutDuration;
 }

@@ -20,6 +20,8 @@ public class Beer extends Auditable {
     private BigDecimal price;
     @Setter
     private BeerStyle style;
+    @Setter
+    private Integer minQty;
 
     @Setter
     @Builder.Default

@@ -1,6 +1,6 @@
 package com.brewery.app.client;
 
-import com.brewery.app.model.BeerDto;
+import com.brewery.app.domain.InventoryDTO;
 import io.github.resilience4j.retry.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,24 +19,22 @@ import static com.brewery.app.util.AppConstant.*;
 
 @Service
 @Slf4j
-@Profile("beer-client-service")
-public class BeerClient extends GraphqlClient {
-
-    public BeerClient(@Value("${app.client.beer.url}") String url, HttpGraphQlClient httpGraphQlClient,
-            ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry beerClientRetry) {
-        super(httpGraphQlClient, url, reactiveCircuitBreakerFactory, beerClientRetry, RESILIENCE_ID_BEER_CLIENT);
+@Profile("inventory-client-service")
+public class InventoryClient extends GraphqlClient {
+    public InventoryClient(@Value("${app.client.inventory.url}") String url, HttpGraphQlClient httpGraphQlClient,
+            ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry inventoryClientRetry) {
+        super(httpGraphQlClient, url, reactiveCircuitBreakerFactory, inventoryClientRetry,
+                RESILIENCE_ID_INVENTORY_CLIENT);
     }
 
-    public Flux<BeerDto> getBeerById(Collection<String> beerId) {
+    public Flux<InventoryDTO> getInventoryByBeerId(Collection<String> beerId) {
 
         final var query = """
                 query($id: [String!]!) {
-                    data: beerById(id: $id) {
+                    data: inventory(beerId: $id) {
                         id
-                        name
-                        upc
-                        price
-                        style
+                        beerId
+                        qtyOnHand
                     }
                 }
                 """;

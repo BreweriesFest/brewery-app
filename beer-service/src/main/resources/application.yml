@@ -5,47 +5,20 @@ spring:
     authentication-database: admin
     username: username
     password: password
-    database: beer
-  graphql:
-    graphiql:
-      enabled: true
-    schema:
-      locations: 'classpath*:graphql/**/'
+    database: brewery
   profiles:
     include:
       - common
-management.health.circuitbreakers.enabled: true
-management:
-  metrics:
-    tags:
-      application: ${spring.application.name}
-  endpoint:
-    health:
-      show-details: always
-    probes:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  info:
-    java:
-      enabled: true
-
-resilience4j.circuitbreaker:
-  configs:
-    default:
-      registerHealthIndicator: true
+    active:
+      - inventory-client-service
 server:
-  shutdown: graceful
-  port: 8080
-  error:
-    whitelabel:
-      enabled: false
-  compression:
-    enabled: true
-    mime-types: application/json
-    min-response-size: 2KB
-  use-forward-headers: true
+  port: ${DEFAULT__APP__PORT:8080}
 
-  spring.kafka.bootstrap-servers: localhost:9092
+spring.kafka.bootstrap-servers: localhost:9092
+app:
+  kafka:
+    beer:
+      producer:
+        bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
+        topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:brewery-brew-event}
+        idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
