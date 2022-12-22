@@ -4,6 +4,48 @@ logging:
     web: info
   pattern:
     dateformat: yyyy-MM-dd HH:mm:ss.SSS,${app.default.timezone}
+
+spring:
+  graphql:
+    graphiql:
+      enabled: true
+    schema:
+      locations: 'classpath*:graphql/**/'
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  info:
+    java:
+      enabled: true
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+server:
+  shutdown: graceful
+  error:
+    whitelabel:
+      enabled: false
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 2KB
+  use-forward-headers: true
 app:
   default:
     timezone: ${APP__TIMEZONE:UTC}

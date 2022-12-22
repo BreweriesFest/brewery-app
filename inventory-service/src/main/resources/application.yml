@@ -5,7 +5,7 @@ spring:
     authentication-database: admin
     username: username
     password: password
-    database: inventory
+    database: brewery
   graphql:
     graphiql:
       enabled: true
@@ -14,46 +14,11 @@ spring:
   profiles:
     include:
       - common
-management.health.circuitbreakers.enabled: true
-management:
-  metrics:
-    tags:
-      application: ${spring.application.name}
-  endpoint:
-    health:
-      show-details: always
-    probes:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  info:
-    java:
-      enabled: true
 
-resilience4j.circuitbreaker:
-  configs:
-    default:
-      registerHealthIndicator: true
 server:
-  shutdown: graceful
   port: 8083
-  error:
-    whitelabel:
-      enabled: false
-  compression:
-    enabled: true
-    mime-types: application/json
-    min-response-size: 2KB
-  use-forward-headers: true
+spring.kafka.bootstrap-servers: localhost:9092
 
-  spring.kafka.bootstrap-servers: localhost:9092
-
-logging:
-  level:
-    root: info
-    web: trace
 app:
   kafka:
     inventory:

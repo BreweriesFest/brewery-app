@@ -46,14 +46,14 @@ public class WebClientResilience4jConfig {
 
         @Bean
         public Customizer<ReactiveResilience4JCircuitBreakerFactory> beerClientCustomizer(
-                CircuitBreakerProps monoCircuitBreakerProps, TimeLimiterProps mongoTimeLimiterProps) {
+                CircuitBreakerProps beerClientCircuitBreakerProps, TimeLimiterProps beerClientTimeLimiterProps) {
             return resilience4JConfig.configureCircuitBreakerCustomizer(RESILIENCE_ID_BEER_CLIENT,
-                    monoCircuitBreakerProps, mongoTimeLimiterProps);
+                    beerClientCircuitBreakerProps, beerClientTimeLimiterProps);
         }
 
         @Bean
-        public Retry beerClientRetry(RetryProps mongoRetryProps, MeterRegistry meterRegistry) {
-            return resilience4JConfig.configureRetryCustomizer(RESILIENCE_ID_BEER_CLIENT, mongoRetryProps,
+        public Retry beerClientRetry(RetryProps beerClientRetryProps, MeterRegistry meterRegistry) {
+            return resilience4JConfig.configureRetryCustomizer(RESILIENCE_ID_BEER_CLIENT, beerClientRetryProps,
                     meterRegistry);
         }
     }
