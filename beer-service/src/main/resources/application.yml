@@ -12,7 +12,7 @@ spring:
     active:
       - inventory-client-service
 server:
-  port: 8080
+  port: ${DEFAULT__APP__PORT:8080}
 
 spring.kafka.bootstrap-servers: localhost:9092
 app:

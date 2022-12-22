@@ -13,11 +13,6 @@ spring:
       - beer-client-service
 
 server:
-  port: 8082
-
-resilience4j.circuitbreaker:
-  configs:
-    default:
-      registerHealthIndicator: true
+  port: ${DEFAULT__APP__PORT:8082}
 
 spring.kafka.bootstrap-servers: localhost:9092
