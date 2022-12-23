@@ -37,8 +37,8 @@ public class AppConfig {
     }
 
     @Bean
-    public WebClient webClient(HttpClient httpClient) {
-        return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+    public WebClient webClient(WebClient.Builder webClientBuilder, HttpClient httpClient) {
+        return webClientBuilder.clientConnector(new ReactorClientHttpConnector(httpClient)).build();
     }
 
     @Bean
