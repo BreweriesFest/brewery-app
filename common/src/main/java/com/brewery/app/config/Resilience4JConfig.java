@@ -4,7 +4,6 @@ import com.brewery.app.properties.CircuitBreakerProps;
 import com.brewery.app.properties.RetryProps;
 import com.brewery.app.properties.TimeLimiterProps;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
-import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
@@ -68,7 +67,6 @@ public class Resilience4JConfig {
 
     public Retry configureRetryCustomizer(String id, RetryProps retryProps, MeterRegistry meterRegistry) {
         var registry = RetryRegistry.of(configure(retryProps, meterRegistry));
-        TaggedRetryMetrics.ofRetryRegistry(registry).bindTo(meterRegistry);
         return registry.retry(id);
     }
 
