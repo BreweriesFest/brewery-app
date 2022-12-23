@@ -10,6 +10,7 @@ spring:
     include:
       - common
     active:
+      - mongo-db
       - beer-client-service
 
 server:
