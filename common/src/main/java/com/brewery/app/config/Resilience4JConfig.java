@@ -67,12 +67,12 @@ public class Resilience4JConfig {
     }
 
     public Retry configureRetryCustomizer(String id, RetryProps retryProps, MeterRegistry meterRegistry) {
-        var registry = RetryRegistry.of(configure(retryProps, meterRegistry));
+        var registry = RetryRegistry.of(configure(retryProps));
         TaggedRetryMetrics.ofRetryRegistry(registry).bindTo(meterRegistry);
         return registry.retry(id);
     }
 
-    private RetryConfig configure(RetryProps retryProps, MeterRegistry meterRegistry) {
+    private RetryConfig configure(RetryProps retryProps) {
         return RetryConfig.custom().maxAttempts(retryProps.getMaxAttempts()).build();
     }
 }

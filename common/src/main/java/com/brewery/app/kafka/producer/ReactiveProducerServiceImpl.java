@@ -60,7 +60,7 @@ public abstract class ReactiveProducerServiceImpl<K, V extends Record<K>> extend
 
     Map<String, Object> generateHeaders(K key, String tenantId, String customerId, Map<String, Object> customHeaders) {
         var header = new HashMap<String, Object>();
-        header.put(KafkaHeaders.MESSAGE_KEY, key);
+        header.put(KafkaHeaders.KEY, key);
         // header.put(KafkaHeaders.TOPIC, "test");
         header.put(TENANT_ID, tenantId);
         header.put(CUSTOMER_ID, customerId);

@@ -3,6 +3,7 @@ package com.brewery.app.inventory.kafka;
 import com.brewery.app.event.BrewBeerEvent;
 import com.brewery.app.inventory.service.InventoryService;
 import com.brewery.app.kafka.consumer.ReactiveConsumerConfig;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -13,7 +14,6 @@ import reactor.core.Disposables;
 import reactor.core.publisher.Mono;
 import reactor.kafka.receiver.ReceiverRecord;
 
-import javax.annotation.PreDestroy;
 import java.util.function.Function;
 
 @Service
