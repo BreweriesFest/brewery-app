@@ -1,6 +1,8 @@
 logging:
   pattern:
     dateformat: yyyy-MM-dd HH:mm:ss.SSS,${app.default.timezone}
+    # ongoing issue sleuth to micrometer transition
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
     root: info
     web: info
@@ -20,9 +22,19 @@ management:
   health:
     circuitbreakers:
       enabled: true
+  tracing.sampling.probability: 1.0
   metrics:
     tags:
       application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+      sla:
+        http:
+          server:
+            requests: 1ms,5ms
   endpoint:
     health:
       show-details: always
