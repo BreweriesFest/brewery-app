@@ -1,4 +1,9 @@
 spring:
+  autoconfigure:
+    exclude:
+      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
+      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
   application:
     name: inventory-service
   data.mongodb:
@@ -14,6 +19,8 @@ spring:
   profiles:
     include:
       - common
+    active:
+      - mongo-db
 
 server:
   port: ${DEFAULT__APP__PORT:8083}

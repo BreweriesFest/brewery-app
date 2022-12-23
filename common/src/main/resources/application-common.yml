@@ -1,9 +1,13 @@
 logging:
+  pattern:
+    dateformat: yyyy-MM-dd HH:mm:ss.SSS,${app.default.timezone}
   level:
     root: info
     web: info
-  pattern:
-    dateformat: yyyy-MM-dd HH:mm:ss.SSS,${app.default.timezone}
+    org:
+      springframework.data:
+        mongodb.core.ReactiveMongoTemplate: DEBUG
+      mongodb.driver.connection: DEBUG
 
 spring:
   graphql:
@@ -31,6 +35,9 @@ management:
   info:
     java:
       enabled: true
+    git:
+      enabled: true
+      mode: full
 
 resilience4j.circuitbreaker:
   configs:

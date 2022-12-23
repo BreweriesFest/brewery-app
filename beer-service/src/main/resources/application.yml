@@ -1,7 +1,15 @@
 spring:
+  autoconfigure:
+    exclude:
+      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
+      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
   application:
     name: beer-service
   data.mongodb:
+    host: localhost
+    port: 27017
+    #    uri: "mongodb://username:password@localhost:27017/?authSource=admin&minPoolSize=5"
     authentication-database: admin
     username: username
     password: password
@@ -10,6 +18,7 @@ spring:
     include:
       - common
     active:
+      - mongo-db
       - inventory-client-service
 server:
   port: ${DEFAULT__APP__PORT:8080}
