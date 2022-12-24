@@ -1,0 +1,30 @@
+spring:
+  autoconfigure:
+    exclude:
+      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
+      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  application:
+    name: scheduler
+  data.mongodb:
+    host: localhost
+    port: 27017
+    #    uri: "mongodb://username:password@localhost:27017/?authSource=admin&minPoolSize=5"
+    authentication-database: admin
+    username: username
+    password: password
+    database: brewery
+  profiles:
+    include:
+      - common
+    active:
+      - mongo-db
+server:
+  port: ${DEFAULT__APP__PORT:8084}
+
+org.jobrunr.background-job-server.enabled: true
+org:
+  jobrunr:
+    dashboard:
+      enabled: true
+      port: 8000
