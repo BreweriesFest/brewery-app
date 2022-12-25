@@ -3,7 +3,7 @@ package com.brewery.app.scheduler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = { "com.brewery.app" })
 public class SchedulerApplication {
 
     public static void main(String[] args) {

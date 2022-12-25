@@ -1,8 +1,7 @@
 spring:
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
   application:
     name: order-service
   data.mongodb:
@@ -14,7 +13,7 @@ spring:
     include:
       - common
     active:
-      - mongo-db
+      - mongo-reactive
       - beer-client-service
 
 server:
