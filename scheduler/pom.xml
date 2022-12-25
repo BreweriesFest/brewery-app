@@ -19,17 +19,12 @@
 
 		<dependency>
 			<groupId>com.brewery.app</groupId>
-			<artifactId>model</artifactId>
+			<artifactId>common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jobrunr</groupId>
 			<artifactId>jobrunr-spring-boot-starter</artifactId>
-			<version>5.3.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
 	</dependencies>
 

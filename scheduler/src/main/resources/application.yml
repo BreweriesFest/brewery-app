@@ -1,8 +1,8 @@
 spring:
   autoconfigure:
     exclude:
-      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
-      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
   application:
     name: scheduler
@@ -19,6 +19,7 @@ spring:
       - common
     active:
       - mongo-db
+      - beer-client-service
 server:
   port: ${DEFAULT__APP__PORT:8084}
 
