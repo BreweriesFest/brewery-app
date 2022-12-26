@@ -46,4 +46,19 @@ public class BeerClient extends GraphqlClient {
                 });
 
     }
+
+    public Flux<BeerDto> getAllByTenant() {
+
+        final var query = """
+                query{
+                    data: beer {
+                        id
+                    }
+                }
+                """;
+
+        return fromFlux(List.of(TENANT_ID, CUSTOMER_ID), query, Map.of(), new ParameterizedTypeReference<>() {
+        });
+
+    }
 }

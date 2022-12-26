@@ -12,10 +12,10 @@ import reactor.kafka.sender.SenderOptions;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.brewery.app.util.AppConstant.LZ4_COMPRESSION;
+
 @Slf4j
 public abstract class ReactiveProducerConfig<K, V extends Record<K>> {
-
-    private static final String LZ4_COMPRESSION = "lz4";
 
     protected final ReactiveKafkaProducerTemplate<K, V> reactiveKafkaProducerTemplate;
     protected final MicrometerProducerListener<K, V> micrometerProducerListener;

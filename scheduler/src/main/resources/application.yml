@@ -28,3 +28,10 @@ org:
     dashboard:
       enabled: true
       port: 8000
+
+app:
+  kafka:
+    producer:
+      bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
+      topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:check-inventory-event}
+      idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
