@@ -44,6 +44,6 @@ app:
       slowCallDurationThreshold: ${CB__MONGO_SERVICE__SLOW_CALL_DURATION_THRESHOLD:10000}
       maxWaitDurationInHalfOpenState: ${CB__MONGO_SERVICE__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}
     time-limiter:
-      timeoutDuration: ${TL__MONGO_SERVICE__TIMEOUT_DURATION:50}
+      timeoutDuration: ${TL__MONGO_SERVICE__TIMEOUT_DURATION:500}
     retry:
       maxAttempts: ${RT__MONGO_SERVICE__MAX_ATTEMPT:${app.default.retry.maxAttempts}}

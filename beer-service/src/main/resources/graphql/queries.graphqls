@@ -14,5 +14,5 @@ input BeerIn {
     upc: String
     price: String
     style: BeerStyle
-    minQty: Int
+    minQty: Int!
 }

@@ -30,3 +30,7 @@ app:
         bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
         topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:brewery-brew-event}
         idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
+      consumer:
+        bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:localhost:9092}
+        topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:check-inventory-event}
+        consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:beer-consumer}

@@ -21,7 +21,8 @@ public class Beer extends Auditable {
     @Setter
     private BeerStyle style;
     @Setter
-    private Integer minQty;
+    @Builder.Default
+    private Integer minQty = 0;
 
     @Setter
     @Builder.Default

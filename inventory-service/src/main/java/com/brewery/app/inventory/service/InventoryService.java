@@ -50,12 +50,15 @@ public class InventoryService {
 
         var persist = Mono.deferContextual(ctx -> {
             QInventory inventory = QInventory.inventory;
-            return inventoryRepository.findOne(inventory.beerId.eq(brewBeerEvent.beerId())
-                    .and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))));
+            return inventoryRepository
+                    .findOne(inventory.beerId.eq(brewBeerEvent.beerId())
+                            .and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))))
+                    .transformDeferred(RetryOperator.of(mongoServiceRetry));
         }).map(inventory -> {
             inventory.setQtyOnHand(inventory.getQtyOnHand() + brewBeerEvent.qtyToBrew());
             return inventory;
-        }).switchIfEmpty(Mono.just(inventoryMapper.fromBrewBeerEvent(brewBeerEvent))).flatMap(inventoryRepository::save)
+        }).switchIfEmpty(Mono.just(inventoryMapper.fromBrewBeerEvent(brewBeerEvent)))
+                .flatMap(__ -> inventoryRepository.save(__).transformDeferred(RetryOperator.of(mongoServiceRetry)))
                 .map(inventoryMapper::fromInventory).transform(it -> {
                     ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(RESILIENCE_ID_MONGO);
                     return rcb.run(it, throwable -> {
@@ -63,8 +66,9 @@ public class InventoryService {
                         return Mono.error(new BusinessException(INTERNAL_SERVER_ERROR));
                     });
                 })
-                // .as(transactionalOperator::transactional)
-                .transformDeferred(RetryOperator.of(mongoServiceRetry));
+        // .as(transactionalOperator::transactional)
+        // .transformDeferred(RetryOperator.of(mongoServiceRetry))
+        ;
 
         return validateHeaders.then(validateRequest).then(persist).onErrorResume(
                 throwable -> Mono.error(new BusinessException(CUSTOMIZE_REASON, throwable.getMessage())));

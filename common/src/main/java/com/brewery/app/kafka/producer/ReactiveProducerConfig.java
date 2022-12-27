@@ -3,6 +3,7 @@ package com.brewery.app.kafka.producer;
 import com.brewery.app.domain.Record;
 import com.brewery.app.properties.kafka.KafkaProducerProps;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.kafka.core.MicrometerProducerListener;
@@ -15,6 +16,7 @@ import java.util.Map;
 import static com.brewery.app.util.AppConstant.LZ4_COMPRESSION;
 
 @Slf4j
+@Getter
 public abstract class ReactiveProducerConfig<K, V extends Record<K>> {
 
     protected final ReactiveKafkaProducerTemplate<K, V> reactiveKafkaProducerTemplate;
