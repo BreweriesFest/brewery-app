@@ -1,7 +1,7 @@
-package com.brewery.app.inventory.kafka;
+package com.brewery.app.beer.kafka;
 
-import com.brewery.app.event.BrewBeerEvent;
-import com.brewery.app.inventory.service.InventoryService;
+import com.brewery.app.beer.service.BeerService;
+import com.brewery.app.event.CheckInventoryEvent;
 import com.brewery.app.kafka.consumer.ReactiveConsumerConfig;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
@@ -20,18 +20,19 @@ import java.util.function.Function;
 @Slf4j
 public class ConsumerService {
 
-    private static InventoryService INVENTORY_SERVICE;
-    private Function<ReceiverRecord<String, BrewBeerEvent>, Mono<?>> processRecord = record -> INVENTORY_SERVICE
-            .addInventory(record.value());
     private Disposable.Composite disposables = Disposables.composite();
+    private BeerService beerService;
+    private Function<ReceiverRecord<String, CheckInventoryEvent>, Mono<?>> processRecord = record -> {
+        return this.beerService.consumeCheckInventoryEvent(record.value());
+    };
 
-    public ConsumerService(InventoryService inventoryService) {
-        INVENTORY_SERVICE = inventoryService;
+    public ConsumerService(BeerService beerService) {
+        this.beerService = beerService;
     }
 
     @Bean
     public ApplicationListener<ApplicationReadyEvent> factoryBeanListener(
-            ReactiveConsumerConfig<String, BrewBeerEvent> reactiveConsumer) {
+            ReactiveConsumerConfig<String, CheckInventoryEvent> reactiveConsumer) {
         return event -> disposables.add(reactiveConsumer.consumerRecord(processRecord).subscribe());
     }
 

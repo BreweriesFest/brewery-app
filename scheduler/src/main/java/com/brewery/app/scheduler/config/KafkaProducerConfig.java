@@ -1,6 +1,6 @@
-package com.brewery.app.beer.config;
+package com.brewery.app.scheduler.config;
 
-import com.brewery.app.event.BrewBeerEvent;
+import com.brewery.app.event.CheckInventoryEvent;
 import com.brewery.app.kafka.producer.ReactiveProducerService;
 import com.brewery.app.kafka.producer.ReactiveProducerServiceImpl;
 import com.brewery.app.properties.kafka.KafkaProducerProps;
@@ -15,13 +15,13 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 public class KafkaProducerConfig {
 
     @Bean
-    @ConfigurationProperties(prefix = "app.kafka.beer.producer")
+    @ConfigurationProperties(prefix = "app.kafka.producer")
     public KafkaProducerProps kafkaProducerProps() {
         return new KafkaProducerProps();
     }
 
     @Bean
-    public ReactiveProducerService<String, BrewBeerEvent> reactiveProducerService(KafkaProducerProps properties,
+    public ReactiveProducerService<String, CheckInventoryEvent> reactiveProducer(KafkaProducerProps properties,
             MeterRegistry meterRegistry) {
         return new ReactiveProducerServiceImpl<>(properties, StringSerializer.class, JsonSerializer.class,
                 meterRegistry) {

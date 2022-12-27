@@ -1,8 +1,7 @@
 spring:
   autoconfigure:
     exclude:
-      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
-      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
   application:
     name: beer-service
@@ -18,7 +17,7 @@ spring:
     include:
       - common
     active:
-      - mongo-db
+      - mongo-reactive
       - inventory-client-service
 server:
   port: ${DEFAULT__APP__PORT:8080}
@@ -31,3 +30,7 @@ app:
         bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
         topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:brewery-brew-event}
         idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
+      consumer:
+        bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:localhost:9092}
+        topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:check-inventory-event}
+        consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:beer-consumer}

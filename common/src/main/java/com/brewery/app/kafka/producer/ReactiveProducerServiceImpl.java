@@ -48,8 +48,9 @@ public abstract class ReactiveProducerServiceImpl<K, V extends Record<K>> extend
 
     private Mono<SenderResult<Void>> send(Message<V> msg) {
         return reactiveKafkaProducerTemplate.send(topic, msg).publishOn(Schedulers.boundedElastic())
-                .doOnSuccess(
-                        senderResult -> log.info("sent {} offset : {}", msg, senderResult.recordMetadata().offset()))
+                .doOnSuccess(senderResult -> log.info("sent {}, topic :: {}, partition :: {}, offset :: {}", msg,
+                        senderResult.recordMetadata().topic(), senderResult.recordMetadata().partition(),
+                        senderResult.recordMetadata().offset()))
                 .doOnSubscribe(subs -> {
                     reactiveKafkaProducerTemplate.doOnProducer(producer -> {
                         micrometerProducerListener.producerAdded(PRODUCER + topic, producer);
@@ -61,7 +62,7 @@ public abstract class ReactiveProducerServiceImpl<K, V extends Record<K>> extend
     Map<String, Object> generateHeaders(K key, String tenantId, String customerId, Map<String, Object> customHeaders) {
         var header = new HashMap<String, Object>();
         header.put(KafkaHeaders.KEY, key);
-        // header.put(KafkaHeaders.TOPIC, "test");
+        // header.put(KafkaHeaders.TOPIC, topic);
         header.put(TENANT_ID, tenantId);
         header.put(CUSTOMER_ID, customerId);
         header.putAll(customHeaders);

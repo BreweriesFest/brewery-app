@@ -11,4 +11,6 @@ public class AppConstant {
 
     public static final String RESILIENCE_ID_BEER_CLIENT = "beer-client";
     public static final String RESILIENCE_ID_INVENTORY_CLIENT = "inventory-client";
+
+    public static final String LZ4_COMPRESSION = "lz4";
 }
