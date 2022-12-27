@@ -7,6 +7,7 @@ import com.brewery.app.beer.repository.QBeer;
 import com.brewery.app.client.InventoryClient;
 import com.brewery.app.domain.InventoryDTO;
 import com.brewery.app.event.BrewBeerEvent;
+import com.brewery.app.event.CheckInventoryEvent;
 import com.brewery.app.exception.BusinessException;
 import com.brewery.app.exception.ExceptionReason;
 import com.brewery.app.kafka.producer.ReactiveProducerService;
@@ -106,19 +107,18 @@ public class BeerService {
         }).map(beerMapper::fromBeer);
     }
 
-    public Flux<SenderResult<Void>> checkBeerInventory() {
-        return Flux.deferContextual(ctx -> {
+    public Mono<SenderResult<Void>> consumeCheckInventoryEvent(CheckInventoryEvent event) {
+        return Mono.deferContextual(ctx -> {
             QBeer qBeer = QBeer.beer;
-            return beerRepository.findAll(
-                    qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx)).and(qBeer.active.eq(true)));
+            return beerRepository.findOne((qBeer.id.eq(event.beerId()))
+                    .and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
         }).flatMap(this::checkBeerInventory);
 
     }
 
-    public Flux<SenderResult<Void>> checkBeerInventory(Beer beer) {
+    public Mono<SenderResult<Void>> checkBeerInventory(Beer beer) {
         return inventoryClient.getInventoryByBeerId(List.of(beer.getId()))
-                .switchIfEmpty(Flux.just(new InventoryDTO(null, beer.getId(), 0)))
-                .filter(__ -> beer.getMinQty() > __.qtyOnHand())
+                .single(new InventoryDTO(null, beer.getId(), 0)).filter(__ -> beer.getMinQty() > __.qtyOnHand())
                 .map(___ -> new BrewBeerEvent(___.beerId(), beer.getMinQty() - ___.qtyOnHand()))
                 .flatMap(__ -> reactiveProducerService.send(__, Map.of()));
 

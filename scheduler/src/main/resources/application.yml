@@ -1,0 +1,37 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  application:
+    name: scheduler
+  data.mongodb:
+    host: localhost
+    port: 27017
+    #    uri: "mongodb://username:password@localhost:27017/?authSource=admin&minPoolSize=5"
+    authentication-database: admin
+    username: username
+    password: password
+    database: brewery
+  profiles:
+    include:
+      - common
+    active:
+      - mongo-sync
+      - beer-client-service
+server:
+  port: ${DEFAULT__APP__PORT:8084}
+
+org.jobrunr.background-job-server.enabled: true
+org:
+  jobrunr:
+    dashboard:
+      enabled: true
+      port: 8000
+
+app:
+  kafka:
+    producer:
+      bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
+      topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:check-inventory-event}
+      idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}

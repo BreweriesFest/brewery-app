@@ -1,8 +1,7 @@
 spring:
   autoconfigure:
     exclude:
-      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
-      #      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
   application:
     name: inventory-service
@@ -20,7 +19,7 @@ spring:
     include:
       - common
     active:
-      - mongo-db
+      - mongo-reactive
 
 server:
   port: ${DEFAULT__APP__PORT:8083}
@@ -45,6 +44,6 @@ app:
       slowCallDurationThreshold: ${CB__MONGO_SERVICE__SLOW_CALL_DURATION_THRESHOLD:10000}
       maxWaitDurationInHalfOpenState: ${CB__MONGO_SERVICE__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}
     time-limiter:
-      timeoutDuration: ${TL__MONGO_SERVICE__TIMEOUT_DURATION:50}
+      timeoutDuration: ${TL__MONGO_SERVICE__TIMEOUT_DURATION:500}
     retry:
       maxAttempts: ${RT__MONGO_SERVICE__MAX_ATTEMPT:${app.default.retry.maxAttempts}}

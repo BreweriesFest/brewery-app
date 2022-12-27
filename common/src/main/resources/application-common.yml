@@ -78,7 +78,7 @@ app:
       slowCallDurationThreshold: ${CB__DEFAULT__SLOW_CALL_DURATION_THRESHOLD:40}
       maxWaitDurationInHalfOpenState: ${CB__DEFAULT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:100}
     time-limiter:
-      timeoutDuration: ${TL__DEFAULT__TIMEOUT_DURATION:200}
+      timeoutDuration: ${TL__DEFAULT__TIMEOUT_DURATION:500}
     retry:
       maxAttempts: ${RT__DEFAULT__MAX_ATTEMPT:3}
 
@@ -95,7 +95,7 @@ app:
         slowCallDurationThreshold: ${CB__BEER_CLIENT__SLOW_CALL_DURATION_THRESHOLD:10000}
         maxWaitDurationInHalfOpenState: ${CB__BEER_CLIENT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}
       time-limiter:
-        timeoutDuration: ${TL__BEER_CLIENT__TIMEOUT_DURATION:100}
+        timeoutDuration: ${TL__BEER_CLIENT__TIMEOUT_DURATION:500}
       retry:
         maxAttempts: ${RT__BEER_CLIENT__MAX_ATTEMPT:${app.default.retry.maxAttempts}}
     inventory:
@@ -110,6 +110,6 @@ app:
         slowCallDurationThreshold: ${CB__INVENTORY_CLIENT__SLOW_CALL_DURATION_THRESHOLD:10000}
         maxWaitDurationInHalfOpenState: ${CB__INVENTORY_CLIENT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}
       time-limiter:
-        timeoutDuration: ${TL__INVENTORY_CLIENT__TIMEOUT_DURATION:100}
+        timeoutDuration: ${TL__INVENTORY_CLIENT__TIMEOUT_DURATION:500}
       retry:
         maxAttempts: ${RT__INVENTORY_CLIENT__MAX_ATTEMPT:${app.default.retry.maxAttempts}}

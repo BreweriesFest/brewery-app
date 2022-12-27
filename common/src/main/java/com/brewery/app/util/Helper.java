@@ -3,10 +3,10 @@ package com.brewery.app.util;
 import com.brewery.app.exception.BusinessException;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.graphql.server.WebGraphQlRequest;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.kafka.receiver.ReceiverRecord;
 import reactor.util.context.ContextView;
 
 import java.util.*;
@@ -58,7 +58,7 @@ public class Helper {
     }
 
     public static Map<String, Optional<String>> extractHeaders(Collection<String> headers,
-            ReceiverRecord<?, ?> receiverRecord) {
+            ConsumerRecord<?, ?> receiverRecord) {
         var headerMap = new HashMap<String, Optional<String>>();
         headers.forEach(
                 __ -> headerMap.put(__, Optional.of(new String(receiverRecord.headers().lastHeader(__).value()))));

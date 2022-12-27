@@ -3,6 +3,7 @@ package com.brewery.app.kafka.producer;
 import com.brewery.app.domain.Record;
 import com.brewery.app.properties.kafka.KafkaProducerProps;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.kafka.core.MicrometerProducerListener;
@@ -12,10 +13,11 @@ import reactor.kafka.sender.SenderOptions;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
-public abstract class ReactiveProducerConfig<K, V extends Record<K>> {
+import static com.brewery.app.util.AppConstant.LZ4_COMPRESSION;
 
-    private static final String LZ4_COMPRESSION = "lz4";
+@Slf4j
+@Getter
+public abstract class ReactiveProducerConfig<K, V extends Record<K>> {
 
     protected final ReactiveKafkaProducerTemplate<K, V> reactiveKafkaProducerTemplate;
     protected final MicrometerProducerListener<K, V> micrometerProducerListener;
