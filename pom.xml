@@ -25,7 +25,7 @@
     <properties>
         <!--suppress UnresolvedMavenProperty -->
         <version.number>${git.branch}.${git.commit.id.abbrev}</version.number>
-        <java.version>19</java.version>
+        <java.version>17</java.version>
         <spring-cloud.version>2022.0.0</spring-cloud.version>
         <testcontainers.version>1.17.6</testcontainers.version>
         <spring-doc.version>1.6.14</spring-doc.version>
