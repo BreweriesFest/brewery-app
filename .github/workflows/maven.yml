@@ -16,21 +16,21 @@ on:
 
 jobs:
   inventory-service:
-    uses: BreweriesFest/brewery-app/.github/workflows/build.yml@${{ github.ref_name }}
+    uses: BreweriesFest/brewery-app/.github/workflows/build.yml@${GITHUB_REF##*/}
     with:
       service-name: 'inventory-service'
 
   beer-service:
-    uses: BreweriesFest/brewery-app/.github/workflows/build.yml@${{ github.ref_name }}
+    uses: BreweriesFest/brewery-app/.github/workflows/build.yml@${GITHUB_REF##*/}
     with:
       service-name: 'beer-service'
 
   order-service:
-    uses: BreweriesFest/brewery-app/.github/workflows/build.yml@${{ github.ref_name }}
+    uses: BreweriesFest/brewery-app/.github/workflows/build.yml@${GITHUB_REF##*/}
     with:
       service-name: 'order-service'
 
   scheduler:
-    uses: BreweriesFest/brewery-app/.github/workflows/build.yml${{ github.ref_name }}
+    uses: BreweriesFest/brewery-app/.github/workflows/build.yml@${GITHUB_REF##*/}
     with:
       service-name: 'scheduler'
