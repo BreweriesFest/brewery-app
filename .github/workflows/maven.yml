@@ -29,9 +29,9 @@ jobs:
       - name: Set version
         run: mvn versions:set -DnewVersion=${GITHUB_HEAD_REF}.${GITHUB_SHA::7} -DprocessDependencies=false
       - name: Compile
-        run: mvn -B -pl inventory-service clean install --file pom.xml
+        run: mvn -pl B -am inventory-service clean install --file pom.xml
       - name: Build Docker image
-        run: mvn -B -pl inventory-service -DskipTests spring-boot:build-image --file pom.xml
+        run: mvn -pl B -am inventory-service -DskipTests spring-boot:build-image --file pom.xml
 
   beer-service:
     runs-on: ubuntu-latest
@@ -47,9 +47,9 @@ jobs:
       - name: Set version
         run: mvn versions:set -DnewVersion=${GITHUB_HEAD_REF}.${GITHUB_SHA::7} -DprocessDependencies=false
       - name: Compile
-        run: mvn -B -pl beer-service clean install --file pom.xml
+        run: mvn -pl B -am beer-service clean install --file pom.xml
       - name: Build Docker image
-        run: mvn -B -pl beer-service -DskipTests spring-boot:build-image --file pom.xml
+        run: mvn -pl B -am beer-service -DskipTests spring-boot:build-image --file pom.xml
 
   order-service:
     runs-on: ubuntu-latest
@@ -65,6 +65,6 @@ jobs:
       - name: Set version
         run: mvn versions:set -DnewVersion=${GITHUB_HEAD_REF}.${GITHUB_SHA::7} -DprocessDependencies=false
       - name: Compile
-        run: mvn -B -pl order-service clean install --file pom.xml
+        run: mvn -pl B -am order-service clean install --file pom.xml
       - name: Build Docker image
-        run: mvn -B -pl order-service -DskipTests spring-boot:build-image --file pom.xml
+        run: mvn -pl B -am order-service -DskipTests spring-boot:build-image --file pom.xml
