@@ -31,7 +31,7 @@ jobs:
       - name: Compile
         run: mvn -B -pl inventory-service -am clean install --file pom.xml
       - name: Build Docker image
-        run: mvn -B -pl inventory-service -am -DskipTests spring-boot:build-image --file pom.xml
+        run: mvn -B -pl inventory-service -DskipTests spring-boot:build-image --file pom.xml
 
   beer-service:
     runs-on: ubuntu-latest
@@ -49,7 +49,7 @@ jobs:
       - name: Compile
         run: mvn -B -pl beer-service -am clean install --file pom.xml
       - name: Build Docker image
-        run: mvn -B -pl beer-service -am -DskipTests spring-boot:build-image --file pom.xml
+        run: mvn -B -pl beer-service -DskipTests spring-boot:build-image --file pom.xml
 
   order-service:
     runs-on: ubuntu-latest
@@ -67,4 +67,4 @@ jobs:
       - name: Compile
         run: mvn -B -pl order-service -am clean install --file pom.xml
       - name: Build Docker image
-        run: mvn -B -pl order-service -am -DskipTests spring-boot:build-image --file pom.xml
+        run: mvn -B -pl order-service -DskipTests spring-boot:build-image --file pom.xml
