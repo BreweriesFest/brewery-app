@@ -19,18 +19,22 @@ jobs:
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@refactor
     with:
       service-name: 'inventory-service'
+      event-number: ${{ github.event.number }}
 
   beer-service:
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@refactor
     with:
       service-name: 'beer-service'
+      event-number: ${{ github.event.number }}
 
   order-service:
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@refactor
     with:
       service-name: 'order-service'
+      event-number: ${{ github.event.number }}
 
   scheduler:
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@refactor
     with:
       service-name: 'scheduler'
+      event-number: ${{ github.event.number }}

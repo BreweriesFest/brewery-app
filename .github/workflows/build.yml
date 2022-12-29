@@ -3,6 +3,9 @@ name: Build and Test
 on:
   workflow_call:
     inputs:
+      event-number:
+        required: true
+        type: string
       java-version:
         required: false
         type: string
@@ -28,11 +31,9 @@ jobs:
         run: mvn -B -pl ${{ inputs.service-name }} -am clean install --file pom.xml
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
-      - name: Notify about starting this deployment
-        uses: hasura/comment-progress@v2.1.0
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: 'BreweriesFest/brewery-app'
-          number: ${{ github.event.number }}
-          id: deploy-preview
-          message: 'Build Successful for '${{ inputs.service-name }}
+          message: |
+            Build Success :wave:
+          pr_number: ${{ inputs.event-number }}
