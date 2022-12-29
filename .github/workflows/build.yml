@@ -3,9 +3,6 @@ name: Build and Test
 on:
   workflow_call:
     inputs:
-      event-number:
-        required: true
-        type: string
       java-version:
         required: false
         type: string
@@ -31,9 +28,3 @@ jobs:
         run: mvn -B -pl ${{ inputs.service-name }} -am clean install --file pom.xml
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
-      - name: Comment PR
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          message: |
-            Build Success :wave:
-          pr_number: ${{ inputs.event-number }}
