@@ -85,8 +85,10 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
                 })
                 .flatMap(__ -> input.apply(__)
                         .contextWrite(ctx -> ctx.putAllMap(extractHeaders(List.of(TENANT_ID, CUSTOMER_ID), __)))
-                        .map(___ -> __).onErrorResume(error -> Mono.error(new ReceiverRecordException(__, error)))
-                        .onErrorStop())
+                        .map(___ -> {
+                            __.receiverOffset().acknowledge();
+                            return __;
+                        }).onErrorResume(error -> Mono.error(new ReceiverRecordException(__, error))).onErrorStop())
                 .retryWhen(Retry.backoff(3, Duration.ofSeconds(2)).transientErrors(true)
                         .onRetryExhaustedThrow((a, b) -> b.failure()))
 
