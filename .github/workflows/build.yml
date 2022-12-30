@@ -1,0 +1,30 @@
+name: Build and Test
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        required: false
+        type: string
+        default: '17'
+      service-name:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: 'temurin'
+          cache: maven
+      - name: Set version
+        run: mvn versions:set -DnewVersion=${GITHUB_HEAD_REF}.${GITHUB_SHA::7} -DprocessDependencies=false
+      - name: Compile
+        run: mvn -B -pl ${{ inputs.service-name }} -am clean install --file pom.xml
+      - name: Build Docker image
+        run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
