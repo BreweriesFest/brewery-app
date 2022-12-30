@@ -5,18 +5,12 @@ import com.brewery.app.properties.kafka.KafkaConsumerProps;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
-import org.springframework.kafka.core.KafkaOperations;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.MicrometerConsumerListener;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.kafka.support.serializer.JsonSerializer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -25,10 +19,8 @@ import reactor.kafka.receiver.ReceiverRecord;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 import static com.brewery.app.util.AppConstant.CUSTOMER_ID;
@@ -44,7 +36,19 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 
     protected final String topic;
 
+    protected final AtomicReference<Consumer<K, V>> consumerToUnregister = new AtomicReference<>();
+
     protected final DeadLetterPublishingRecoverer deadLetterPublishingRecoverer;
+
+    protected ReactiveConsumerConfig(KafkaConsumerProps kafkaProperties, Class<?> serializer, Class<?> deSerializer,
+            DeadLetterPublishingRecoverer deadLetterPublishingRecoverer, MeterRegistry meterRegistry) {
+        this.topic = kafkaProperties.getTopic();
+        var kafkaReceiverOptions = kafkaReceiverOptions(kafkaProperties, serializer, deSerializer);
+        micrometerConsumerListener = new MicrometerConsumerListener<>(meterRegistry);
+        reactiveKafkaConsumerTemplate = new ReactiveKafkaConsumerTemplate<>(kafkaReceiverOptions);
+        this.deadLetterPublishingRecoverer = deadLetterPublishingRecoverer;
+
+    }
 
     protected ReactiveConsumerConfig(KafkaConsumerProps kafkaProperties, Class<?> serializer, Class<?> deSerializer,
             MeterRegistry meterRegistry) {
@@ -52,7 +56,7 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
         var kafkaReceiverOptions = kafkaReceiverOptions(kafkaProperties, serializer, deSerializer);
         micrometerConsumerListener = new MicrometerConsumerListener<>(meterRegistry);
         reactiveKafkaConsumerTemplate = new ReactiveKafkaConsumerTemplate<>(kafkaReceiverOptions);
-        deadLetterPublishingRecoverer = deadLetterPublishingRecoverer();
+        this.deadLetterPublishingRecoverer = null;
 
     }
 
@@ -62,7 +66,19 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 
                 .receive().publishOn(Schedulers.boundedElastic())
                 // .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
-                .doOnNext(consumerRecord -> {
+                .doOnSubscribe(subs -> {
+                    reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
+                        micrometerConsumerListener.consumerAdded("consuming::" + topic, consumer);
+                        consumerToUnregister.set(consumer);
+                        return Mono.empty();
+                    }).subscribe();
+                }).onErrorResume(e -> {
+                    Consumer<K, V> consumer = consumerToUnregister.getAndSet(null);
+                    if (consumer != null) {
+                        micrometerConsumerListener.consumerRemoved("consuming::" + topic, consumer);
+                    }
+                    return Mono.empty();
+                }).doOnNext(consumerRecord -> {
                     log.info("received key={}, value={}, headers={} from topic={}, partition={}, offset={}",
                             consumerRecord.key(), consumerRecord.value(), consumerRecord.headers().toArray(),
                             consumerRecord.topic(), consumerRecord.partition(), consumerRecord.offset());
@@ -71,28 +87,14 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
                         .contextWrite(ctx -> ctx.putAllMap(extractHeaders(List.of(TENANT_ID, CUSTOMER_ID), __)))
                         .map(___ -> __).onErrorResume(error -> Mono.error(new ReceiverRecordException(__, error)))
                         .onErrorStop())
-                // .map(__-> Tuples.of(__,Mono.just(__),input.apply(__)
-                // .contextWrite(ctx -> ctx.putAllMap(extractHeaders(List.of(TENANT_ID, CUSTOMER_ID), __)))))
-                // .flatMap(___->Mono.zip(___.getT3(),___.getT2(),(o1,o2)->{
-                // ___.getT1().receiverOffset().acknowledge();
-                // return o2;
-                // }).onErrorResume(error->Mono.error(new ReceiverRecordException(___.getT1(),error))))
-                .retryWhen(
-                        Retry.backoff(3, Duration.ofSeconds(2)).transientErrors(true).onRetryExhaustedThrow((a, b) -> {
-                            log.info("testing");
-                            return b.failure();
-                        }))
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(2)).transientErrors(true)
+                        .onRetryExhaustedThrow((a, b) -> b.failure()))
 
                 .onErrorContinue((e, o) -> {
                     ReceiverRecordException ex = (ReceiverRecordException) e;
-                    System.out.println("Retries exhausted for " + ex);
-                    // deadLetterPublishingRecoverer.accept(ex.getRecord(), ex);
+                    if (Objects.nonNull(deadLetterPublishingRecoverer))
+                        deadLetterPublishingRecoverer.accept(ex.getRecord(), ex);
                     ex.getRecord().receiverOffset().acknowledge();
-                }).doOnSubscribe(subs -> {
-                    reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
-                        micrometerConsumerListener.consumerAdded("consuming::" + topic, consumer);
-                        return Mono.empty();
-                    }).subscribe();
                 }).repeat();
 
     }
@@ -110,23 +112,6 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
                 .addAssignListener(receiverPartitions -> log.info("assigned partition {}", receiverPartitions))
                 .addRevokeListener(receiverPartitions -> log.info("revoke partition {}", receiverPartitions))
                 .subscription(Collections.singletonList(kafkaProperties.getTopic()));
-    }
-
-    private DeadLetterPublishingRecoverer deadLetterPublishingRecoverer() {
-        return new DeadLetterPublishingRecoverer(getEventKafkaTemplate(),
-                (cr, e) -> new TopicPartition(cr.topic() + "_dlt", 0));
-    }
-
-    private KafkaOperations<K, V> getEventKafkaTemplate() {
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerConfigs()));
-    }
-
-    Map<String, Object> producerConfigs() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        return props;
     }
 
 }
