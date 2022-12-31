@@ -27,8 +27,7 @@ import java.util.stream.Collectors;
 
 import static com.brewery.app.exception.ExceptionReason.BEER_NOT_FOUND;
 import static com.brewery.app.util.AppConstant.TENANT_ID;
-import static com.brewery.app.util.Helper.collectionAsStream;
-import static com.brewery.app.util.Helper.fetchHeaderFromContext;
+import static com.brewery.app.util.Helper.*;
 
 @Service
 @RequiredArgsConstructor
@@ -58,10 +57,9 @@ public class BeerService {
                     .exists((qBeer.name.equalsIgnoreCase(beerDto.name()).or(qBeer.upc.equalsIgnoreCase(beerDto.upc())))
                             .and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx)))
                             .and(qBeer.active.eq(true)));
-        }).handle((__, sink) -> {
-            if (__.equals(Boolean.TRUE))
-                sink.error(new BusinessException(ExceptionReason.BEER_ALREADY_PRESENT));
-        });
+        }).flatMap(__ -> __.equals(Boolean.TRUE)
+                ? Mono.error(new BusinessException(ExceptionReason.BEER_ALREADY_PRESENT)) : Mono.empty());
+
         var persist = Mono.just(beerDto).map(beerMapper::fromBeerDto).flatMap(beerRepository::save)
                 .map(beerMapper::fromBeer);
         return validate.then(persist).doOnError(exc -> log.error("exception {}", exc));
@@ -119,7 +117,7 @@ public class BeerService {
     public Mono<SenderResult<Void>> checkBeerInventory(Beer beer) {
         return inventoryClient.getInventoryByBeerId(List.of(beer.getId()))
                 .single(new InventoryDTO(null, beer.getId(), 0)).filter(__ -> beer.getMinQty() > __.qtyOnHand())
-                .map(___ -> new BrewBeerEvent(___.beerId(), beer.getMinQty() - ___.qtyOnHand()))
+                .map(___ -> new BrewBeerEvent(uuid.get(), ___.beerId(), beer.getMinQty() - ___.qtyOnHand()))
                 .flatMap(__ -> reactiveProducerService.send(__, Map.of()));
 
     }

@@ -28,11 +28,14 @@ spring.kafka.bootstrap-servers: localhost:9092
 
 app:
   kafka:
-    inventory:
-      consumer:
-        bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:localhost:9092}
-        topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:brewery-brew-event}
-        consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:inventory-consumer}
+    brew-beer-consumer:
+      bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:${spring.kafka.bootstrap-servers}}
+      topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:brewery-brew-event}
+      consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:inventory-consumer}
+    allocate-beer-consumer:
+      bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:${spring.kafka.bootstrap-servers}}
+      topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:allocate-beer-event}
+      consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:inventory-consumer}
   mongo-service:
     circuit-breaker:
       failureRateThreshold: ${CB__MONGO_SERVICE__FAILURE_RATE_THRESHOLD:10}

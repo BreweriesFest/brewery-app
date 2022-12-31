@@ -2,10 +2,11 @@ package com.brewery.app.inventory.service;
 
 import com.brewery.app.domain.InventoryDTO;
 import com.brewery.app.event.BrewBeerEvent;
+import com.brewery.app.event.OrderEvent;
 import com.brewery.app.exception.BusinessException;
 import com.brewery.app.inventory.mapper.InventoryMapper;
-import com.brewery.app.inventory.repository.InventoryRepository;
-import com.brewery.app.inventory.repository.QInventory;
+import com.brewery.app.inventory.repository.*;
+import com.brewery.app.model.OrderLineDto;
 import io.github.resilience4j.reactor.retry.RetryOperator;
 import io.github.resilience4j.retry.Retry;
 import lombok.RequiredArgsConstructor;
@@ -18,16 +19,21 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.brewery.app.exception.ExceptionReason.CUSTOMIZE_REASON;
 import static com.brewery.app.exception.ExceptionReason.INTERNAL_SERVER_ERROR;
 import static com.brewery.app.inventory.util.ValidationResult.SUCCESS;
 import static com.brewery.app.inventory.util.Validator.validateInventoryDTO;
+import static com.brewery.app.model.InventoryType.ALLOCATE;
+import static com.brewery.app.model.InventoryType.BREW;
 import static com.brewery.app.util.AppConstant.RESILIENCE_ID_MONGO;
 import static com.brewery.app.util.AppConstant.TENANT_ID;
-import static com.brewery.app.util.Helper.fetchHeaderFromContext;
-import static com.brewery.app.util.Helper.validateContext;
+import static com.brewery.app.util.Helper.*;
 
 @Service
 @Slf4j
@@ -35,6 +41,7 @@ import static com.brewery.app.util.Helper.validateContext;
 public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
+    private final InventoryLedgerRepository inventoryLedgerRepository;
     private final InventoryMapper inventoryMapper;
     private final TransactionalOperator transactionalOperator;
     private final ReactiveMongoOperations reactiveMongoOperations;
@@ -59,6 +66,10 @@ public class InventoryService {
             return inventory;
         }).switchIfEmpty(Mono.just(inventoryMapper.fromBrewBeerEvent(brewBeerEvent)))
                 .flatMap(__ -> inventoryRepository.save(__).transformDeferred(RetryOperator.of(mongoServiceRetry)))
+                .flatMap(__ -> inventoryLedgerRepository.save(
+                        InventoryLedger.builder().inventoryId(__.getId()).type(BREW).referenceId(brewBeerEvent.id())
+                                .qty(brewBeerEvent.qtyToBrew()).totQty(__.getQtyOnHand()).build())
+                        .map(ledger -> __))
                 .map(inventoryMapper::fromInventory).transform(it -> {
                     ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(RESILIENCE_ID_MONGO);
                     return rcb.run(it, throwable -> {
@@ -91,6 +102,39 @@ public class InventoryService {
         }).transformDeferred(RetryOperator.of(mongoServiceRetry));
 
         return validate.thenMany(beerInventory);
+
+    }
+
+    public Mono<List<InventoryLedger>> allocateInventory(OrderEvent value) {
+        var validateHeaders = validateContext();
+
+        var persist = Flux.deferContextual(ctx -> {
+            var beerId = collectionAsStream(value.orderDto().orderLine()).map(OrderLineDto::beerId)
+                    .collect(Collectors.toList());
+            QInventory inventory = QInventory.inventory;
+            return inventoryRepository
+                    .findAll(inventory.beerId.in(beerId)
+                            .and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))))
+                    .transformDeferred(RetryOperator.of(mongoServiceRetry));
+        }).collectList().flatMap(__ -> {
+            var inventoryList = new ArrayList<Inventory>();
+            var inventoryLedgerList = new ArrayList<InventoryLedger>();
+            var map = collectionAsStream(value.orderDto().orderLine())
+                    .collect(Collectors.toMap(OrderLineDto::beerId, Function.identity()));
+            collectionAsStream(__).forEach(o -> {
+                var orderLine = map.get(o.getBeerId());
+                var reqQty = orderLine.orderQuantity() - orderLine.quantityAllocated();
+                var allocated = reqQty >= o.getQtyOnHand() ? o.getQtyOnHand() : o.getQtyOnHand() - reqQty;
+                o.setQtyOnHand(o.getQtyOnHand() - allocated);
+                inventoryList.add(o);
+                inventoryLedgerList.add(InventoryLedger.builder().inventoryId(o.getId()).type(ALLOCATE).qty(allocated)
+                        .totQty(o.getQtyOnHand()).build());
+            });
+            return inventoryRepository.saveAll(inventoryList)
+                    .flatMap(___ -> inventoryLedgerRepository.saveAll(inventoryLedgerList)).collectList();
+        });
+
+        return validateHeaders.then(persist);
 
     }
 }

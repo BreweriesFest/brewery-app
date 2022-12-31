@@ -28,10 +28,10 @@ org:
     dashboard:
       enabled: true
       port: 8000
-
+spring.kafka.bootstrap-servers: 'localhost:9092'
 app:
   kafka:
     producer:
-      bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:localhost:9092}
+      bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:${spring.kafka.bootstrap-servers}}
       topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:check-inventory-event}
       idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}

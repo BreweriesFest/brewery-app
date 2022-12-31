@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.graphql.server.WebGraphQlRequest;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.util.context.ContextView;
 
 import java.util.*;
@@ -32,8 +31,7 @@ public class Helper {
     public static final BiFunction<String, ContextView, String> fetchHeaderFromContext = (header,
             ctx) -> getHeader(header, ctx).filter(isInstanceOfString).map(convertToString).filter(isNotBlankString)
                     .orElse(null);
-    public static final Supplier<Mono<String>> uuid = () -> Mono.just(UUID.randomUUID().toString())
-            .subscribeOn(Schedulers.boundedElastic());
+    public static final Supplier<String> uuid = () -> UUID.randomUUID().toString();
 
     public static <T> Stream<T> collectionAsStream(Collection<T> collection) {
         return collection == null ? Stream.empty() : collection.stream();
