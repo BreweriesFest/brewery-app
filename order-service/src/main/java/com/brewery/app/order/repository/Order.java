@@ -14,8 +14,10 @@ import java.util.Collection;
 @Document(collection = "order")
 public class Order extends Auditable {
 
-    @Setter
-    private OrderStatus status;
-    @Setter
-    private Collection<String> orderLineId;
+	@Setter
+	private OrderStatus status;
+
+	@Setter
+	private Collection<String> orderLineId;
+
 }

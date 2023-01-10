@@ -266,14 +266,28 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--            <plugin>-->
+            <!--                <groupId>net.revelc.code.formatter</groupId>-->
+            <!--                <artifactId>formatter-maven-plugin</artifactId>-->
+            <!--                <version>${formatter-maven-plugin.version}</version>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <goals>-->
+            <!--                            &lt;!&ndash; <goal>format</goal> &ndash;&gt;-->
+            <!--                            <goal>validate</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
             <plugin>
-                <groupId>net.revelc.code.formatter</groupId>
-                <artifactId>formatter-maven-plugin</artifactId>
-                <version>${formatter-maven-plugin.version}</version>
+                <groupId>io.spring.javaformat</groupId>
+                <artifactId>spring-javaformat-maven-plugin</artifactId>
+                <version>0.0.35</version>
                 <executions>
                     <execution>
+                        <phase>validate</phase>
+                        <inherited>true</inherited>
                         <goals>
-                            <!-- <goal>format</goal> -->
                             <goal>validate</goal>
                         </goals>
                     </execution>

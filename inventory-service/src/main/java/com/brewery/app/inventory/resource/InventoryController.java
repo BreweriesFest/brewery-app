@@ -18,15 +18,17 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Slf4j
 public class InventoryController {
-    private final InventoryService inventoryService;
 
-    @QueryMapping
-    public Flux<InventoryDTO> inventory(@Argument Collection<String> beerId) {
-        return inventoryService.inventoryByBeerId(beerId);
-    }
+	private final InventoryService inventoryService;
 
-    @MutationMapping
-    public Mono<InventoryDTO> addInventory(@Argument BrewBeerEvent inventory) {
-        return inventoryService.addInventory(inventory);
-    }
+	@QueryMapping
+	public Flux<InventoryDTO> inventory(@Argument Collection<String> beerId) {
+		return inventoryService.inventoryByBeerId(beerId);
+	}
+
+	@MutationMapping
+	public Mono<InventoryDTO> addInventory(@Argument BrewBeerEvent inventory) {
+		return inventoryService.addInventory(inventory);
+	}
+
 }

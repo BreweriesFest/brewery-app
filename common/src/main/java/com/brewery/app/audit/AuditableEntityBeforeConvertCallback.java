@@ -13,11 +13,12 @@ import static com.brewery.app.util.Helper.fetchHeaderFromContext;
 @Slf4j
 public class AuditableEntityBeforeConvertCallback implements ReactiveBeforeConvertCallback<Auditable> {
 
-    @Override
-    public Publisher<Auditable> onBeforeConvert(Auditable entity, String collection) {
-        return Mono.deferContextual(ctx -> {
-            entity.setTenantId(fetchHeaderFromContext.apply(TENANT_ID, ctx));
-            return Mono.just(entity);
-        });
-    }
+	@Override
+	public Publisher<Auditable> onBeforeConvert(Auditable entity, String collection) {
+		return Mono.deferContextual(ctx -> {
+			entity.setTenantId(fetchHeaderFromContext.apply(TENANT_ID, ctx));
+			return Mono.just(entity);
+		});
+	}
+
 }

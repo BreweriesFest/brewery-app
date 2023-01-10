@@ -19,10 +19,11 @@ import java.util.Set;
 @Document
 public class Customer extends Auditable {
 
-    private String name;
+	private String name;
 
-    @Builder.Default
-    @DocumentReference(lazy = true, lookup = "{ 'customer' : ?#{#self._id} }")
-    @ReadOnlyProperty
-    private Set<Order> orders = new HashSet<>();
+	@Builder.Default
+	@DocumentReference(lazy = true, lookup = "{ 'customer' : ?#{#self._id} }")
+	@ReadOnlyProperty
+	private Set<Order> orders = new HashSet<>();
+
 }

@@ -13,22 +13,22 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CacheService {
 
-    private final ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
+	private final ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
 
-    @Bean
-    ApplicationListener<ApplicationReadyEvent> factoryBeanListener() {
-        return event -> {
-            save();
-            get();
-        };
-    }
+	@Bean
+	ApplicationListener<ApplicationReadyEvent> factoryBeanListener() {
+		return event -> {
+			save();
+			get();
+		};
+	}
 
-    public void save() {
-        reactiveRedisTemplate.opsForSet().add("test", "value");
-    }
+	public void save() {
+		reactiveRedisTemplate.opsForSet().add("test", "value");
+	}
 
-    public void get() {
-        reactiveRedisTemplate.opsForSet().pop("test");
-    }
+	public void get() {
+		reactiveRedisTemplate.opsForSet().pop("test");
+	}
 
 }

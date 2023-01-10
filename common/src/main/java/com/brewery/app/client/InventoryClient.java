@@ -21,27 +21,29 @@ import static com.brewery.app.util.AppConstant.*;
 @Slf4j
 @Profile("inventory-client-service")
 public class InventoryClient extends GraphqlClient {
-    public InventoryClient(@Value("${app.client.inventory.url}") String url, HttpGraphQlClient httpGraphQlClient,
-            ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry inventoryClientRetry) {
-        super(httpGraphQlClient, url, reactiveCircuitBreakerFactory, inventoryClientRetry,
-                RESILIENCE_ID_INVENTORY_CLIENT);
-    }
 
-    public Flux<InventoryDTO> getInventoryByBeerId(Collection<String> beerId) {
+	public InventoryClient(@Value("${app.client.inventory.url}") String url, HttpGraphQlClient httpGraphQlClient,
+			ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry inventoryClientRetry) {
+		super(httpGraphQlClient, url, reactiveCircuitBreakerFactory, inventoryClientRetry,
+				RESILIENCE_ID_INVENTORY_CLIENT);
+	}
 
-        final var query = """
-                query($id: [String!]!) {
-                    data: inventory(beerId: $id) {
-                        id
-                        beerId
-                        qtyOnHand
-                    }
-                }
-                """;
+	public Flux<InventoryDTO> getInventoryByBeerId(Collection<String> beerId) {
 
-        return fromFlux(List.of(TENANT_ID, CUSTOMER_ID), query, Map.of("id", beerId),
-                new ParameterizedTypeReference<>() {
-                });
+		final var query = """
+				query($id: [String!]!) {
+				    data: inventory(beerId: $id) {
+				        id
+				        beerId
+				        qtyOnHand
+				    }
+				}
+				""";
 
-    }
+		return fromFlux(List.of(TENANT_ID, CUSTOMER_ID), query, Map.of("id", beerId),
+				new ParameterizedTypeReference<>() {
+				});
+
+	}
+
 }

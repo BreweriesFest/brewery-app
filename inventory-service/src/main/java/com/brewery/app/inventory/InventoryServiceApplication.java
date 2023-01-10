@@ -8,8 +8,8 @@ import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
 @EnableReactiveMongoAuditing
 public class InventoryServiceApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(InventoryServiceApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(InventoryServiceApplication.class, args);
+	}
 
 }

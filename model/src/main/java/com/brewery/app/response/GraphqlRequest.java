@@ -11,6 +11,9 @@ import java.util.Map;
 @Builder
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class GraphqlRequest {
-    private String query;
-    private Map<String, Object> variables;
+
+	private String query;
+
+	private Map<String, Object> variables;
+
 }

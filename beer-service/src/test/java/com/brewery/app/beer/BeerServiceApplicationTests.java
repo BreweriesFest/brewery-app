@@ -14,21 +14,22 @@ import org.testcontainers.utility.DockerImageName;
 @Testcontainers
 class BeerServiceApplicationTests {
 
-    @Container
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest");
-    @Container
-    static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"));
+	@Container
+	static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest");
 
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
-        registry.add("app.kafka.beer.producer.bootstrapServers", kafka::getBootstrapServers);
-        registry.add("app.kafka.beer.consumer.bootstrapServers", kafka::getBootstrapServers);
-        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
-    }
+	@Container
+	static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"));
 
-    @Test
-    void contextLoads() {
-    }
+	@DynamicPropertySource
+	static void setProperties(DynamicPropertyRegistry registry) {
+		registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+		registry.add("app.kafka.beer.producer.bootstrapServers", kafka::getBootstrapServers);
+		registry.add("app.kafka.beer.consumer.bootstrapServers", kafka::getBootstrapServers);
+		registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+	}
+
+	@Test
+	void contextLoads() {
+	}
 
 }

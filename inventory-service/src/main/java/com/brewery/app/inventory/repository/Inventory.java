@@ -11,9 +11,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Inventory extends Auditable {
 
-    private String upc;
-    private String beerId;
-    @Setter
-    private Integer qtyOnHand;
+	private String upc;
+
+	private String beerId;
+
+	@Setter
+	private Integer qtyOnHand;
 
 }

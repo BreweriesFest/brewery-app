@@ -9,13 +9,14 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 @Configuration
 public class RedisConfig {
 
-    // @Bean
-    // public ReactiveRedisConnectionFactory connectionFactory() {
-    // return new LettuceConnectionFactory("localhost", 6379);
-    // }
+	// @Bean
+	// public ReactiveRedisConnectionFactory connectionFactory() {
+	// return new LettuceConnectionFactory("localhost", 6379);
+	// }
 
-    @Bean
-    public ReactiveRedisTemplate<String, String> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
-        return new ReactiveRedisTemplate<>(factory, RedisSerializationContext.string());
-    }
+	@Bean
+	public ReactiveRedisTemplate<String, String> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
+		return new ReactiveRedisTemplate<>(factory, RedisSerializationContext.string());
+	}
+
 }

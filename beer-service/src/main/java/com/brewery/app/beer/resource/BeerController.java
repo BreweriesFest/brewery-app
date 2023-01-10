@@ -22,40 +22,41 @@ import java.util.Map;
 @Slf4j
 public class BeerController {
 
-    private final BeerService beerService;
+	private final BeerService beerService;
 
-    @MutationMapping
-    Mono<BeerDto> addBeer(@Argument BeerDto beerDto) {
-        return beerService.saveBeer(beerDto);
-    }
+	@MutationMapping
+	Mono<BeerDto> addBeer(@Argument BeerDto beerDto) {
+		return beerService.saveBeer(beerDto);
+	}
 
-    @MutationMapping
-    Mono<BeerDto> updateBeer(@Argument String beerId, @Argument BeerDto beerDto) {
-        return beerService.updateBeer(beerId, beerDto);
-    }
+	@MutationMapping
+	Mono<BeerDto> updateBeer(@Argument String beerId, @Argument BeerDto beerDto) {
+		return beerService.updateBeer(beerId, beerDto);
+	}
 
-    @MutationMapping
-    Mono<String> deleteBeer(@Argument String beerId) {
-        return beerService.deleteById(beerId);
-    }
+	@MutationMapping
+	Mono<String> deleteBeer(@Argument String beerId) {
+		return beerService.deleteById(beerId);
+	}
 
-    @QueryMapping
-    Mono<BeerDto> beerByUpc(@Argument String upc) {
-        return beerService.findBeerByUpc(upc);
-    }
+	@QueryMapping
+	Mono<BeerDto> beerByUpc(@Argument String upc) {
+		return beerService.findBeerByUpc(upc);
+	}
 
-    @QueryMapping
-    Flux<BeerDto> beerById(@Argument Collection<String> id) {
-        return beerService.findBeerById(id).doOnError(ex -> log.error("", ex));
-    }
+	@QueryMapping
+	Flux<BeerDto> beerById(@Argument Collection<String> id) {
+		return beerService.findBeerById(id).doOnError(ex -> log.error("", ex));
+	}
 
-    @QueryMapping
-    Flux<BeerDto> beer() {
-        return beerService.findAllBeer();
-    }
+	@QueryMapping
+	Flux<BeerDto> beer() {
+		return beerService.findAllBeer();
+	}
 
-    @BatchMapping(typeName = "BeerOut")
-    public Mono<Map<BeerDto, InventoryDTO>> inventory(List<BeerDto> beerDtos) {
-        return beerService.inventory(beerDtos);
-    }
+	@BatchMapping(typeName = "BeerOut")
+	public Mono<Map<BeerDto, InventoryDTO>> inventory(List<BeerDto> beerDtos) {
+		return beerService.inventory(beerDtos);
+	}
+
 }

@@ -22,43 +22,44 @@ import static com.brewery.app.util.AppConstant.*;
 @Profile("beer-client-service")
 public class BeerClient extends GraphqlClient {
 
-    public BeerClient(@Value("${app.client.beer.url}") String url, HttpGraphQlClient httpGraphQlClient,
-            ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry beerClientRetry) {
-        super(httpGraphQlClient, url, reactiveCircuitBreakerFactory, beerClientRetry, RESILIENCE_ID_BEER_CLIENT);
-    }
+	public BeerClient(@Value("${app.client.beer.url}") String url, HttpGraphQlClient httpGraphQlClient,
+			ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry beerClientRetry) {
+		super(httpGraphQlClient, url, reactiveCircuitBreakerFactory, beerClientRetry, RESILIENCE_ID_BEER_CLIENT);
+	}
 
-    public Flux<BeerDto> getBeerById(Collection<String> beerId) {
+	public Flux<BeerDto> getBeerById(Collection<String> beerId) {
 
-        final var query = """
-                query($id: [String!]!) {
-                    data: beerById(id: $id) {
-                        id
-                        name
-                        upc
-                        price
-                        style
-                    }
-                }
-                """;
+		final var query = """
+				query($id: [String!]!) {
+				    data: beerById(id: $id) {
+				        id
+				        name
+				        upc
+				        price
+				        style
+				    }
+				}
+				""";
 
-        return fromFlux(List.of(TENANT_ID, CUSTOMER_ID), query, Map.of("id", beerId),
-                new ParameterizedTypeReference<>() {
-                });
+		return fromFlux(List.of(TENANT_ID, CUSTOMER_ID), query, Map.of("id", beerId),
+				new ParameterizedTypeReference<>() {
+				});
 
-    }
+	}
 
-    public Flux<BeerDto> getAllByTenant() {
+	public Flux<BeerDto> getAllByTenant() {
 
-        final var query = """
-                query{
-                    data: beer {
-                        id
-                    }
-                }
-                """;
+		final var query = """
+				query{
+				    data: beer {
+				        id
+				    }
+				}
+				""";
 
-        return fromFlux(List.of(TENANT_ID, CUSTOMER_ID), query, Map.of(), new ParameterizedTypeReference<>() {
-        });
+		return fromFlux(List.of(TENANT_ID, CUSTOMER_ID), query, Map.of(), new ParameterizedTypeReference<>() {
+		});
 
-    }
+	}
+
 }

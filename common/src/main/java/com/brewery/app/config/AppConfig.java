@@ -19,30 +19,31 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class AppConfig {
 
-    @Value("${app.default.timezone}")
-    private String timezone;
+	@Value("${app.default.timezone}")
+	private String timezone;
 
-    @PostConstruct
-    public void init() {
-        // Setting Spring Boot SetTimeZone
-        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
-    }
+	@PostConstruct
+	public void init() {
+		// Setting Spring Boot SetTimeZone
+		TimeZone.setDefault(TimeZone.getTimeZone(timezone));
+	}
 
-    @Bean
-    public HttpClient httpClient() {
-        return HttpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 20000)
-                .responseTimeout(Duration.ofMillis(20000)).compress(true)
-                .doOnConnected(__ -> __.addHandlerLast(new ReadTimeoutHandler(20000, TimeUnit.MILLISECONDS))
-                        .addHandlerLast(new WriteTimeoutHandler(20000, TimeUnit.MILLISECONDS)));
-    }
+	@Bean
+	public HttpClient httpClient() {
+		return HttpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 20000)
+				.responseTimeout(Duration.ofMillis(20000)).compress(true)
+				.doOnConnected(__ -> __.addHandlerLast(new ReadTimeoutHandler(20000, TimeUnit.MILLISECONDS))
+						.addHandlerLast(new WriteTimeoutHandler(20000, TimeUnit.MILLISECONDS)));
+	}
 
-    @Bean
-    public WebClient webClient(WebClient.Builder webClientBuilder, HttpClient httpClient) {
-        return webClientBuilder.clientConnector(new ReactorClientHttpConnector(httpClient)).build();
-    }
+	@Bean
+	public WebClient webClient(WebClient.Builder webClientBuilder, HttpClient httpClient) {
+		return webClientBuilder.clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+	}
 
-    @Bean
-    public HttpGraphQlClient httpGraphQlClient(WebClient webClient) {
-        return HttpGraphQlClient.builder(webClient).build();
-    }
+	@Bean
+	public HttpGraphQlClient httpGraphQlClient(WebClient webClient) {
+		return HttpGraphQlClient.builder(webClient).build();
+	}
+
 }

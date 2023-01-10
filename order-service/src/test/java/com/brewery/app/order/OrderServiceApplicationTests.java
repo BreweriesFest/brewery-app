@@ -15,25 +15,26 @@ import org.testcontainers.utility.DockerImageName;
 @Testcontainers
 class OrderServiceApplicationTests {
 
-    @Container
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest");
-    @Container
-    static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"));
+	@Container
+	static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest");
 
-    @Container
-    static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:latest"))
-            .withExposedPorts(6379);
+	@Container
+	static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"));
 
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
-        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
-        registry.add("spring.redis.host", redis::getHost);
-        System.setProperty("spring.redis.port", redis.getMappedPort(6379).toString());
-    }
+	@Container
+	static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:latest"))
+			.withExposedPorts(6379);
 
-    @Test
-    void contextLoads() {
-    }
+	@DynamicPropertySource
+	static void setProperties(DynamicPropertyRegistry registry) {
+		registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+		registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+		registry.add("spring.redis.host", redis::getHost);
+		System.setProperty("spring.redis.port", redis.getMappedPort(6379).toString());
+	}
+
+	@Test
+	void contextLoads() {
+	}
 
 }

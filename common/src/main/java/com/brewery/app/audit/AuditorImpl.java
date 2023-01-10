@@ -12,8 +12,9 @@ import static com.brewery.app.util.Helper.fetchHeaderFromContext;
 @Slf4j
 public class AuditorImpl implements ReactiveAuditorAware<String> {
 
-    @Override
-    public Mono<String> getCurrentAuditor() {
-        return Mono.deferContextual(ctx -> Mono.just(fetchHeaderFromContext.apply(CUSTOMER_ID, ctx)));
-    }
+	@Override
+	public Mono<String> getCurrentAuditor() {
+		return Mono.deferContextual(ctx -> Mono.just(fetchHeaderFromContext.apply(CUSTOMER_ID, ctx)));
+	}
+
 }

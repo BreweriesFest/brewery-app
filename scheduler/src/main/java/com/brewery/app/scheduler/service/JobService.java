@@ -22,27 +22,30 @@ import static com.brewery.app.util.Helper.uuid;
 @Slf4j
 public class JobService {
 
-    private final JobScheduler jobScheduler;
-    private final BeerClient beerClient;
-    private final ReactiveProducerService<String, CheckInventoryEvent> reactiveProducer;
+	private final JobScheduler jobScheduler;
 
-    public void scheduleJob(String beerId, String tenantId, String customerId) {
-        jobScheduler.enqueue(() -> createCheckInventoryEvent(beerId, tenantId, customerId));
-    }
+	private final BeerClient beerClient;
 
-    @Recurring(id = "my-recurring-job", cron = "*/10 * * * *")
-    @Job(name = "Check Beer Inventory")
-    public void getAllBeer() {
-        beerClient.getAllByTenant()
-                .contextWrite(
-                        __ -> __.putAllMap(Map.of(TENANT_ID, Optional.of("txt"), CUSTOMER_ID, Optional.of("test"))))
-                .subscribe(__ -> scheduleJob(__.id(), "txt", "test"));
-    }
+	private final ReactiveProducerService<String, CheckInventoryEvent> reactiveProducer;
 
-    public void createCheckInventoryEvent(String beerId, String tenantId, String customerId) {
-        reactiveProducer.send(new CheckInventoryEvent(uuid.get(), beerId), Map.of()).contextWrite(
-                __ -> __.putAllMap(Map.of(TENANT_ID, Optional.of(tenantId), CUSTOMER_ID, Optional.of(customerId))))
-                .subscribe();
+	public void scheduleJob(String beerId, String tenantId, String customerId) {
+		jobScheduler.enqueue(() -> createCheckInventoryEvent(beerId, tenantId, customerId));
+	}
 
-    }
+	@Recurring(id = "my-recurring-job", cron = "*/10 * * * *")
+	@Job(name = "Check Beer Inventory")
+	public void getAllBeer() {
+		beerClient.getAllByTenant()
+				.contextWrite(
+						__ -> __.putAllMap(Map.of(TENANT_ID, Optional.of("txt"), CUSTOMER_ID, Optional.of("test"))))
+				.subscribe(__ -> scheduleJob(__.id(), "txt", "test"));
+	}
+
+	public void createCheckInventoryEvent(String beerId, String tenantId, String customerId) {
+		reactiveProducer.send(new CheckInventoryEvent(uuid.get(), beerId), Map.of()).contextWrite(
+				__ -> __.putAllMap(Map.of(TENANT_ID, Optional.of(tenantId), CUSTOMER_ID, Optional.of(customerId))))
+				.subscribe();
+
+	}
+
 }

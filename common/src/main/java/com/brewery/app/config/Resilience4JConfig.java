@@ -24,55 +24,56 @@ import java.time.Duration;
 @Slf4j
 public class Resilience4JConfig {
 
-    @Bean
-    @ConfigurationProperties(prefix = "app.default.circuit-breaker")
-    public CircuitBreakerProps defaultCircuitBreakerProps() {
-        return new CircuitBreakerProps();
-    }
+	@Bean
+	@ConfigurationProperties(prefix = "app.default.circuit-breaker")
+	public CircuitBreakerProps defaultCircuitBreakerProps() {
+		return new CircuitBreakerProps();
+	}
 
-    @Bean
-    @ConfigurationProperties(prefix = "app.default.time-limiter")
-    public TimeLimiterProps defaultTimeLimiterProps() {
-        return new TimeLimiterProps();
-    }
+	@Bean
+	@ConfigurationProperties(prefix = "app.default.time-limiter")
+	public TimeLimiterProps defaultTimeLimiterProps() {
+		return new TimeLimiterProps();
+	}
 
-    @Bean
-    public Customizer<ReactiveResilience4JCircuitBreakerFactory> defaultCustomizer(
-            CircuitBreakerProps defaultCircuitBreakerProps, TimeLimiterProps defaultTimeLimiterProps) {
-        return factory -> factory.configureDefault(
-                id -> new Resilience4JConfigBuilder(id).circuitBreakerConfig(configure(defaultCircuitBreakerProps))
-                        .timeLimiterConfig(configure(defaultTimeLimiterProps)).build());
-    }
+	@Bean
+	public Customizer<ReactiveResilience4JCircuitBreakerFactory> defaultCustomizer(
+			CircuitBreakerProps defaultCircuitBreakerProps, TimeLimiterProps defaultTimeLimiterProps) {
+		return factory -> factory.configureDefault(
+				id -> new Resilience4JConfigBuilder(id).circuitBreakerConfig(configure(defaultCircuitBreakerProps))
+						.timeLimiterConfig(configure(defaultTimeLimiterProps)).build());
+	}
 
-    public Customizer<ReactiveResilience4JCircuitBreakerFactory> configureCircuitBreakerCustomizer(String id,
-            CircuitBreakerProps monoCircuitBreakerProps, TimeLimiterProps mongoTimeLimiterProps) {
-        return factory -> factory.configure(builder -> builder.timeLimiterConfig(configure(mongoTimeLimiterProps))
-                .circuitBreakerConfig(configure(monoCircuitBreakerProps)), id);
-    }
+	public Customizer<ReactiveResilience4JCircuitBreakerFactory> configureCircuitBreakerCustomizer(String id,
+			CircuitBreakerProps monoCircuitBreakerProps, TimeLimiterProps mongoTimeLimiterProps) {
+		return factory -> factory.configure(builder -> builder.timeLimiterConfig(configure(mongoTimeLimiterProps))
+				.circuitBreakerConfig(configure(monoCircuitBreakerProps)), id);
+	}
 
-    private CircuitBreakerConfig configure(CircuitBreakerProps circuitBreakerProps) {
-        return CircuitBreakerConfig.custom().failureRateThreshold(circuitBreakerProps.getFailureRateThreshold())
-                .permittedNumberOfCallsInHalfOpenState(circuitBreakerProps.getPermittedNumberOfCallsInHalfOpenState())
-                .slidingWindow(circuitBreakerProps.getSlidingWindowSize(),
-                        circuitBreakerProps.getMinimumNumberOfCalls(), circuitBreakerProps.getSlidingWindowType())
-                .slowCallDurationThreshold(Duration.ofMillis(circuitBreakerProps.getSlowCallDurationThreshold()))
-                .slowCallRateThreshold(circuitBreakerProps.getSlowCallRateThreshold()).maxWaitDurationInHalfOpenState(
-                        Duration.ofMillis(circuitBreakerProps.getMaxWaitDurationInHalfOpenState()))
-                .build();
-    }
+	private CircuitBreakerConfig configure(CircuitBreakerProps circuitBreakerProps) {
+		return CircuitBreakerConfig.custom().failureRateThreshold(circuitBreakerProps.getFailureRateThreshold())
+				.permittedNumberOfCallsInHalfOpenState(circuitBreakerProps.getPermittedNumberOfCallsInHalfOpenState())
+				.slidingWindow(circuitBreakerProps.getSlidingWindowSize(),
+						circuitBreakerProps.getMinimumNumberOfCalls(), circuitBreakerProps.getSlidingWindowType())
+				.slowCallDurationThreshold(Duration.ofMillis(circuitBreakerProps.getSlowCallDurationThreshold()))
+				.slowCallRateThreshold(circuitBreakerProps.getSlowCallRateThreshold()).maxWaitDurationInHalfOpenState(
+						Duration.ofMillis(circuitBreakerProps.getMaxWaitDurationInHalfOpenState()))
+				.build();
+	}
 
-    private TimeLimiterConfig configure(TimeLimiterProps timeLimiterProps) {
-        return TimeLimiterConfig.custom().timeoutDuration(Duration.ofMillis(timeLimiterProps.getTimeoutDuration()))
-                .build();
-    }
+	private TimeLimiterConfig configure(TimeLimiterProps timeLimiterProps) {
+		return TimeLimiterConfig.custom().timeoutDuration(Duration.ofMillis(timeLimiterProps.getTimeoutDuration()))
+				.build();
+	}
 
-    public Retry configureRetryCustomizer(String id, RetryProps retryProps, MeterRegistry meterRegistry) {
-        var registry = RetryRegistry.of(configure(retryProps));
-        TaggedRetryMetrics.ofRetryRegistry(registry).bindTo(meterRegistry);
-        return registry.retry(id);
-    }
+	public Retry configureRetryCustomizer(String id, RetryProps retryProps, MeterRegistry meterRegistry) {
+		var registry = RetryRegistry.of(configure(retryProps));
+		TaggedRetryMetrics.ofRetryRegistry(registry).bindTo(meterRegistry);
+		return registry.retry(id);
+	}
 
-    private RetryConfig configure(RetryProps retryProps) {
-        return RetryConfig.custom().maxAttempts(retryProps.getMaxAttempts()).build();
-    }
+	private RetryConfig configure(RetryProps retryProps) {
+		return RetryConfig.custom().maxAttempts(retryProps.getMaxAttempts()).build();
+	}
+
 }
