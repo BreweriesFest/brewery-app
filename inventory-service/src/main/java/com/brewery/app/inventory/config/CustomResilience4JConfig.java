@@ -19,36 +19,36 @@ import static com.brewery.app.util.AppConstant.RESILIENCE_ID_MONGO;
 @RequiredArgsConstructor
 public class CustomResilience4JConfig {
 
-    private final Resilience4JConfig resilience4JConfig;
+	private final Resilience4JConfig resilience4JConfig;
 
-    @Bean
-    @ConfigurationProperties(prefix = "app.mongo-service.circuit-breaker")
-    public CircuitBreakerProps monoCircuitBreakerProps() {
-        return new CircuitBreakerProps();
-    }
+	@Bean
+	@ConfigurationProperties(prefix = "app.mongo-service.circuit-breaker")
+	public CircuitBreakerProps monoCircuitBreakerProps() {
+		return new CircuitBreakerProps();
+	}
 
-    @Bean
-    @ConfigurationProperties(prefix = "app.mongo-service.time-limiter")
-    public TimeLimiterProps mongoTimeLimiterProps() {
-        return new TimeLimiterProps();
-    }
+	@Bean
+	@ConfigurationProperties(prefix = "app.mongo-service.time-limiter")
+	public TimeLimiterProps mongoTimeLimiterProps() {
+		return new TimeLimiterProps();
+	}
 
-    @Bean
-    @ConfigurationProperties(prefix = "app.mongo-service.retry")
-    public RetryProps mongoRetryProps() {
-        return new RetryProps();
-    }
+	@Bean
+	@ConfigurationProperties(prefix = "app.mongo-service.retry")
+	public RetryProps mongoRetryProps() {
+		return new RetryProps();
+	}
 
-    @Bean
-    public Customizer<ReactiveResilience4JCircuitBreakerFactory> mongoServiceCustomizer(
-            CircuitBreakerProps monoCircuitBreakerProps, TimeLimiterProps mongoTimeLimiterProps) {
-        return resilience4JConfig.configureCircuitBreakerCustomizer(RESILIENCE_ID_MONGO, monoCircuitBreakerProps,
-                mongoTimeLimiterProps);
-    }
+	@Bean
+	public Customizer<ReactiveResilience4JCircuitBreakerFactory> mongoServiceCustomizer(
+			CircuitBreakerProps monoCircuitBreakerProps, TimeLimiterProps mongoTimeLimiterProps) {
+		return resilience4JConfig.configureCircuitBreakerCustomizer(RESILIENCE_ID_MONGO, monoCircuitBreakerProps,
+				mongoTimeLimiterProps);
+	}
 
-    @Bean
-    public Retry mongoServiceRetry(RetryProps mongoRetryProps, MeterRegistry meterRegistry) {
-        return resilience4JConfig.configureRetryCustomizer(RESILIENCE_ID_MONGO, mongoRetryProps, meterRegistry);
-    }
+	@Bean
+	public Retry mongoServiceRetry(RetryProps mongoRetryProps, MeterRegistry meterRegistry) {
+		return resilience4JConfig.configureRetryCustomizer(RESILIENCE_ID_MONGO, mongoRetryProps, meterRegistry);
+	}
 
 }

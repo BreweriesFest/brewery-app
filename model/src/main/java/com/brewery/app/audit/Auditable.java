@@ -7,18 +7,26 @@ import org.springframework.data.annotation.*;
 
 @Getter
 public abstract class Auditable {
-    @Id
-    protected String id;
-    @Version
-    private Integer version;
-    @CreatedDate
-    private Long createdOn;
-    @LastModifiedDate
-    private Long updatedOn;
-    @CreatedBy
-    private String createdBy;
-    @LastModifiedBy
-    private String modifiedBy;
-    @Setter(AccessLevel.PACKAGE)
-    private String tenantId;
+
+	@Id
+	protected String id;
+
+	@Version
+	private Integer version;
+
+	@CreatedDate
+	private Long createdOn;
+
+	@LastModifiedDate
+	private Long updatedOn;
+
+	@CreatedBy
+	private String createdBy;
+
+	@LastModifiedBy
+	private String modifiedBy;
+
+	@Setter(AccessLevel.PACKAGE)
+	private String tenantId;
+
 }

@@ -14,21 +14,21 @@ import java.util.Map;
 
 public class DeadLetterQueueConfig<K, V> {
 
-    private DeadLetterPublishingRecoverer deadLetterPublishingRecoverer() {
-        return new DeadLetterPublishingRecoverer(getEventKafkaTemplate(),
-                (cr, e) -> new TopicPartition(cr.topic() + "_dlt", 0));
-    }
+	private DeadLetterPublishingRecoverer deadLetterPublishingRecoverer() {
+		return new DeadLetterPublishingRecoverer(getEventKafkaTemplate(),
+				(cr, e) -> new TopicPartition(cr.topic() + "_dlt", 0));
+	}
 
-    private KafkaOperations<K, V> getEventKafkaTemplate() {
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerConfigs()));
-    }
+	private KafkaOperations<K, V> getEventKafkaTemplate() {
+		return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerConfigs()));
+	}
 
-    Map<String, Object> producerConfigs() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        return props;
-    }
+	Map<String, Object> producerConfigs() {
+		Map<String, Object> props = new HashMap<>();
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+		return props;
+	}
 
 }

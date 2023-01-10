@@ -15,9 +15,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class InventoryLedger extends Auditable {
 
-    private String inventoryId;
-    private InventoryType type;
-    private String referenceId;
-    private Integer qty;
-    private Integer totQty;
+	private String inventoryId;
+
+	private InventoryType type;
+
+	private String referenceId;
+
+	private Integer qty;
+
+	private Integer totQty;
+
 }

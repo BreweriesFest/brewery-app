@@ -9,6 +9,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class KafkaProducerProps extends KafkaProps {
 
-    private boolean idempotence;
+	private boolean idempotence;
 
 }

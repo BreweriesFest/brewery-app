@@ -13,9 +13,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @Document(collection = "orderLine")
 public class OrderLine extends Auditable {
-    private String beerId;
-    @Builder.Default
-    private int orderQuantity = 0;
-    @Builder.Default
-    private int quantityAllocated = 0;
+
+	private String beerId;
+
+	@Builder.Default
+	private int orderQuantity = 0;
+
+	@Builder.Default
+	private int quantityAllocated = 0;
+
 }

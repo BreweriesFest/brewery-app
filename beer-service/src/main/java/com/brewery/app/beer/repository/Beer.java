@@ -13,18 +13,24 @@ import java.math.BigDecimal;
 @Builder
 @Document
 public class Beer extends Auditable {
-    @Setter
-    private String name;
-    private String upc;
-    @Setter
-    private BigDecimal price;
-    @Setter
-    private BeerStyle style;
-    @Setter
-    @Builder.Default
-    private Integer minQty = 0;
 
-    @Setter
-    @Builder.Default
-    private boolean active = true;
+	@Setter
+	private String name;
+
+	private String upc;
+
+	@Setter
+	private BigDecimal price;
+
+	@Setter
+	private BeerStyle style;
+
+	@Setter
+	@Builder.Default
+	private Integer minQty = 0;
+
+	@Setter
+	@Builder.Default
+	private boolean active = true;
+
 }

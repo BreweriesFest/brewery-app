@@ -8,8 +8,8 @@ import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
 @EnableReactiveMongoAuditing
 public class BeerServiceApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(BeerServiceApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(BeerServiceApplication.class, args);
+	}
 
 }

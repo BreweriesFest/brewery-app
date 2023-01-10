@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 @Getter
 @Setter
 public class RetryProps {
-    @Value("${maxAttempts:${app.default.retry.maxAttempts}}")
-    private int maxAttempts;
+
+	@Value("${maxAttempts:${app.default.retry.maxAttempts}}")
+	private int maxAttempts;
+
 }

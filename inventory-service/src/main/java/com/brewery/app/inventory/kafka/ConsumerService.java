@@ -21,33 +21,36 @@ import java.util.function.Function;
 @Slf4j
 public class ConsumerService {
 
-    private static InventoryService INVENTORY_SERVICE;
-    private Function<ReceiverRecord<String, BrewBeerEvent>, Mono<?>> processBrewBeerEvent = record -> INVENTORY_SERVICE
-            .addInventory(record.value());
+	private static InventoryService INVENTORY_SERVICE;
 
-    private Function<ReceiverRecord<String, OrderEvent>, Mono<?>> processAllocateBeerEvent = record -> INVENTORY_SERVICE
-            .allocateInventory(record.value());
-    private Disposable.Composite disposables = Disposables.composite();
+	private Function<ReceiverRecord<String, BrewBeerEvent>, Mono<?>> processBrewBeerEvent = record -> INVENTORY_SERVICE
+			.addInventory(record.value());
 
-    public ConsumerService(InventoryService inventoryService) {
-        INVENTORY_SERVICE = inventoryService;
-    }
+	private Function<ReceiverRecord<String, OrderEvent>, Mono<?>> processAllocateBeerEvent = record -> INVENTORY_SERVICE
+			.allocateInventory(record.value());
 
-    @Bean
-    public ApplicationListener<ApplicationReadyEvent> brewBeerConsumer(
-            ReactiveConsumerConfig<String, BrewBeerEvent> reactiveConsumer) {
-        return event -> disposables.add(reactiveConsumer.consumerRecord(processBrewBeerEvent).subscribe());
-    }
+	private Disposable.Composite disposables = Disposables.composite();
 
-    @Bean
-    public ApplicationListener<ApplicationReadyEvent> allocateBeerConsumer(
-            ReactiveConsumerConfig<String, OrderEvent> reactiveConsumer) {
-        return event -> disposables.add(reactiveConsumer.consumerRecord(processAllocateBeerEvent).subscribe());
-    }
+	public ConsumerService(InventoryService inventoryService) {
+		INVENTORY_SERVICE = inventoryService;
+	}
 
-    @PreDestroy
-    void disconnect() {
-        log.info("dispose");
-        disposables.dispose();
-    }
+	@Bean
+	public ApplicationListener<ApplicationReadyEvent> brewBeerConsumer(
+			ReactiveConsumerConfig<String, BrewBeerEvent> reactiveConsumer) {
+		return event -> disposables.add(reactiveConsumer.consumerRecord(processBrewBeerEvent).subscribe());
+	}
+
+	@Bean
+	public ApplicationListener<ApplicationReadyEvent> allocateBeerConsumer(
+			ReactiveConsumerConfig<String, OrderEvent> reactiveConsumer) {
+		return event -> disposables.add(reactiveConsumer.consumerRecord(processAllocateBeerEvent).subscribe());
+	}
+
+	@PreDestroy
+	void disconnect() {
+		log.info("dispose");
+		disposables.dispose();
+	}
+
 }

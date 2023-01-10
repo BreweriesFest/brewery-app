@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class StringConverter implements Converter<String, String> {
 
-    @Override
-    public String convert(String source) {
-        return source != null ? source.trim() : null;
-    }
+	@Override
+	public String convert(String source) {
+		return source != null ? source.trim() : null;
+	}
 
 }

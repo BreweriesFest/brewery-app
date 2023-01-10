@@ -9,5 +9,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class KafkaConsumerProps extends KafkaProps {
 
-    private String consumerGroup;
+	private String consumerGroup;
+
 }

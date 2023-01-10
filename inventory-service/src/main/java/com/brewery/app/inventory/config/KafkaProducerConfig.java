@@ -15,17 +15,18 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 @Configuration
 public class KafkaProducerConfig {
 
-    @Bean
-    @ConfigurationProperties(prefix = "app.kafka.order-status-producer")
-    public KafkaProducerProps kafkaProducerProps() {
-        return new KafkaProducerProps();
-    }
+	@Bean
+	@ConfigurationProperties(prefix = "app.kafka.order-status-producer")
+	public KafkaProducerProps kafkaProducerProps() {
+		return new KafkaProducerProps();
+	}
 
-    @Bean
-    public ReactiveProducerService<String, OrderEvent> orderStatusProducer(KafkaProducerProps properties,
-            MeterRegistry meterRegistry) {
-        return new ReactiveProducerServiceImpl<>(properties, StringSerializer.class, JsonSerializer.class,
-                meterRegistry) {
-        };
-    }
+	@Bean
+	public ReactiveProducerService<String, OrderEvent> orderStatusProducer(KafkaProducerProps properties,
+			MeterRegistry meterRegistry) {
+		return new ReactiveProducerServiceImpl<>(properties, StringSerializer.class, JsonSerializer.class,
+				meterRegistry) {
+		};
+	}
+
 }

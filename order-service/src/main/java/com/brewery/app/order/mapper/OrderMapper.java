@@ -10,25 +10,27 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.Collection;
 
-@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+		nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface OrderMapper {
 
-    Order fromOrderDto(OrderDto orderDto);
+	Order fromOrderDto(OrderDto orderDto);
 
-    Collection<Order> fromOrderDto(Collection<OrderDto> orderDto);
+	Collection<Order> fromOrderDto(Collection<OrderDto> orderDto);
 
-    OrderDto fromOrder(Order order);
+	OrderDto fromOrder(Order order);
 
-    default OrderDto fromOrderLine(OrderDto orderDto, Collection<OrderLine> orderLine) {
+	default OrderDto fromOrderLine(OrderDto orderDto, Collection<OrderLine> orderLine) {
 
-        return orderDto.fromOrderLine(fromOrderLine(orderLine));
-    }
+		return orderDto.fromOrderLine(fromOrderLine(orderLine));
+	}
 
-    OrderLineDto fromOrderLine(OrderLine orderLine);
+	OrderLineDto fromOrderLine(OrderLine orderLine);
 
-    OrderLine fromOrderLineDto(OrderLineDto orderLineDto);
+	OrderLine fromOrderLineDto(OrderLineDto orderLineDto);
 
-    Collection<OrderLine> fromOrderLineDto(Collection<OrderLineDto> orderLineDto);
+	Collection<OrderLine> fromOrderLineDto(Collection<OrderLineDto> orderLineDto);
 
-    Collection<OrderLineDto> fromOrderLine(Collection<OrderLine> orderLineDto);
+	Collection<OrderLineDto> fromOrderLine(Collection<OrderLine> orderLineDto);
+
 }

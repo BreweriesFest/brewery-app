@@ -10,9 +10,9 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface InventoryMapper {
 
-    InventoryDTO fromInventory(Inventory inventory);
+	InventoryDTO fromInventory(Inventory inventory);
 
-    @Mapping(source = "qtyToBrew", target = "qtyOnHand")
-    Inventory fromBrewBeerEvent(BrewBeerEvent brewBeerEvent);
+	@Mapping(source = "qtyToBrew", target = "qtyOnHand")
+	Inventory fromBrewBeerEvent(BrewBeerEvent brewBeerEvent);
 
 }

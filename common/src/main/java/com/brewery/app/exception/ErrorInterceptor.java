@@ -23,58 +23,58 @@ import static com.brewery.app.util.Helper.collectionAsStream;
 @Component
 public class ErrorInterceptor implements WebGraphQlInterceptor {
 
-    @Override
-    public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
-        return chain.next(request).map(response -> {
-            if (response.isValid()) {
-                return response;
-            }
-            List<GraphQLError> graphQLErrors = collectionAsStream(response.getErrors())
-                    .filter(responseError -> !(responseError.getErrorType() instanceof ExceptionType))
-                    .map(this::resolveException).collect(Collectors.toList());
+	@Override
+	public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
+		return chain.next(request).map(response -> {
+			if (response.isValid()) {
+				return response;
+			}
+			List<GraphQLError> graphQLErrors = collectionAsStream(response.getErrors())
+					.filter(responseError -> !(responseError.getErrorType() instanceof ExceptionType))
+					.map(this::resolveException).collect(Collectors.toList());
 
-            if (!graphQLErrors.isEmpty()) {
-                log.info("[ErrorInterceptor] Found invalid syntax error! Overriding the message.");
-                return response.transform(builder -> builder.errors(graphQLErrors).build());
-            }
+			if (!graphQLErrors.isEmpty()) {
+				log.info("[ErrorInterceptor] Found invalid syntax error! Overriding the message.");
+				return response.transform(builder -> builder.errors(graphQLErrors).build());
+			}
 
-            return response;
-        });
-    }
+			return response;
+		});
+	}
 
-    private GraphQLError resolveException(ResponseError responseError) {
+	private GraphQLError resolveException(ResponseError responseError) {
 
-        ErrorClassification errorType = responseError.getErrorType();
+		ErrorClassification errorType = responseError.getErrorType();
 
-        if (ErrorType.ValidationError.equals(errorType)) {
-            String message = responseError.getMessage();
-            log.info("[ErrorInterceptor] Returning invalid field error ");
+		if (ErrorType.ValidationError.equals(errorType)) {
+			String message = responseError.getMessage();
+			log.info("[ErrorInterceptor] Returning invalid field error ");
 
-            if (ValidationErrorType.MissingFieldArgument
-                    .equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
-                String errorMessage = "Field " + StringUtils.substringBetween(message, "argument ", " @")
-                        + " cannot be null";
-                return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
-                        ExceptionType.ValidationException, errorMessage);
-            }
-            if (ValidationErrorType.WrongType
-                    .equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
-                String errorMessage = "Field " + StringUtils.substringBetween(message, "fields ", " @")
-                        + " cannot be null";
-                return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
-                        ExceptionType.ValidationException, errorMessage);
-            }
-        }
+			if (ValidationErrorType.MissingFieldArgument
+					.equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
+				String errorMessage = "Field " + StringUtils.substringBetween(message, "argument ", " @")
+						+ " cannot be null";
+				return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
+						ExceptionType.ValidationException, errorMessage);
+			}
+			if (ValidationErrorType.WrongType
+					.equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
+				String errorMessage = "Field " + StringUtils.substringBetween(message, "fields ", " @")
+						+ " cannot be null";
+				return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
+						ExceptionType.ValidationException, errorMessage);
+			}
+		}
 
-        log.info("[ErrorInterceptor] Returning unknown query validation error ");
-        return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
-                ExceptionType.ValidationException, responseError.getMessage());
-    }
+		log.info("[ErrorInterceptor] Returning unknown query validation error ");
+		return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
+				ExceptionType.ValidationException, responseError.getMessage());
+	}
 
-    private ValidationErrorType extractValidationErrorFromErrorMessage(String message) {
-        return ValidationErrorType.valueOf(StringUtils.substringBetween(message, "type ", ":"));
-    }
+	private ValidationErrorType extractValidationErrorFromErrorMessage(String message) {
+		return ValidationErrorType.valueOf(StringUtils.substringBetween(message, "type ", ":"));
+	}
 
-    //
+	//
 
 }

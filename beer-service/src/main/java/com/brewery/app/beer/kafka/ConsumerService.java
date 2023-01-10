@@ -20,25 +20,28 @@ import java.util.function.Function;
 @Slf4j
 public class ConsumerService {
 
-    private Disposable.Composite disposables = Disposables.composite();
-    private BeerService beerService;
-    private Function<ReceiverRecord<String, CheckInventoryEvent>, Mono<?>> processRecord = record -> {
-        return this.beerService.consumeCheckInventoryEvent(record.value());
-    };
+	private Disposable.Composite disposables = Disposables.composite();
 
-    public ConsumerService(BeerService beerService) {
-        this.beerService = beerService;
-    }
+	private BeerService beerService;
 
-    @Bean
-    public ApplicationListener<ApplicationReadyEvent> factoryBeanListener(
-            ReactiveConsumerConfig<String, CheckInventoryEvent> reactiveConsumer) {
-        return event -> disposables.add(reactiveConsumer.consumerRecord(processRecord).subscribe());
-    }
+	private Function<ReceiverRecord<String, CheckInventoryEvent>, Mono<?>> processRecord = record -> {
+		return this.beerService.consumeCheckInventoryEvent(record.value());
+	};
 
-    @PreDestroy
-    void disconnect() {
-        log.info("dispose");
-        disposables.dispose();
-    }
+	public ConsumerService(BeerService beerService) {
+		this.beerService = beerService;
+	}
+
+	@Bean
+	public ApplicationListener<ApplicationReadyEvent> factoryBeanListener(
+			ReactiveConsumerConfig<String, CheckInventoryEvent> reactiveConsumer) {
+		return event -> disposables.add(reactiveConsumer.consumerRecord(processRecord).subscribe());
+	}
+
+	@PreDestroy
+	void disconnect() {
+		log.info("dispose");
+		disposables.dispose();
+	}
+
 }

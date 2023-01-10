@@ -15,9 +15,10 @@ import static com.brewery.app.util.Helper.extractHeaders;
 @Component
 public class HeaderInterceptor implements WebGraphQlInterceptor {
 
-    @Override
-    public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
-        return chain.next(request)
-                .contextWrite(__ -> __.putAllMap(extractHeaders(List.of(TENANT_ID, CUSTOMER_ID), request)));
-    }
+	@Override
+	public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
+		return chain.next(request)
+				.contextWrite(__ -> __.putAllMap(extractHeaders(List.of(TENANT_ID, CUSTOMER_ID), request)));
+	}
+
 }

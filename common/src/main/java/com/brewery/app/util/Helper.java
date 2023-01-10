@@ -23,44 +23,49 @@ import static com.brewery.app.util.ContextValidator.isTenantIdValid;
 @UtilityClass
 public class Helper {
 
-    public static final BiFunction<WebGraphQlRequest, String, Optional<String>> getHeader = ((request,
-            header) -> collectionAsStream(request.getHeaders().get(header)).findFirst());
-    public static final Predicate<Object> isInstanceOfString = String.class::isInstance;
-    public static final Predicate<String> isNotBlankString = StringUtils::isNotBlank;
-    public static final Function<Object, String> convertToString = String::valueOf;
-    public static final BiFunction<String, ContextView, String> fetchHeaderFromContext = (header,
-            ctx) -> getHeader(header, ctx).filter(isInstanceOfString).map(convertToString).filter(isNotBlankString)
-                    .orElse(null);
-    public static final Supplier<String> uuid = () -> UUID.randomUUID().toString();
+	public static final BiFunction<WebGraphQlRequest, String, Optional<String>> getHeader = ((request,
+			header) -> collectionAsStream(request.getHeaders().get(header)).findFirst());
 
-    public static <T> Stream<T> collectionAsStream(Collection<T> collection) {
-        return collection == null ? Stream.empty() : collection.stream();
-    }
+	public static final Predicate<Object> isInstanceOfString = String.class::isInstance;
 
-    public static Mono<Void> validateContext() {
-        return Mono.deferContextual(__ -> {
-            var result = isTenantIdValid().and(isCustomerIdValid()).apply(__);
-            return SUCCESS.equals(result) ? Mono.empty()
-                    : Mono.error(new BusinessException(CUSTOMIZE_REASON, result.name()));
-        });
-    }
+	public static final Predicate<String> isNotBlankString = StringUtils::isNotBlank;
 
-    public static <T> Optional<T> getHeader(String header, ContextView ctx) {
-        return ctx.getOrDefault(header, Optional.empty());
-    }
+	public static final Function<Object, String> convertToString = String::valueOf;
 
-    public static Map<String, Optional<String>> extractHeaders(Collection<String> headers, WebGraphQlRequest request) {
-        var headerMap = new HashMap<String, Optional<String>>();
-        headers.forEach(__ -> headerMap.put(__, getHeader.apply(request, __)));
-        return headerMap;
-    }
+	public static final BiFunction<String, ContextView, String> fetchHeaderFromContext = (header,
+			ctx) -> getHeader(header, ctx).filter(isInstanceOfString).map(convertToString).filter(isNotBlankString)
+					.orElse(null);
 
-    public static Map<String, Optional<String>> extractHeaders(Collection<String> headers,
-            ConsumerRecord<?, ?> receiverRecord) {
-        var headerMap = new HashMap<String, Optional<String>>();
-        headers.forEach(
-                __ -> headerMap.put(__, Optional.of(new String(receiverRecord.headers().lastHeader(__).value()))));
-        return headerMap;
-    }
+	public static final Supplier<String> uuid = () -> UUID.randomUUID().toString();
+
+	public static <T> Stream<T> collectionAsStream(Collection<T> collection) {
+		return collection == null ? Stream.empty() : collection.stream();
+	}
+
+	public static Mono<Void> validateContext() {
+		return Mono.deferContextual(__ -> {
+			var result = isTenantIdValid().and(isCustomerIdValid()).apply(__);
+			return SUCCESS.equals(result) ? Mono.empty()
+					: Mono.error(new BusinessException(CUSTOMIZE_REASON, result.name()));
+		});
+	}
+
+	public static <T> Optional<T> getHeader(String header, ContextView ctx) {
+		return ctx.getOrDefault(header, Optional.empty());
+	}
+
+	public static Map<String, Optional<String>> extractHeaders(Collection<String> headers, WebGraphQlRequest request) {
+		var headerMap = new HashMap<String, Optional<String>>();
+		headers.forEach(__ -> headerMap.put(__, getHeader.apply(request, __)));
+		return headerMap;
+	}
+
+	public static Map<String, Optional<String>> extractHeaders(Collection<String> headers,
+			ConsumerRecord<?, ?> receiverRecord) {
+		var headerMap = new HashMap<String, Optional<String>>();
+		headers.forEach(
+				__ -> headerMap.put(__, Optional.of(new String(receiverRecord.headers().lastHeader(__).value()))));
+		return headerMap;
+	}
 
 }

@@ -18,32 +18,33 @@ import static com.brewery.app.util.AppConstant.LZ4_COMPRESSION;
 @Configuration
 public class KafkaConsumerConfig {
 
-    @Bean
-    @ConfigurationProperties(prefix = "app.kafka.beer.consumer")
-    public KafkaConsumerProps kafkaConsumerProps() {
-        return new KafkaConsumerProps();
-    }
+	@Bean
+	@ConfigurationProperties(prefix = "app.kafka.beer.consumer")
+	public KafkaConsumerProps kafkaConsumerProps() {
+		return new KafkaConsumerProps();
+	}
 
-    @Bean
-    public ReactiveConsumerConfig<String, CheckInventoryEvent> reactiveConsumer(KafkaConsumerProps kafkaConsumerProps,
-            MeterRegistry meterRegistry) {
-        return new ReactiveConsumerConfig<>(kafkaConsumerProps, StringDeserializer.class, JsonDeserializer.class,
-                meterRegistry) {
-        };
-    }
+	@Bean
+	public ReactiveConsumerConfig<String, CheckInventoryEvent> reactiveConsumer(KafkaConsumerProps kafkaConsumerProps,
+			MeterRegistry meterRegistry) {
+		return new ReactiveConsumerConfig<>(kafkaConsumerProps, StringDeserializer.class, JsonDeserializer.class,
+				meterRegistry) {
+		};
+	}
 
-    @Bean
-    public NewTopic newUserTopic(KafkaConsumerProps kafkaConsumerProps) {
-        return TopicBuilder.name(kafkaConsumerProps.getTopic()).partitions(3).replicas(1)
-                .config(TopicConfig.COMPRESSION_TYPE_CONFIG, LZ4_COMPRESSION).build();
+	@Bean
+	public NewTopic newUserTopic(KafkaConsumerProps kafkaConsumerProps) {
+		return TopicBuilder.name(kafkaConsumerProps.getTopic()).partitions(3).replicas(1)
+				.config(TopicConfig.COMPRESSION_TYPE_CONFIG, LZ4_COMPRESSION).build();
 
-    }
+	}
 
-    @Bean
-    public NewTopic deadLetterTopic(KafkaConsumerProps kafkaConsumerProps) {
-        // https://docs.spring.io/spring-kafka/docs/2.8.2/reference/html/#configuring-topics
-        return TopicBuilder.name(kafkaConsumerProps.getTopic() + "_dlt")
-                // Use only one partition for infrequently used Dead Letter Topic
-                .partitions(1).build();
-    }
+	@Bean
+	public NewTopic deadLetterTopic(KafkaConsumerProps kafkaConsumerProps) {
+		// https://docs.spring.io/spring-kafka/docs/2.8.2/reference/html/#configuring-topics
+		return TopicBuilder.name(kafkaConsumerProps.getTopic() + "_dlt")
+				// Use only one partition for infrequently used Dead Letter Topic
+				.partitions(1).build();
+	}
+
 }

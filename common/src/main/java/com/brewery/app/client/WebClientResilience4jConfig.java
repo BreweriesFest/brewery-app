@@ -21,77 +21,81 @@ import static com.brewery.app.util.AppConstant.RESILIENCE_ID_INVENTORY_CLIENT;
 @RequiredArgsConstructor
 public class WebClientResilience4jConfig {
 
-    private final Resilience4JConfig resilience4JConfig;
+	private final Resilience4JConfig resilience4JConfig;
 
-    @Configuration
-    @Profile("beer-client-service")
-    public class BeerClientConfig {
-        @Bean
-        @ConfigurationProperties(prefix = "app.client.beer.circuit-breaker")
-        public CircuitBreakerProps beerClientCircuitBreakerProps() {
-            return new CircuitBreakerProps();
-        }
+	@Configuration
+	@Profile("beer-client-service")
+	public class BeerClientConfig {
 
-        @Bean
-        @ConfigurationProperties(prefix = "app.client.beer.time-limiter")
-        public TimeLimiterProps beerClientTimeLimiterProps() {
-            return new TimeLimiterProps();
-        }
+		@Bean
+		@ConfigurationProperties(prefix = "app.client.beer.circuit-breaker")
+		public CircuitBreakerProps beerClientCircuitBreakerProps() {
+			return new CircuitBreakerProps();
+		}
 
-        @Bean
-        @ConfigurationProperties(prefix = "app.client.beer.retry")
-        public RetryProps beerClientRetryProps() {
-            return new RetryProps();
-        }
+		@Bean
+		@ConfigurationProperties(prefix = "app.client.beer.time-limiter")
+		public TimeLimiterProps beerClientTimeLimiterProps() {
+			return new TimeLimiterProps();
+		}
 
-        @Bean
-        public Customizer<ReactiveResilience4JCircuitBreakerFactory> beerClientCustomizer(
-                CircuitBreakerProps beerClientCircuitBreakerProps, TimeLimiterProps beerClientTimeLimiterProps) {
-            return resilience4JConfig.configureCircuitBreakerCustomizer(RESILIENCE_ID_BEER_CLIENT,
-                    beerClientCircuitBreakerProps, beerClientTimeLimiterProps);
-        }
+		@Bean
+		@ConfigurationProperties(prefix = "app.client.beer.retry")
+		public RetryProps beerClientRetryProps() {
+			return new RetryProps();
+		}
 
-        @Bean
-        public Retry beerClientRetry(RetryProps beerClientRetryProps, MeterRegistry meterRegistry) {
-            return resilience4JConfig.configureRetryCustomizer(RESILIENCE_ID_BEER_CLIENT, beerClientRetryProps,
-                    meterRegistry);
-        }
-    }
+		@Bean
+		public Customizer<ReactiveResilience4JCircuitBreakerFactory> beerClientCustomizer(
+				CircuitBreakerProps beerClientCircuitBreakerProps, TimeLimiterProps beerClientTimeLimiterProps) {
+			return resilience4JConfig.configureCircuitBreakerCustomizer(RESILIENCE_ID_BEER_CLIENT,
+					beerClientCircuitBreakerProps, beerClientTimeLimiterProps);
+		}
 
-    @Configuration
-    @Profile("inventory-client-service")
-    public class InventoryClientConfig {
-        @Bean
-        @ConfigurationProperties(prefix = "app.client.inventory.circuit-breaker")
-        public CircuitBreakerProps inventoryClientCircuitBreakerProps() {
-            return new CircuitBreakerProps();
-        }
+		@Bean
+		public Retry beerClientRetry(RetryProps beerClientRetryProps, MeterRegistry meterRegistry) {
+			return resilience4JConfig.configureRetryCustomizer(RESILIENCE_ID_BEER_CLIENT, beerClientRetryProps,
+					meterRegistry);
+		}
 
-        @Bean
-        @ConfigurationProperties(prefix = "app.client.inventory.time-limiter")
-        public TimeLimiterProps inventoryClientTimeLimiterProps() {
-            return new TimeLimiterProps();
-        }
+	}
 
-        @Bean
-        @ConfigurationProperties(prefix = "app.client.inventory.retry")
-        public RetryProps inventoryClientRetryProps() {
-            return new RetryProps();
-        }
+	@Configuration
+	@Profile("inventory-client-service")
+	public class InventoryClientConfig {
 
-        @Bean
-        public Customizer<ReactiveResilience4JCircuitBreakerFactory> inventoryClientCustomizer(
-                CircuitBreakerProps inventoryClientCircuitBreakerProps,
-                TimeLimiterProps inventoryClientTimeLimiterProps) {
-            return resilience4JConfig.configureCircuitBreakerCustomizer(RESILIENCE_ID_INVENTORY_CLIENT,
-                    inventoryClientCircuitBreakerProps, inventoryClientTimeLimiterProps);
-        }
+		@Bean
+		@ConfigurationProperties(prefix = "app.client.inventory.circuit-breaker")
+		public CircuitBreakerProps inventoryClientCircuitBreakerProps() {
+			return new CircuitBreakerProps();
+		}
 
-        @Bean
-        public Retry inventoryClientRetry(RetryProps inventoryClientRetryProps, MeterRegistry meterRegistry) {
-            return resilience4JConfig.configureRetryCustomizer(RESILIENCE_ID_INVENTORY_CLIENT,
-                    inventoryClientRetryProps, meterRegistry);
-        }
-    }
+		@Bean
+		@ConfigurationProperties(prefix = "app.client.inventory.time-limiter")
+		public TimeLimiterProps inventoryClientTimeLimiterProps() {
+			return new TimeLimiterProps();
+		}
+
+		@Bean
+		@ConfigurationProperties(prefix = "app.client.inventory.retry")
+		public RetryProps inventoryClientRetryProps() {
+			return new RetryProps();
+		}
+
+		@Bean
+		public Customizer<ReactiveResilience4JCircuitBreakerFactory> inventoryClientCustomizer(
+				CircuitBreakerProps inventoryClientCircuitBreakerProps,
+				TimeLimiterProps inventoryClientTimeLimiterProps) {
+			return resilience4JConfig.configureCircuitBreakerCustomizer(RESILIENCE_ID_INVENTORY_CLIENT,
+					inventoryClientCircuitBreakerProps, inventoryClientTimeLimiterProps);
+		}
+
+		@Bean
+		public Retry inventoryClientRetry(RetryProps inventoryClientRetryProps, MeterRegistry meterRegistry) {
+			return resilience4JConfig.configureRetryCustomizer(RESILIENCE_ID_INVENTORY_CLIENT,
+					inventoryClientRetryProps, meterRegistry);
+		}
+
+	}
 
 }

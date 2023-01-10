@@ -12,7 +12,9 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public abstract class KafkaProps {
-    private List<String> bootstrapServers = new ArrayList(Collections.singletonList("localhost:9092"));
 
-    private String topic;
+	private List<String> bootstrapServers = new ArrayList(Collections.singletonList("localhost:9092"));
+
+	private String topic;
+
 }
