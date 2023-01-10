@@ -6,7 +6,10 @@ import com.brewery.app.event.OrderEvent;
 import com.brewery.app.exception.BusinessException;
 import com.brewery.app.inventory.mapper.InventoryMapper;
 import com.brewery.app.inventory.repository.*;
+import com.brewery.app.kafka.producer.ReactiveProducerService;
+import com.brewery.app.model.OrderDto;
 import com.brewery.app.model.OrderLineDto;
+import com.brewery.app.model.OrderStatus;
 import io.github.resilience4j.reactor.retry.RetryOperator;
 import io.github.resilience4j.retry.Retry;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -47,6 +51,7 @@ public class InventoryService {
     private final ReactiveMongoOperations reactiveMongoOperations;
     private final ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory;
     private final Retry mongoServiceRetry;
+    private final ReactiveProducerService<String, OrderEvent> orderStatusProducer;
 
     public Mono<InventoryDTO> addInventory(BrewBeerEvent brewBeerEvent) {
 
@@ -105,7 +110,7 @@ public class InventoryService {
 
     }
 
-    public Mono<List<InventoryLedger>> allocateInventory(OrderEvent value) {
+    public Mono<?> allocateInventory(OrderEvent value) {
         var validateHeaders = validateContext();
 
         var persist = Flux.deferContextual(ctx -> {
@@ -121,20 +126,30 @@ public class InventoryService {
             var inventoryLedgerList = new ArrayList<InventoryLedger>();
             var map = collectionAsStream(value.orderDto().orderLine())
                     .collect(Collectors.toMap(OrderLineDto::beerId, Function.identity()));
+            var updateOrderLine = new ArrayList<OrderLineDto>();
             collectionAsStream(__).forEach(o -> {
                 var orderLine = map.get(o.getBeerId());
                 var reqQty = orderLine.orderQuantity() - orderLine.quantityAllocated();
                 var allocated = reqQty >= o.getQtyOnHand() ? o.getQtyOnHand() : o.getQtyOnHand() - reqQty;
                 o.setQtyOnHand(o.getQtyOnHand() - allocated);
+                updateOrderLine.add(new OrderLineDto(orderLine.beerId(), orderLine.orderQuantity(), allocated));
                 inventoryList.add(o);
                 inventoryLedgerList.add(InventoryLedger.builder().inventoryId(o.getId()).type(ALLOCATE).qty(allocated)
                         .totQty(o.getQtyOnHand()).build());
             });
-            return inventoryRepository.saveAll(inventoryList)
-                    .flatMap(___ -> inventoryLedgerRepository.saveAll(inventoryLedgerList)).collectList();
+
+            var inventoryMono = inventoryRepository.saveAll(inventoryList);
+            var inventoryLedgerMono = inventoryLedgerRepository.saveAll(inventoryLedgerList);
+            return inventoryMono.thenMany(inventoryLedgerMono)
+                    .then(orderStatusProducer.send(
+                            new OrderEvent(uuid.get(),
+                                    new OrderDto(value.orderDto().id(), null, updateOrderLine, OrderStatus.ALLOCATED)),
+                            Map.of()));
         });
 
-        return validateHeaders.then(persist);
+        return validateHeaders.then(persist).onErrorResume(__ -> orderStatusProducer.send(new OrderEvent(uuid.get(),
+                new OrderDto(value.orderDto().id(), null, value.orderDto().orderLine(), OrderStatus.ALLOCATION_ERROR)),
+                Map.of()));
 
     }
 }

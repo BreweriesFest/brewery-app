@@ -36,6 +36,10 @@ app:
       bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:${spring.kafka.bootstrap-servers}}
       topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:allocate-beer-event}
       consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:inventory-consumer}
+    order-status-producer:
+      bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:${spring.kafka.bootstrap-servers}}
+      topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:order-status-event}
+      idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
   mongo-service:
     circuit-breaker:
       failureRateThreshold: ${CB__MONGO_SERVICE__FAILURE_RATE_THRESHOLD:10}
