@@ -24,7 +24,7 @@
     </modules>
     <properties>
         <!--suppress UnresolvedMavenProperty -->
-        <version.number>${git.branch}.${git.commit.id.abbrev}</version.number>
+        <version.number>${git.commit.id.abbrev}</version.number>
         <java.version>17</java.version>
         <spring-cloud.version>2022.0.0</spring-cloud.version>
         <testcontainers.version>1.17.6</testcontainers.version>
@@ -318,6 +318,40 @@
             </plugin>
 
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>build-info</id>
+                            <goals>
+                                <goal>build-info</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <image>
+                            <builder>paketobuildpacks/builder:tiny</builder>
+                            <name>docker.io/shubhamgoel23/${project.artifactId}:${version.number}</name>
+                            <env>
+                                <BPE_APPEND_JAVA_TOOL_OPTIONS>-Djava.security.egd=file:/dev/./urandom
+                                </BPE_APPEND_JAVA_TOOL_OPTIONS>
+                                <BPE_DELIM_JAVA_TOOL_OPTIONS xml:space="preserve"> </BPE_DELIM_JAVA_TOOL_OPTIONS>
+                                <BP_BINARY_COMPRESSION_METHOD>upx</BP_BINARY_COMPRESSION_METHOD>
+                            </env>
+                        </image>
+                        <excludes>
+                            <exclude>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <profiles>
