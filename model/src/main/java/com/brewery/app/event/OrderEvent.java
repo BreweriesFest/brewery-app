@@ -1,11 +1,12 @@
 package com.brewery.app.event;
 
 import com.brewery.app.domain.Record;
+import com.brewery.app.model.OrderDto;
 
-public record BrewBeerEvent(String id, String beerId, Integer qtyToBrew) implements Record<String>, Event {
+public record OrderEvent(String id, OrderDto orderDto) implements Record<String>, Event {
     @Override
     public String key() {
-        return beerId();
+        return orderDto().id();
     }
 
     @Override

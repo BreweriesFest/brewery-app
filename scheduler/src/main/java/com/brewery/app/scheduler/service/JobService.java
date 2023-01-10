@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import static com.brewery.app.util.AppConstant.CUSTOMER_ID;
 import static com.brewery.app.util.AppConstant.TENANT_ID;
+import static com.brewery.app.util.Helper.uuid;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +40,7 @@ public class JobService {
     }
 
     public void createCheckInventoryEvent(String beerId, String tenantId, String customerId) {
-        reactiveProducer.send(new CheckInventoryEvent(beerId), Map.of()).contextWrite(
+        reactiveProducer.send(new CheckInventoryEvent(uuid.get(), beerId), Map.of()).contextWrite(
                 __ -> __.putAllMap(Map.of(TENANT_ID, Optional.of(tenantId), CUSTOMER_ID, Optional.of(customerId))))
                 .subscribe();
 
