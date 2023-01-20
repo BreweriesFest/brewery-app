@@ -7,6 +7,8 @@ on:
         required: false
         type: string
         default: '17'
+    outputs:
+      sha: $(git rev-parse HEAD)
 
 jobs:
   version:
@@ -30,5 +32,3 @@ jobs:
           git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
           git commit -am "updating version"
           git push origin main
-      - name: Get SHA
-        run: echo "::set-output name=sha::$(git rev-parse HEAD)"

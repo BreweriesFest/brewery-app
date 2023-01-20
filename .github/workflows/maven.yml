@@ -23,25 +23,25 @@ jobs:
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
     with:
       service-name: 'inventory-service'
-      sha: ${{ steps.set-output.outputs.sha }}"
+      sha: ${{ needs.version-update.outputs.sha }}"
 
   beer-service:
     needs: version-update
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
     with:
       service-name: 'beer-service'
-      sha: ${{ steps.set-output.outputs.sha }}"
+      sha: ${{ needs.version-update.outputs.sha }}"
 
   order-service:
     needs: version-update
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
     with:
       service-name: 'order-service'
-      sha: ${{ steps.set-output.outputs.sha }}"
+      sha: ${{ needs.version-update.outputs.sha }}"
 
   scheduler:
     needs: version-update
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
     with:
       service-name: 'scheduler'
-      sha: ${{ steps.set-output.outputs.sha }}"
+      sha: ${{ needs.version-update.outputs.sha }}"
