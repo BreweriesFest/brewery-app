@@ -14,14 +14,15 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  sha: ${{GITHUB_SHA::7}}"
+
 jobs:
   version-update:
     concurrency: 1
-    steps:
-      - run: echo "current_commit=${{GITHUB_SHA::7}}" >> $GITHUB_ENV
     uses: BreweriesFest/brewery-app/.github/workflows/version.yml@main
     with:
-      sha: ${{ env.current_commit }}
+      sha: ${{ env.sha }}
 
   inventory-service:
     needs: version-update
