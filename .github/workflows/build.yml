@@ -22,8 +22,14 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
+      - name: Get current version
+        run: echo "::set-env name=current_version::$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)"
       - name: Set version
-        run: mvn versions:set -DnewVersion=${GITHUB_SHA::7} -DprocessDependencies=false
+        run: mvn versions:set -DnewVersion=${{ env.current_version }}
+      - name: Update Properties
+        run: mvn versions:update-properties
+      - name: Commit version update
+        run: git commit -am "updating version"
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -am clean install --file pom.xml
       - name: Build Docker image
