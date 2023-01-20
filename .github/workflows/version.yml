@@ -9,7 +9,7 @@ on:
         default: '17'
 
 jobs:
-  build:
+  version:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -30,3 +30,5 @@ jobs:
           git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
           git commit -am "updating version"
           git push origin main
+      - name: Get SHA
+        run: echo "SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
