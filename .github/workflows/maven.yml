@@ -17,14 +17,19 @@ on:
 jobs:
   env-setup:
     runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.sha.outputs.SHA }}
     steps:
-      - run: echo "SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+      - name: Get SHA
+        id: sha
+        run: echo "SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
   version-update:
+    needs: env-setup
     concurrency: 1
     uses: BreweriesFest/brewery-app/.github/workflows/version.yml@main
     with:
-      sha: ${{ env.SHA }}
+      sha: ${{ needs.env-setup.outputs.sha }}
 
   inventory-service:
     needs: version-update
