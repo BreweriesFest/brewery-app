@@ -35,6 +35,7 @@ jobs:
       - name: Commit version update
         run: |
           git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
+          git pull
           git commit -am "updating version"
           git push origin main
       - name: Get SHA
