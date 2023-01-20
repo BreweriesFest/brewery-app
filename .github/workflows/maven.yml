@@ -18,6 +18,8 @@ jobs:
   version-update:
     concurrency: 1
     uses: BreweriesFest/brewery-app/.github/workflows/version.yml@main
+    with:
+      sha: ${{ GITHUB_SHA::7 }}
 
   inventory-service:
     needs: version-update
