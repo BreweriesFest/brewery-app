@@ -31,4 +31,4 @@ jobs:
           git commit -am "updating version"
           git push origin main
       - name: Get SHA
-        run: echo "SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
+        run: echo "::set-output name=sha::$(git rev-parse HEAD)"
