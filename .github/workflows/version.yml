@@ -10,7 +10,7 @@ on:
     outputs:
       sha:
         description: "latest commit"
-        value: ${GITHUB_SHA::7}
+        value: ${GITHUB_SHA}
 
 jobs:
   version:
