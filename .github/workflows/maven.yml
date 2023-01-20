@@ -18,8 +18,9 @@ jobs:
   version-update:
     concurrency: 1
     uses: BreweriesFest/brewery-app/.github/workflows/version.yml@main
+    run: echo "current_commit=${{GITHUB_SHA::7}}" >> $GITHUB_ENV
     with:
-      sha: ${ GITHUB_SHA::7 }
+      sha: ${{ env.current_commit }}
 
   inventory-service:
     needs: version-update
