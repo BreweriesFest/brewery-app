@@ -39,4 +39,6 @@ jobs:
           git push origin main
       - name: Get SHA
         id: sha
-        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+        run: |
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo git rev-parse HEAD
