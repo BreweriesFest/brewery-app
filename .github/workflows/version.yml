@@ -10,7 +10,7 @@ on:
     outputs:
       sha:
         description: "latest commit"
-        value: ${{ env.sha }}
+        value: ${{ jobs.version.outputs.sha }}
 
 jobs:
   version:
@@ -35,4 +35,4 @@ jobs:
           git commit -am "updating version"
           git push origin main
       - name: Get SHA
-        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
+        run: echo "::set-output name=sha::$(git rev-parse HEAD)"
