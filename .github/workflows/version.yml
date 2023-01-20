@@ -8,7 +8,9 @@ on:
         type: string
         default: '17'
     outputs:
-      sha: ${GITHUB_SHA::7}
+      sha:
+        description: "latest commit"
+        value: ${GITHUB_SHA::7}
 
 jobs:
   version:
