@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.brewery.app</groupId>
         <artifactId>parent</artifactId>
-        <version>2023.01.20-643dd91</version>
+        <version>20230120-7ffd06a</version>
     </parent>
     <artifactId>common</artifactId>
     <name>common</name>
