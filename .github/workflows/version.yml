@@ -8,7 +8,7 @@ on:
         type: string
         default: '17'
     outputs:
-      sha: $(git rev-parse HEAD)
+      sha: ${GITHUB_SHA::7}
 
 jobs:
   version:
