@@ -11,7 +11,7 @@ on:
         required: true
         type: string
       sha:
-        required: true
+        required: false
         type: string
 
 jobs:
