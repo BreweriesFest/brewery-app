@@ -14,11 +14,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
-strategy:
-  max-parallel: 1
+
 
 jobs:
   version-update:
+    concurrency: 1
     uses: BreweriesFest/brewery-app/.github/workflows/version.yml@main
 
   inventory-service:
