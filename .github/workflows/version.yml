@@ -10,7 +10,7 @@ on:
     outputs:
       sha:
         description: "latest commit"
-        value: $(git rev-parse HEAD)
+        value: ${{ env.sha }}
 
 jobs:
   version:
@@ -34,3 +34,5 @@ jobs:
           git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
           git commit -am "updating version"
           git push origin main
+      - name: Get SHA
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
