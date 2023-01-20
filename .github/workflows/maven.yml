@@ -22,7 +22,7 @@ jobs:
       - name: Check for previous workflow run
         run: |
           set -e
-          status=$(curl -s https://api.github.com/repos/${{github.repository}}/actions/runs?event_id=${{GITHUB_RUN_ID}} | jq -r '.total_count')
+          status=$(curl -s https://api.github.com/repos/${{github.repository}}/actions/runs?event_id=${{github.run_id}} | jq -r '.total_count')
           if [ $status -gt 0 ]; then
             echo "Error: previous workflow run still in progress"
             exit 1
