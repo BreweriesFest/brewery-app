@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.brewery.app</groupId>
         <artifactId>parent</artifactId>
-        <version>20230120-d970988</version>
+        <version>20230120-2b74739</version>
     </parent>
     <artifactId>model</artifactId>
     <name>model</name>
