@@ -29,7 +29,9 @@ jobs:
       - name: Update Properties
         run: mvn versions:update-properties
       - name: Commit version update
-        run: git commit -am "updating version"
+        run: |
+          git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
+          git commit -am "updating version"
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -am clean install --file pom.xml
       - name: Build Docker image
