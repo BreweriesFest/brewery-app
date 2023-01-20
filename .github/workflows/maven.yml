@@ -15,7 +15,7 @@ on:
     branches: [ "main" ]
 
 env:
-  sha: ${{GITHUB_SHA::7}}"
+  sha: ${{github.sha::7}}"
 
 jobs:
   version-update:
