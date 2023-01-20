@@ -14,8 +14,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-
-
 jobs:
   version-update:
     concurrency: 1
