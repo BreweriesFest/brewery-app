@@ -23,7 +23,7 @@ jobs:
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
     with:
       service-name: 'inventory-service'
-      sha: ${{ needs.version-update.outputs.sha }}"
+      sha: ${{ needs.version-update.outputs.sha }}
 
   beer-service:
     needs: version-update
