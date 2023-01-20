@@ -7,6 +7,9 @@ on:
         required: false
         type: string
         default: '17'
+      sha:
+        required: true
+        type: string
     outputs:
       sha:
         description: "latest commit"
@@ -27,15 +30,16 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Get current version
-        run: echo "current_version=$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        run: |
+          git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
+          git pull
+          echo "current_version=$(date +"%Y%m%d")-${{ inputs.sha }}" >> $GITHUB_ENV
       - name: Set version
         run: mvn versions:set -DnewVersion=${{ env.current_version }}
       - name: Update Properties
         run: mvn versions:update-properties
       - name: Commit version update
         run: |
-          git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
-          git pull
           git commit -am "updating version"
           git push origin main
       - name: Get SHA
