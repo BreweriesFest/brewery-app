@@ -10,7 +10,7 @@ on:
     outputs:
       sha:
         description: "latest commit"
-        value: ${{ GITHUB_SHA }}
+        value: $(git rev-parse HEAD)
 
 jobs:
   version:
