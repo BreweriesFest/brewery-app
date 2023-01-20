@@ -16,6 +16,9 @@ jobs:
   version:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # Map the job outputs to step outputs
+    outputs:
+      sha: ${{ steps.sha.outputs.sha }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
@@ -35,4 +38,5 @@ jobs:
           git commit -am "updating version"
           git push origin main
       - name: Get SHA
-        run: echo "::set-output name=sha::$(git rev-parse HEAD)"
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
