@@ -30,7 +30,8 @@ class OrderServiceApplicationTests {
 		registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
 		registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
 		registry.add("spring.redis.host", redis::getHost);
-		System.setProperty("spring.redis.port", redis.getMappedPort(6379).toString());
+		registry.add("spring.redis.host", () -> redis.getMappedPort(6379).toString());
+		// System.setProperty("spring.redis.port", redis.getMappedPort(6379).toString());
 	}
 
 	@Test
