@@ -26,7 +26,7 @@
         <!--suppress UnresolvedMavenProperty -->
         <version.number>${git.commit.id.abbrev}</version.number>
         <java.version>17</java.version>
-        <spring-cloud.version>2022.0.0</spring-cloud.version>
+        <spring-cloud.version>2022.0.1</spring-cloud.version>
         <testcontainers.version>1.17.6</testcontainers.version>
         <spring-doc.version>1.6.14</spring-doc.version>
         <mapstruct.version>1.5.3.Final</mapstruct.version>
