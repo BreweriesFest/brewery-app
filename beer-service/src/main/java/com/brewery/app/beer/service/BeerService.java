@@ -86,18 +86,15 @@ public class BeerService {
 
 	public Mono<BeerDto> saveBeer(BeerDto beerDto) {
 
-		var validate = Mono.deferContextual(ctx -> {
+		return Mono.deferContextual(ctx -> {
 			QBeer qBeer = QBeer.beer;
 			return beerRepository
 					.exists((qBeer.name.equalsIgnoreCase(beerDto.name()).or(qBeer.upc.equalsIgnoreCase(beerDto.upc())))
 							.and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx)))
 							.and(qBeer.active.eq(true)));
-		}).flatMap(__ -> __.equals(Boolean.TRUE)
-				? Mono.error(new BusinessException(ExceptionReason.BEER_ALREADY_PRESENT)) : Mono.empty());
-
-		var persist = Mono.just(beerDto).map(beerMapper::fromBeerDto).flatMap(beerRepository::save)
-				.map(beerMapper::fromBeer);
-		return validate.then(persist).doOnError(exc -> log.error("exception {}", exc));
+		}).flatMap(exists -> exists ? Mono.error(new BusinessException(ExceptionReason.BEER_ALREADY_PRESENT))
+				: Mono.just(beerDto)).map(beerMapper::fromBeerDto).flatMap(beerRepository::save)
+				.map(beerMapper::fromBeer).doOnError(exc -> log.error("exception {}", exc));
 
 	}
 
@@ -158,12 +155,13 @@ public class BeerService {
 	}
 
 	public Mono<Map<BeerDto, InventoryDTO>> inventory(List<BeerDto> beerDtos) {
-		var beerCollection = Mono.just(beerDtos).map(__ -> __.stream().map(BeerDto::id).collect(Collectors.toList()))
-				.map(inventoryClient::getInventoryByBeerId).flatMapMany(Flux::concat).collectList();
-
-		return beerCollection.map(__ -> collectionAsStream(beerDtos).collect(Collectors.toMap(Function.identity(),
-				o -> collectionAsStream(__).filter(___ -> o.id().equals(___.beerId())).findFirst()
-						.orElse(new InventoryDTO(null, o.id(), null)))));
+		return inventoryClient
+				.getInventoryByBeerId(collectionAsStream(beerDtos).map(BeerDto::id).collect(Collectors.toList()))
+				.collectList()
+				.map(inventoryList -> collectionAsStream(beerDtos).collect(Collectors.toMap(Function.identity(),
+						beerDto -> collectionAsStream(inventoryList)
+								.filter(inventory -> inventory.beerId().equals(beerDto.id())).findFirst()
+								.orElse(new InventoryDTO(null, beerDto.id(), null)))));
 	}
 
 }
