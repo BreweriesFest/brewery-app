@@ -41,12 +41,12 @@ jobs:
         id: sha
         run: echo "SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-  version-update:
-    needs: env-setup
-    concurrency: 1
-    uses: BreweriesFest/brewery-app/.github/workflows/version.yml@main
-    with:
-      sha: ${{ needs.env-setup.outputs.sha }}
+#  version-update:
+#    needs: env-setup
+#    concurrency: 1
+#    uses: BreweriesFest/brewery-app/.github/workflows/version.yml@main
+#    with:
+#      sha: ${{ needs.env-setup.outputs.sha }}
 
   inventory-service:
     needs: version-update
