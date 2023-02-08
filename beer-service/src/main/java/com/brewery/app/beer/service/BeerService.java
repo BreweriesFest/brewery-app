@@ -74,14 +74,10 @@ public class BeerService {
 			QBeer qBeer = QBeer.beer;
 			return beerRepository.findAll((qBeer.id.in(missingKeys))
 					.and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
-		}).map(beerMapper::fromBeer).flatMap(dbValue -> {
-			if (redisEnabled) {
-				return cacheService.setValue(dbValue.id(), dbValue, Duration.ofSeconds(200)).thenReturn(dbValue);
-			}
-			else {
-				return Mono.just(dbValue);
-			}
-		});
+		}).map(beerMapper::fromBeer)
+				.flatMap(dbValue -> redisEnabled
+						? cacheService.setValue(dbValue.id(), dbValue, Duration.ofSeconds(200)).thenReturn(dbValue)
+						: Mono.just(dbValue), 10);
 	}
 
 	public Mono<BeerDto> saveBeer(BeerDto beerDto) {
@@ -155,13 +151,14 @@ public class BeerService {
 	}
 
 	public Mono<Map<BeerDto, InventoryDTO>> inventory(List<BeerDto> beerDtos) {
+		Map<String, BeerDto> beerDtoMap = collectionAsStream(beerDtos)
+				.collect(Collectors.toMap(BeerDto::id, Function.identity()));
 		return inventoryClient
 				.getInventoryByBeerId(collectionAsStream(beerDtos).map(BeerDto::id).collect(Collectors.toList()))
-				.collectList()
-				.map(inventoryList -> collectionAsStream(beerDtos).collect(Collectors.toMap(Function.identity(),
-						beerDto -> collectionAsStream(inventoryList)
-								.filter(inventory -> inventory.beerId().equals(beerDto.id())).findFirst()
-								.orElse(new InventoryDTO(null, beerDto.id(), null)))));
+				.groupBy(InventoryDTO::beerId)
+				.flatMap(group -> group.next()
+						.map(inventory -> Map.entry(beerDtoMap.get(inventory.beerId()), inventory)))
+				.collectMap(Map.Entry::getKey, Map.Entry::getValue);
 	}
 
 }
