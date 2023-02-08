@@ -49,28 +49,28 @@ jobs:
 #      sha: ${{ needs.env-setup.outputs.sha }}
 
   inventory-service:
-    needs: version-update
+    needs: env-setup
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
     with:
       service-name: 'inventory-service'
       sha: ${{ needs.version-update.outputs.sha }}
 
   beer-service:
-    needs: version-update
+    needs: env-setup
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
     with:
       service-name: 'beer-service'
       sha: ${{ needs.version-update.outputs.sha }}
 
   order-service:
-    needs: version-update
+    needs: env-setup
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
     with:
       service-name: 'order-service'
       sha: ${{ needs.version-update.outputs.sha }}
 
   scheduler:
-    needs: version-update
+    needs: env-setup
     uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
     with:
       service-name: 'scheduler'
