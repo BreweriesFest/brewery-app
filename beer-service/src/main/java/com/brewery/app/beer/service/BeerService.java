@@ -1,6 +1,7 @@
 package com.brewery.app.beer.service;
 
 import com.brewery.app.beer.mapper.BeerMapper;
+import com.brewery.app.beer.redis.CacheService;
 import com.brewery.app.beer.repository.Beer;
 import com.brewery.app.beer.repository.BeerRepository;
 import com.brewery.app.beer.repository.QBeer;
@@ -14,14 +15,14 @@ import com.brewery.app.kafka.producer.ReactiveProducerService;
 import com.brewery.app.model.BeerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.kafka.sender.SenderResult;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,12 +43,45 @@ public class BeerService {
 
 	private final InventoryClient inventoryClient;
 
+	private final CacheService cacheService;
+
+	@Value("${features.redis.enabled}")
+	private boolean redisEnabled;
+
 	public Flux<BeerDto> findBeerById(Collection<String> beerId) {
+		Set<String> uniqueBeerId = new HashSet<>(beerId);
+
+		Mono<Map<String, BeerDto>> redisValues = redisEnabled
+				? cacheService.getMultipleKeysWithTimeout(uniqueBeerId, Duration.ofSeconds(20))
+				: Mono.just(new HashMap<>());
+
+		return redisValues.flatMapMany(values -> {
+			List<String> missingKeys = uniqueBeerId.stream().filter(key -> !values.containsKey(key))
+					.collect(Collectors.toList());
+
+			if (missingKeys.isEmpty()) {
+				return Flux.fromIterable(values.values());
+			}
+			else {
+				return fetchMissingValues(missingKeys).doOnNext(dbValue -> values.put(dbValue.id(), dbValue))
+						.thenMany(Flux.fromIterable(values.values()));
+			}
+		});
+	}
+
+	private Flux<BeerDto> fetchMissingValues(List<String> missingKeys) {
 		return Flux.deferContextual(ctx -> {
 			QBeer qBeer = QBeer.beer;
-			return beerRepository.findAll((qBeer.id.in(beerId))
+			return beerRepository.findAll((qBeer.id.in(missingKeys))
 					.and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
-		}).map(beerMapper::fromBeer);
+		}).map(beerMapper::fromBeer).flatMap(dbValue -> {
+			if (redisEnabled) {
+				return cacheService.setValue(dbValue.id(), dbValue, Duration.ofSeconds(200)).thenReturn(dbValue);
+			}
+			else {
+				return Mono.just(dbValue);
+			}
+		});
 	}
 
 	public Mono<BeerDto> saveBeer(BeerDto beerDto) {

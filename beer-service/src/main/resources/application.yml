@@ -2,7 +2,7 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+#      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
   application:
     name: beer-service
   data.mongodb:
@@ -21,7 +21,9 @@ spring:
       - inventory-client-service
 server:
   port: ${DEFAULT__APP__PORT:8080}
-
+features:
+  redis:
+    enabled: true
 spring.kafka.bootstrap-servers: 'localhost:9092'
 app:
   kafka:
