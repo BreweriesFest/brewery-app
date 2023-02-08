@@ -1,6 +1,7 @@
 package com.brewery.app.beer.service;
 
 import com.brewery.app.beer.mapper.BeerMapper;
+import com.brewery.app.beer.redis.CacheService;
 import com.brewery.app.beer.repository.Beer;
 import com.brewery.app.beer.repository.BeerRepository;
 import com.brewery.app.beer.repository.QBeer;
@@ -14,14 +15,14 @@ import com.brewery.app.kafka.producer.ReactiveProducerService;
 import com.brewery.app.model.BeerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.kafka.sender.SenderResult;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,28 +43,58 @@ public class BeerService {
 
 	private final InventoryClient inventoryClient;
 
+	private final CacheService cacheService;
+
+	@Value("${features.redis.enabled}")
+	private boolean redisEnabled;
+
 	public Flux<BeerDto> findBeerById(Collection<String> beerId) {
+		Set<String> uniqueBeerId = new HashSet<>(beerId);
+
+		Mono<Map<String, BeerDto>> redisValues = redisEnabled
+				? cacheService.getMultipleKeysWithTimeout(uniqueBeerId, Duration.ofSeconds(20))
+				: Mono.just(new HashMap<>());
+
+		return redisValues.flatMapMany(values -> {
+			List<String> missingKeys = uniqueBeerId.stream().filter(key -> !values.containsKey(key))
+					.collect(Collectors.toList());
+
+			if (missingKeys.isEmpty()) {
+				return Flux.fromIterable(values.values());
+			}
+			else {
+				return fetchMissingValues(missingKeys).doOnNext(dbValue -> values.put(dbValue.id(), dbValue))
+						.thenMany(Flux.fromIterable(values.values()));
+			}
+		});
+	}
+
+	private Flux<BeerDto> fetchMissingValues(List<String> missingKeys) {
 		return Flux.deferContextual(ctx -> {
 			QBeer qBeer = QBeer.beer;
-			return beerRepository.findAll((qBeer.id.in(beerId))
+			return beerRepository.findAll((qBeer.id.in(missingKeys))
 					.and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
-		}).map(beerMapper::fromBeer);
+		}).map(beerMapper::fromBeer).flatMap(dbValue -> {
+			if (redisEnabled) {
+				return cacheService.setValue(dbValue.id(), dbValue, Duration.ofSeconds(200)).thenReturn(dbValue);
+			}
+			else {
+				return Mono.just(dbValue);
+			}
+		});
 	}
 
 	public Mono<BeerDto> saveBeer(BeerDto beerDto) {
 
-		var validate = Mono.deferContextual(ctx -> {
+		return Mono.deferContextual(ctx -> {
 			QBeer qBeer = QBeer.beer;
 			return beerRepository
 					.exists((qBeer.name.equalsIgnoreCase(beerDto.name()).or(qBeer.upc.equalsIgnoreCase(beerDto.upc())))
 							.and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx)))
 							.and(qBeer.active.eq(true)));
-		}).flatMap(__ -> __.equals(Boolean.TRUE)
-				? Mono.error(new BusinessException(ExceptionReason.BEER_ALREADY_PRESENT)) : Mono.empty());
-
-		var persist = Mono.just(beerDto).map(beerMapper::fromBeerDto).flatMap(beerRepository::save)
-				.map(beerMapper::fromBeer);
-		return validate.then(persist).doOnError(exc -> log.error("exception {}", exc));
+		}).flatMap(exists -> exists ? Mono.error(new BusinessException(ExceptionReason.BEER_ALREADY_PRESENT))
+				: Mono.just(beerDto)).map(beerMapper::fromBeerDto).flatMap(beerRepository::save)
+				.map(beerMapper::fromBeer).doOnError(exc -> log.error("exception {}", exc));
 
 	}
 
@@ -124,12 +155,13 @@ public class BeerService {
 	}
 
 	public Mono<Map<BeerDto, InventoryDTO>> inventory(List<BeerDto> beerDtos) {
-		var beerCollection = Mono.just(beerDtos).map(__ -> __.stream().map(BeerDto::id).collect(Collectors.toList()))
-				.map(inventoryClient::getInventoryByBeerId).flatMapMany(Flux::concat).collectList();
-
-		return beerCollection.map(__ -> collectionAsStream(beerDtos).collect(Collectors.toMap(Function.identity(),
-				o -> collectionAsStream(__).filter(___ -> o.id().equals(___.beerId())).findFirst()
-						.orElse(new InventoryDTO(null, o.id(), null)))));
+		return inventoryClient
+				.getInventoryByBeerId(collectionAsStream(beerDtos).map(BeerDto::id).collect(Collectors.toList()))
+				.collectList()
+				.map(inventoryList -> collectionAsStream(beerDtos).collect(Collectors.toMap(Function.identity(),
+						beerDto -> collectionAsStream(inventoryList)
+								.filter(inventory -> inventory.beerId().equals(beerDto.id())).findFirst()
+								.orElse(new InventoryDTO(null, beerDto.id(), null)))));
 	}
 
 }

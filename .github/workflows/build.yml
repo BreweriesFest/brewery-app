@@ -27,6 +27,8 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
+      - name: Set version
+        run: mvn versions:set -DnewVersion=${{ inputs.sha }}
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -am clean install --file pom.xml
       - name: Build Docker image
