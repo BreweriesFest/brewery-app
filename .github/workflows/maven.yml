@@ -54,6 +54,9 @@ jobs:
     with:
       service-name: 'inventory-service'
       sha: ${{ needs.version-update.outputs.sha }}
+    secrets:
+      docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
 
   beer-service:
     needs: env-setup
@@ -61,6 +64,9 @@ jobs:
     with:
       service-name: 'beer-service'
       sha: ${{ needs.version-update.outputs.sha }}
+    secrets:
+      docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
 
   order-service:
     needs: env-setup
@@ -68,6 +74,9 @@ jobs:
     with:
       service-name: 'order-service'
       sha: ${{ needs.version-update.outputs.sha }}
+    secrets:
+      docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
 
   scheduler:
     needs: env-setup
@@ -75,3 +84,6 @@ jobs:
     with:
       service-name: 'scheduler'
       sha: ${{ needs.version-update.outputs.sha }}
+    secrets:
+      docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      docker-username: ${{ secrets.DOCKERHUB_USERNAME }}

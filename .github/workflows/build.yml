@@ -13,6 +13,11 @@ on:
       sha:
         required: false
         type: string
+    secrets:
+      docker-username:
+        required: true
+      docker-password:
+        required: true
 
 jobs:
   build:
@@ -34,6 +39,6 @@ jobs:
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        run: echo ${{ secrets.docker-password }} | docker login -u ${{ secrets.docker-username }} --password-stdin
       - name: Push Docker image
-        run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service-name }}:${{ inputs.sha }}
+        run: docker push docker.io/${{ secrets.docker-username }}/${{ inputs.service-name }}:${{ inputs.sha }}
