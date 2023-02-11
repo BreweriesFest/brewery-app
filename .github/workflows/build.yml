@@ -41,4 +41,4 @@ jobs:
       - name: Login to DockerHub
         run: echo ${{ secrets.docker-password }} | docker login -u ${{ secrets.docker-username }} --password-stdin
       - name: Push Docker image
-        run: docker push docker.io/${{ secrets.docker-username }}/${{ inputs.service-name }}:${{ inputs.sha }}
+        run: docker push docker.io/${{ secrets.docker-username }}/${{ inputs.service-name }}::${{ inputs.sha }}
