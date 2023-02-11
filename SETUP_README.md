@@ -31,7 +31,7 @@ kubectl cluster-info --context kind-brewery-cluster
 kubectl apply -f k8s/kafka-kraft/kafka.yml
 ```
 This will set up the Kafka cluster. You can verify the setup by running the following command:
-```console
+```zsh
 ~ kubectl -n kafka-kraft get pods
 NAME      READY   STATUS    RESTARTS   AGE
 kafka-0   1/1     Running   0          2m42s
