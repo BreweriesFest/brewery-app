@@ -67,6 +67,11 @@ kafka-2   1/1     Running   0          40s
 kafka-3   1/1     Running   0          37s
 kafka-4   1/1     Running   0          34s
 ```
+```zsh
+~ kubectl -n kafka-kraft port-forward svc/kafka-svc 9092
+Forwarding from 127.0.0.1:9092 -> 9092
+Forwarding from [::1]:9092 -> 9092
+```
 
 #### Set up the MongoDB
 ```zsh
@@ -86,6 +91,11 @@ NAME                                  READY   STATUS    RESTARTS   AGE
 mongo-express-5b7f8b797f-xzztl        1/1     Running   0          3m8s
 mongodb-deployment-56fd9c6bb6-dt8nx   1/1     Running   0          3m9s
 ```
+```zsh
+~ kubectl -n mongo port-forward svc/mongodb-service 27017
+Forwarding from 127.0.0.1:27017 -> 27017
+Forwarding from [::1]:27017 -> 27017
+```
 
 #### Set up the Redis
 ```zsh
@@ -99,4 +109,9 @@ You can verify the setup by running the following command:
 ~ kubectl -n redis get pods
 NAME                            READY   STATUS    RESTARTS   AGE
 redis-master-6d66bd4cd4-q8j48   1/1     Running   0          89s
+```
+```zsh
+~ kubectl -n redis port-forward svc/redis-master 6379
+Forwarding from 127.0.0.1:6379 -> 6379
+Forwarding from [::1]:6379 -> 6379
 ```
