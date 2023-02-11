@@ -1,4 +1,5 @@
 # Brewery Project
+![](https://img.shields.io/badge/Java-17-brightgreen)
 [![CI](../../actions/workflows/maven.yml/badge.svg)](../../actions/workflows/maven.yml)
 ## Overview
 This repository contains a mono repo for a brewery project, consisting of multiple submodules including the Beer Service, Inventory Service, Order Service, and Scheduler. These services use technologies such as Kubernetes, Kafka, Redis, and MongoDB to manage the brewing and distribution of beer.
