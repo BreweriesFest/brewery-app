@@ -32,6 +32,10 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
+      - name: echo sha
+        run: |
+          echo ${{ inputs.sha }}
+          echo ${{ inputs.service-name }}
       - name: Set version
         run: mvn versions:set -DnewVersion=${{ inputs.sha }}
       - name: Compile
@@ -40,7 +44,9 @@ jobs:
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
         run: echo ${{ secrets.docker-password }} | docker login -u ${{ secrets.docker-username }} --password-stdin
-      - name: echo
-        run: echo ${{ inputs.sha }}
+      - name: echo sha
+        run: |
+          echo ${{ inputs.sha }}
+          echo ${{ inputs.service-name }}
       - name: Push Docker image
         run: docker push docker.io/${{ secrets.docker-username }}/${{ inputs.service-name }}:${{ inputs.sha }}
