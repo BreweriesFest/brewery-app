@@ -53,7 +53,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       service-name: 'inventory-service'
-      sha: ${{ needs.version-update.outputs.sha }}
+      sha: ${{ needs.env-setup.outputs.sha }}
     secrets:
       docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
       docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -63,7 +63,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       service-name: 'beer-service'
-      sha: ${{ needs.version-update.outputs.sha }}
+      sha: ${{ needs.env-setup.outputs.sha }}
     secrets:
       docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
       docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -73,7 +73,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       service-name: 'order-service'
-      sha: ${{ needs.version-update.outputs.sha }}
+      sha: ${{ needs.env-setup.outputs.sha }}
     secrets:
       docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
       docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -83,7 +83,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       service-name: 'scheduler'
-      sha: ${{ needs.version-update.outputs.sha }}
+      sha: ${{ needs.env-setup.outputs.sha }}
     secrets:
       docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
       docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
