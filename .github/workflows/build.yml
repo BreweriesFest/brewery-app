@@ -33,3 +33,7 @@ jobs:
         run: mvn -B -pl ${{ inputs.service-name }} -am clean install --file pom.xml
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
+      - name: Login to DockerHub
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Push Docker image
+        run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service-name }}:${{ inputs.sha }}
