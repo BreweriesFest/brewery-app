@@ -45,7 +45,7 @@ public class BeerService {
 
 	private final CacheService cacheService;
 
-	@Value("${features.redis.enabled}")
+	@Value("${features.cache.enabled}")
 	private boolean redisEnabled;
 
 	public Flux<BeerDto> findBeerById(Collection<String> beerId) {

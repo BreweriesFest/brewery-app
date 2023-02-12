@@ -22,30 +22,51 @@ spec:
     spec:
       containers:
         - name: beer-service
-          image: shubhamgoel23/shoppinglist:postgres
+          image: shubhamgoel23/beer-service:af1908a
           ports:
             - containerPort: 8080
           env:
-            - name: DB_USERNAME
+            - name: MONGO_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-root-username
-            - name: DB_PASSWORD
+                  name: brewery-secret
+                  key: mongo-root-username
+            - name: MONGO_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-root-password
-            - name: DB_URL
+                  name: brewery-secret
+                  key: mongo-root-password
+            - name: MONGO_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: shoppinglist-configmap
-                  key: database-url
+                  name: brewery-configmap
+                  key: mongo-host
+            - name: MONGO_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: brewery-configmap
+                  key: mongo-port
+            - name: MONGO_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: brewery-configmap
+                  key: mongo-database
+            - name: KAFKA_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: brewery-configmap
+                  key: kafka-servers
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: brewery-configmap
+                  key: redis-host
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: beer-service
+  namespace: brewery
 spec:
   selector:
     app: beer-service

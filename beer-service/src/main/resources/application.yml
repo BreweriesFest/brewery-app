@@ -6,13 +6,17 @@ spring:
   application:
     name: beer-service
   data.mongodb:
-    host: localhost
-    port: 27017
+    host: ${MONGO_HOST:localhost}
+    port: ${MONGO_PORT:27017}
     #    uri: "mongodb://username:password@localhost:27017/?authSource=admin&minPoolSize=5"
-    authentication-database: admin
-    username: username
-    password: password
-    database: brewery
+    authentication-database: ${MONGO_AUTH_DATABASE:admin}
+    username: ${MONGO_USERNAME:username}
+    password: ${MONGO_PASSWORD:password}
+    database: ${MONGO_DATABASE:brewery}
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    timeout: ${REDIS_TIMEOUT:60000}
   profiles:
     include:
       - common
@@ -22,9 +26,9 @@ spring:
 server:
   port: ${DEFAULT__APP__PORT:8080}
 features:
-  redis:
-    enabled: true
-spring.kafka.bootstrap-servers: 'localhost:9092'
+  cache:
+    enabled: ${CACHING_ENABLED:true}
+spring.kafka.bootstrap-servers: ${KAFKA_SERVERS:'localhost:9092'}
 app:
   kafka:
     beer:
