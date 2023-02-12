@@ -20,9 +20,7 @@ metadata:
   namespace: brewery
 data:
   mongo-host: 'mongodb-service.mongo'
-  mongo-port: '27017'
-  mongo-database: 'brewery'
-  kafka-servers: 'kafka-svc.kafka-kraft:9092'
+  kafka-servers: 'kafka-svc.kafka-kraft'
   redis-host: 'redis-master.redis'
 ---
 apiVersion: apps/v1
@@ -63,16 +61,6 @@ spec:
                 configMapKeyRef:
                   name: brewery-configmap
                   key: mongo-host
-            - name: MONGO_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: brewery-configmap
-                  key: mongo-port
-            - name: MONGO_DATABASE
-              valueFrom:
-                configMapKeyRef:
-                  name: brewery-configmap
-                  key: mongo-database
             - name: KAFKA_SERVERS
               valueFrom:
                 configMapKeyRef:
