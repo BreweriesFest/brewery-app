@@ -1,6 +1,7 @@
 ## Environment Setup Guide
 
 ### Prerequisites
+
 - Java 17
 - Maven
 - Git
@@ -10,10 +11,10 @@
 
 ### Clone the Repository
 
-
 ### Set up the Environment
 
 #### Set up the Kubernetes Cluster using `kind`
+
 ```zsh
 ~ kind create cluster --image kindest/node:v1.26.0 --name brewery-cluster
 Creating cluster "brewery-cluster" ...
@@ -30,12 +31,16 @@ kubectl cluster-info --context kind-brewery-cluster
 
 Thanks for using kind! 😊
 ```
-This will create Kubernetes cluster named `brewery-cluster`. You can verify the creation of the cluster by running 
+
+This will create Kubernetes cluster named `brewery-cluster`. You can verify the creation of the cluster by running
+
 ```zsh
 ~ kind get clusters
 brewery-cluster
 ```
+
 Set default cluster to `brewery-cluster`
+
 ```zsh
 ~ kubectl config get-contexts 
 CURRENT   NAME                   CLUSTER                AUTHINFO               NAMESPACE 
@@ -49,6 +54,7 @@ kind-brewery-cluster
 ```
 
 #### Set up the Kafka
+
 ```zsh
 ~ kubectl apply -f k8s/kafka-kraft/kafka.yml
 namespace/kafka-kraft created
@@ -57,7 +63,9 @@ persistentvolumeclaim/kafka-pv-claim created
 service/kafka-svc created
 statefulset.apps/kafka created
 ```
+
 This will set up the Kafka cluster. You can verify the setup by running the following command:
+
 ```zsh
 ~ kubectl -n kafka-kraft get pods
 NAME      READY   STATUS    RESTARTS   AGE
@@ -67,6 +75,7 @@ kafka-2   1/1     Running   0          40s
 kafka-3   1/1     Running   0          37s
 kafka-4   1/1     Running   0          34s
 ```
+
 ```zsh
 ~ kubectl -n kafka-kraft port-forward svc/kafka-svc 9092
 Forwarding from 127.0.0.1:9092 -> 9092
@@ -74,6 +83,7 @@ Forwarding from [::1]:9092 -> 9092
 ```
 
 #### Set up the MongoDB
+
 ```zsh
 ~ kubectl apply -f k8s/mongo/mongo.yml
 namespace/mongo created
@@ -84,13 +94,16 @@ configmap/mongo-configmap created
 deployment.apps/mongo-express created
 service/mongo-express-service created
 ```
+
 You can verify the setup by running the following command:
+
 ```zsh
 ~ kubectl -n mongo get pods
 NAME                                  READY   STATUS    RESTARTS   AGE
 mongo-express-5b7f8b797f-xzztl        1/1     Running   0          3m8s
 mongodb-deployment-56fd9c6bb6-dt8nx   1/1     Running   0          3m9s
 ```
+
 ```zsh
 ~ kubectl -n mongo port-forward svc/mongodb-service 27017
 Forwarding from 127.0.0.1:27017 -> 27017
@@ -98,18 +111,22 @@ Forwarding from [::1]:27017 -> 27017
 ```
 
 #### Set up the Redis
+
 ```zsh
 ~ kubectl apply -f k8s/redis/redis.yml
 namespace/redis created
 deployment.apps/redis-master created
 service/redis-master created
 ```
+
 You can verify the setup by running the following command:
+
 ```zsh
 ~ kubectl -n redis get pods
 NAME                            READY   STATUS    RESTARTS   AGE
 redis-master-6d66bd4cd4-q8j48   1/1     Running   0          89s
 ```
+
 ```zsh
 ~ kubectl -n redis port-forward svc/redis-master 6379
 Forwarding from 127.0.0.1:6379 -> 6379

@@ -3,6 +3,28 @@ kind: Namespace
 metadata:
   name: brewery
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: brewery-secret
+  namespace: brewery
+type: Opaque
+data:
+  mongo-root-username: dXNlcm5hbWU=
+  mongo-root-password: cGFzc3dvcmQ=
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: brewery-configmap
+  namespace: brewery
+data:
+  mongo-host: 'mongodb-service.mongo'
+  mongo-port: '27017'
+  mongo-database: 'brewery'
+  kafka-servers: 'kafka-svc.kafka-kraft:9092'
+  redis-host: 'redis-master.redis'
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,7 +44,7 @@ spec:
     spec:
       containers:
         - name: beer-service
-          image: shubhamgoel23/beer-service:af1908a
+          image: shubhamgoel23/beer-service
           ports:
             - containerPort: 8080
           env:

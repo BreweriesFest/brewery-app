@@ -35,8 +35,12 @@ jobs:
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -am clean install --file pom.xml
       - name: Build Docker image
-        run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
+        run: |
+          mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
+          mvn -B -pl ${{ inputs.service-name }} -DskipTests -Dversion.number=latest spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
         run: echo ${{ secrets.docker-password }} | docker login -u ${{ secrets.docker-username }} --password-stdin
       - name: Push Docker image
-        run: docker push docker.io/${{ secrets.docker-username }}/${{ inputs.service-name }}:${{ inputs.sha }}
+        run: |
+          docker push docker.io/${{ secrets.docker-username }}/${{ inputs.service-name }}:${{ inputs.sha }}
+          docker push docker.io/${{ secrets.docker-username }}/${{ inputs.service-name }}:latest

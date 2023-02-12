@@ -2,7 +2,7 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
-#      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  #      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
   application:
     name: beer-service
   data.mongodb:
@@ -33,10 +33,10 @@ app:
   kafka:
     beer:
       producer:
-        bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:${spring.kafka.bootstrap-servers}}
+        bootstrapServers: ${spring.kafka.bootstrap-servers}
         topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:brewery-brew-event}
         idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
       consumer:
-        bootstrapServers: ${KAFKA_INVENTORY_CONSUMER_BOOTSTRAP_SERVER:${spring.kafka.bootstrap-servers}}
+        bootstrapServers: ${spring.kafka.bootstrap-servers}
         topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:check-inventory-event}
         consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:beer-consumer}
