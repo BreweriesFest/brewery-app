@@ -28,7 +28,7 @@ server:
 features:
   cache:
     enabled: ${CACHING_ENABLED:true}
-spring.kafka.bootstrap-servers: ${KAFKA_SERVERS:'localhost:9092'}
+spring.kafka.bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
 app:
   kafka:
     beer:

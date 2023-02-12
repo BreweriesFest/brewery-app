@@ -52,7 +52,7 @@ public class BeerService {
 		Set<String> uniqueBeerId = new HashSet<>(beerId);
 
 		Mono<Map<String, BeerDto>> redisValues = redisEnabled
-				? cacheService.getMultipleKeysWithTimeout(uniqueBeerId, Duration.ofSeconds(20))
+				? cacheService.getMultipleKeysWithTimeout(uniqueBeerId, Duration.ofSeconds(20)).onErrorResume(e -> Mono.just(new HashMap<>()))
 				: Mono.just(new HashMap<>());
 
 		return redisValues.flatMapMany(values -> {

@@ -20,7 +20,7 @@ metadata:
   namespace: brewery
 data:
   mongo-host: 'mongodb-service.mongo'
-  kafka-servers: 'kafka-svc.kafka-kraft'
+  kafka-servers: 'kafka-0.kafka-svc.kafka-kraft.svc.cluster.local:9092,kafka-1.kafka-svc.kafka-kraft.svc.cluster.local:9092,kafka-2.kafka-svc.kafka-kraft.svc.cluster.local:9092,kafka-3.kafka-svc.kafka-kraft.svc.cluster.local:9092,kafka-4.kafka-svc.kafka-kraft.svc.cluster.local:9092'
   redis-host: 'redis-master.redis'
 ---
 apiVersion: apps/v1
