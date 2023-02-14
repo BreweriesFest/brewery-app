@@ -15,20 +15,21 @@ done
 
 mkdir -p $SHARE_DIR/$NODE_ID
 
-if [[ ! -f "$SHARE_DIR/cluster_id" && "$NODE_ID" = "0" ]]; then
-    CLUSTER_ID=$(kafka-storage.sh random-uuid)
-    echo $CLUSTER_ID > $SHARE_DIR/cluster_id
-else
-    CLUSTER_ID=$(cat $SHARE_DIR/cluster_id)
-fi
-
 sed -e "s+^node.id=.*+node.id=$NODE_ID+" \
 -e "s+^controller.quorum.voters=.*+controller.quorum.voters=$CONTROLLER_QUORUM_VOTERS+" \
 -e "s+^listeners=.*+listeners=$LISTENERS+" \
 -e "s+^advertised.listeners=.*+advertised.listeners=$ADVERTISED_LISTENERS+" \
 -e "s+^log.dirs=.*+log.dirs=$SHARE_DIR/$NODE_ID+" \
-/opt/kafka/config/kraft/server.properties > server.properties.updated \
-&& mv server.properties.updated /opt/kafka/config/kraft/server.properties
+/opt/kafka/config/kraft/server.properties > server.properties.updated
+
+cat <<EOF >> server.properties.updated
+default.replication.factor=${DEFAULT_REPLICATION_FACTOR:=3}
+min.insync.replicas=${DEFAULT_MIN_INSYNC_REPLICAS:=2}
+offsets.topic.replication.factor=${DEFAULT_REPLICATION_FACTOR:=3}
+transaction.state.log.replication.factor=${DEFAULT_REPLICATION_FACTOR:=3}
+transaction.state.log.min.isr=${DEFAULT_MIN_INSYNC_REPLICAS:=2}
+EOF
+mv server.properties.updated /opt/kafka/config/kraft/server.properties
 
 kafka-storage.sh format -t $CLUSTER_ID -c /opt/kafka/config/kraft/server.properties
 
