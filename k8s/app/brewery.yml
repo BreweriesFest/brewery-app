@@ -42,7 +42,7 @@ spec:
     spec:
       containers:
         - name: beer-service
-          image: shubhamgoel23/beer-service
+          image: shubhamgoel23/beer-service:4c1d61e
           ports:
             - containerPort: 8080
           env:

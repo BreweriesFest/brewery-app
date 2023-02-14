@@ -12,7 +12,7 @@ metadata:
 spec:
   storageClassName: manual
   capacity:
-    storage: 10Gi
+    storage: 1Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
@@ -29,7 +29,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 3Gi
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -57,7 +57,7 @@ metadata:
   namespace: kafka-kraft
 spec:
   serviceName: kafka-svc
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: kafka-app
@@ -72,13 +72,13 @@ spec:
             claimName: kafka-pv-claim
       containers:
         - name: kafka-container
-          image: adityajoshi12/kafka-kraft:1.0
+          image: shubhamgoel23/kafka-kraft:2.0
           ports:
             - containerPort: 9092
             - containerPort: 9093
           env:
             - name: REPLICAS
-              value: '5'
+              value: '3'
             - name: SERVICE
               value: kafka-svc
             - name: NAMESPACE
