@@ -38,7 +38,7 @@ public class CacheService {
 	}
 
 	public Mono<Boolean> setValue(String key, BeerDto value, Duration expiration) {
-		return reactiveRedisTemplate.opsForValue().set(key, value, expiration);
+		return reactiveRedisTemplate.opsForValue().set(key, value, expiration).onErrorReturn(false);
 	}
 
 }
