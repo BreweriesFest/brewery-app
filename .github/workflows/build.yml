@@ -23,9 +23,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    defaults:
-      run:
-        working-directory: ${{ inputs.service-name }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -39,13 +36,8 @@ jobs:
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -am clean compile --file pom.xml
       - name: Test
         run: mvn -B -pl ${{ inputs.service-name }} -am clean test --file pom.xml
-      - name: Package
-        run: mvn -B -pl ${{ inputs.service-name }} -am clean install --file pom.xml
 
   docker:
-    defaults:
-      run:
-        working-directory: ${{ inputs.service-name }}
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -56,16 +48,15 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build Docker image
-        run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
+        run: |
+          mvn -B -pl ${{ inputs.service-name }} -am clean package --file pom.xml
+          mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
         run: echo ${{ secrets.docker-password }} | docker login -u ${{ secrets.docker-username }} --password-stdin
       - name: Push Docker image
         run: docker push docker.io/${{ secrets.docker-username }}/${{ inputs.service-name }}:${{ inputs.sha }}
 
   docker-latest:
-    defaults:
-      run:
-        working-directory: ${{ inputs.service-name }}
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -76,7 +67,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build Docker image
-        run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -Dversion.number=latest spring-boot:build-image --file pom.xml
+        run: |
+          mvn -B -pl ${{ inputs.service-name }} -am clean package --file pom.xml
+          mvn -B -pl ${{ inputs.service-name }} -DskipTests -Dversion.number=latest spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
         run: echo ${{ secrets.docker-password }} | docker login -u ${{ secrets.docker-username }} --password-stdin
       - name: Push Docker image
