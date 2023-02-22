@@ -57,9 +57,6 @@ jobs:
     secrets:
       docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
       docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
-    defaults:
-      run:
-        working-directory: 'inventory-service'
 
   beer-service:
     needs: env-setup

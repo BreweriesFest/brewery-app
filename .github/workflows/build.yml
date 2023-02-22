@@ -23,8 +23,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: ${{ inputs.service-name }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          set-safe-directory: ${{ inputs.service-name }}
       - uses: actions/setup-java@v3
         with:
           java-version: ${{ inputs.java-version }}
