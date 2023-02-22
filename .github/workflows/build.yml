@@ -48,7 +48,7 @@ jobs:
           cache: maven
       - name: Build Docker image
         run: |
-          mvn -B -pl ${{ inputs.service-name }} -am clean package --file pom.xml
+          mvn -B -pl ${{ inputs.service-name }} -am -DskipTests clean install --file pom.xml
           mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
         run: echo ${{ secrets.docker-password }} | docker login -u ${{ secrets.docker-username }} --password-stdin
@@ -68,7 +68,7 @@ jobs:
           cache: maven
       - name: Build Docker image
         run: |
-          mvn -B -pl ${{ inputs.service-name }} -am clean package --file pom.xml
+          mvn -B -pl ${{ inputs.service-name }} -am -DskipTests clean install --file pom.xml
           mvn -B -pl ${{ inputs.service-name }} -DskipTests -Dversion.number=latest spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
         run: echo ${{ secrets.docker-password }} | docker login -u ${{ secrets.docker-username }} --password-stdin
