@@ -21,6 +21,9 @@ on:
 
 jobs:
   build:
+    defaults:
+      run:
+        working-directory: ${{ inputs.service-name }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -38,6 +41,9 @@ jobs:
         run: mvn -B -pl ${{ inputs.service-name }} -am clean package --file pom.xml
 
   docker:
+    defaults:
+      run:
+        working-directory: ${{ inputs.service-name }}
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -56,6 +62,9 @@ jobs:
         run: docker push docker.io/${{ secrets.docker-username }}/${{ inputs.service-name }}:${{ inputs.sha }}
 
   docker-latest:
+    defaults:
+      run:
+        working-directory: ${{ inputs.service-name }}
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 5
