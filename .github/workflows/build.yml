@@ -40,7 +40,7 @@ jobs:
       - name: Test
         run: mvn -B -pl ${{ inputs.service-name }} -am clean test --file pom.xml
       - name: Package
-        run: mvn -B -pl ${{ inputs.service-name }} -am clean package --file pom.xml
+        run: mvn -B -pl ${{ inputs.service-name }} -am clean install --file pom.xml
 
   docker:
     defaults:
@@ -50,12 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          java-version: ${{ inputs.java-version }}
-          distribution: 'temurin'
-          cache: maven
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
@@ -71,12 +65,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          java-version: ${{ inputs.java-version }}
-          distribution: 'temurin'
-          cache: maven
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -Dversion.number=latest spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
