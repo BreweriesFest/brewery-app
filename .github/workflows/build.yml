@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          set-safe-directory: ${{ inputs.service-name }}
+          path: ${{ inputs.service-name }}
       - uses: actions/setup-java@v3
         with:
           java-version: ${{ inputs.java-version }}
