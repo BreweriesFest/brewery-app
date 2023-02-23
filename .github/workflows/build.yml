@@ -30,10 +30,12 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
-      - name: Cache Maven dependencies
+      - name: Cache Maven and docker dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository
+          path: |
+            ~/.m2/repository
+            /var/lib/docker
           key: ${{ inputs.service-name }}
           restore-keys: ${{ inputs.service-name }}
       - name: Compile
@@ -54,10 +56,12 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
-      - name: Cache Maven dependencies
+      - name: Cache Maven and docker dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository
+          path: |
+            ~/.m2/repository
+            /var/lib/docker
           key: ${{ inputs.service-name }}
           restore-keys: ${{ inputs.service-name }}
       - name: Build Docker image
@@ -78,10 +82,12 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
-      - name: Cache Maven dependencies
+      - name: Cache Maven and docker dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository
+          path: |
+            ~/.m2/repository
+            /var/lib/docker
           key: ${{ inputs.service-name }}
           restore-keys: ${{ inputs.service-name }}
       - name: Build Docker image
