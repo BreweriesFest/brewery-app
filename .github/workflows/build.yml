@@ -30,20 +30,12 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
-      - name: Change ownership of Docker directory
-        run: sudo chown -R $USER:$USER /var/lib/docker
       - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository
+          path: ~/.m2/repository/com/brewery/app
           key: ${{ inputs.service-name }}-maven
           restore-keys: ${{ inputs.service-name }}-maven
-      - name: Cache Docker Images
-        uses: actions/cache@v2
-        with:
-          path: /var/lib/docker/image
-          key: ${{ inputs.service-name }}-docker
-          restore-keys: ${{ inputs.service-name }}-docker
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -am clean compile --file pom.xml
       - name: Test
@@ -62,20 +54,12 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
-      - name: Change ownership of Docker directory
-        run: sudo chown -R $USER:$USER /var/lib/docker
       - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository
+          path: ~/.m2/repository/com/brewery/app
           key: ${{ inputs.service-name }}-maven
           restore-keys: ${{ inputs.service-name }}-maven
-      - name: Cache Docker Images
-        uses: actions/cache@v2
-        with:
-          path: /var/lib/docker/image
-          key: ${{ inputs.service-name }}-docker
-          restore-keys: ${{ inputs.service-name }}-docker
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
@@ -94,20 +78,12 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
-      - name: Change ownership of Docker directory
-        run: sudo chown -R $USER:$USER /var/lib/docker
       - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository
+          path: ~/.m2/repository/com/brewery/app
           key: ${{ inputs.service-name }}-maven
           restore-keys: ${{ inputs.service-name }}-maven
-      - name: Cache Docker Images
-        uses: actions/cache@v2
-        with:
-          path: /var/lib/docker/image
-          key: ${{ inputs.service-name }}-docker
-          restore-keys: ${{ inputs.service-name }}-docker
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -Dversion.number=latest spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
