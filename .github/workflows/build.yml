@@ -30,10 +30,18 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ inputs.service-name }}
+          restore-keys: ${{ inputs.service-name }}
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -am clean compile --file pom.xml
       - name: Test
         run: mvn -B -pl ${{ inputs.service-name }} -am clean test --file pom.xml
+      - name: Package
+        run: mvn -B -pl ${{ inputs.service-name }} -am -DskipTests clean install --file pom.xml
 
   docker:
     needs: build
@@ -46,10 +54,14 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ inputs.service-name }}
+          restore-keys: ${{ inputs.service-name }}
       - name: Build Docker image
-        run: |
-          mvn -B -pl ${{ inputs.service-name }} -am -DskipTests clean install --file pom.xml
-          mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
+        run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
         run: echo ${{ secrets.docker-password }} | docker login -u ${{ secrets.docker-username }} --password-stdin
       - name: Push Docker image
@@ -66,10 +78,14 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ inputs.service-name }}
+          restore-keys: ${{ inputs.service-name }}
       - name: Build Docker image
-        run: |
-          mvn -B -pl ${{ inputs.service-name }} -am -DskipTests clean install --file pom.xml
-          mvn -B -pl ${{ inputs.service-name }} -DskipTests -Dversion.number=latest spring-boot:build-image --file pom.xml
+        run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -Dversion.number=latest spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
         run: echo ${{ secrets.docker-password }} | docker login -u ${{ secrets.docker-username }} --password-stdin
       - name: Push Docker image
