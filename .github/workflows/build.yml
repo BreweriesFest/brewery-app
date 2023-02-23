@@ -29,12 +29,12 @@ jobs:
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v2
+          cache: 'maven'
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
         with:
-          path: ~/.m2/repository
-          key: ${{ inputs.service-name }}-maven-${{ github.run_id }}
-          restore-keys: ${{ inputs.service-name }}-maven
+          name: ${{ inputs.service-name }}
+          path: ~/.m2/repository/com/brewery/app
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -am clean compile --file pom.xml
       - name: Test
@@ -59,12 +59,12 @@ jobs:
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v2
+          cache: 'maven'
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
         with:
-          path: ~/.m2/repository
-          key: ${{ inputs.service-name }}-maven-${{ github.run_id }}
-          restore-keys: ${{ inputs.service-name }}-maven
+          name: ${{ inputs.service-name }}
+          path: ~/.m2/repository/com/brewery/app
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
@@ -82,12 +82,12 @@ jobs:
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v2
+          cache: 'maven'
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
         with:
-          path: ~/.m2/repository
-          key: ${{ inputs.service-name }}-maven-${{ github.run_id }}
-          restore-keys: ${{ inputs.service-name }}-maven
+          name: ${{ inputs.service-name }}
+          path: ~/.m2/repository/com/brewery/app
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -Dversion.number=latest spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
