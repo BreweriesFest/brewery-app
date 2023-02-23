@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ inputs.service-name }}-maven
+          key: ${{ inputs.service-name }}-maven-${{ github.run_id }}
           restore-keys: ${{ inputs.service-name }}-maven
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -am clean compile --file pom.xml
@@ -41,6 +41,13 @@ jobs:
         run: mvn -B -pl ${{ inputs.service-name }} -am clean test --file pom.xml
       - name: Package
         run: mvn -B -pl ${{ inputs.service-name }} -am -DskipTests clean install --file pom.xml
+      - name: Delete cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ inputs.service-name }}-maven-${{ github.run_id }}
+          restore-keys: ${{ inputs.service-name }}-maven
+          command: delete
 
   docker:
     needs: build
@@ -56,7 +63,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ inputs.service-name }}-maven
+          key: ${{ inputs.service-name }}-maven-${{ github.run_id }}
           restore-keys: ${{ inputs.service-name }}-maven
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
@@ -79,7 +86,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ inputs.service-name }}-maven
+          key: ${{ inputs.service-name }}-maven-${{ github.run_id }}
           restore-keys: ${{ inputs.service-name }}-maven
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -Dversion.number=latest spring-boot:build-image --file pom.xml
