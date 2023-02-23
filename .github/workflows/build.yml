@@ -29,11 +29,10 @@ jobs:
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
-          cache: maven
       - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository/com/brewery/app
+          path: ~/.m2/repository
           key: ${{ inputs.service-name }}-maven
           restore-keys: ${{ inputs.service-name }}-maven
       - name: Compile
@@ -53,11 +52,10 @@ jobs:
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
-          cache: maven
       - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository/com/brewery/app
+          path: ~/.m2/repository
           key: ${{ inputs.service-name }}-maven
           restore-keys: ${{ inputs.service-name }}-maven
       - name: Build Docker image
@@ -77,11 +75,10 @@ jobs:
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
-          cache: maven
       - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository/com/brewery/app
+          path: ~/.m2/repository
           key: ${{ inputs.service-name }}-maven
           restore-keys: ${{ inputs.service-name }}-maven
       - name: Build Docker image
