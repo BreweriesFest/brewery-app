@@ -32,14 +32,18 @@ jobs:
           cache: maven
       - name: Allow job user to access Docker directory
         run: sudo chmod 777 /var/lib/docker
-      - name: Cache Maven and docker dependencies
+      - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
-          path: |
-            ~/.m2/repository
-            /var/lib/docker
-          key: ${{ inputs.service-name }}
-          restore-keys: ${{ inputs.service-name }}
+          path: ~/.m2/repository
+          key: ${{ inputs.service-name }}-maven
+          restore-keys: ${{ inputs.service-name }}-maven
+      - name: Cache Docker Images
+        uses: actions/cache@v2
+        with:
+          path: /var/lib/docker
+          key: ${{ inputs.service-name }}-docker
+          restore-keys: ${{ inputs.service-name }}-docker
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -am clean compile --file pom.xml
       - name: Test
@@ -60,14 +64,18 @@ jobs:
           cache: maven
       - name: Allow job user to access Docker directory
         run: sudo chmod 777 /var/lib/docker
-      - name: Cache Maven and docker dependencies
+      - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
-          path: |
-            ~/.m2/repository
-            /var/lib/docker
-          key: ${{ inputs.service-name }}
-          restore-keys: ${{ inputs.service-name }}
+          path: ~/.m2/repository
+          key: ${{ inputs.service-name }}-maven
+          restore-keys: ${{ inputs.service-name }}-maven
+      - name: Cache Docker Images
+        uses: actions/cache@v2
+        with:
+          path: /var/lib/docker
+          key: ${{ inputs.service-name }}-docker
+          restore-keys: ${{ inputs.service-name }}-docker
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
@@ -88,14 +96,18 @@ jobs:
           cache: maven
       - name: Allow job user to access Docker directory
         run: sudo chmod 777 /var/lib/docker
-      - name: Cache Maven and docker dependencies
+      - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
-          path: |
-            ~/.m2/repository
-            /var/lib/docker
-          key: ${{ inputs.service-name }}
-          restore-keys: ${{ inputs.service-name }}
+          path: ~/.m2/repository
+          key: ${{ inputs.service-name }}-maven
+          restore-keys: ${{ inputs.service-name }}-maven
+      - name: Cache Docker Images
+        uses: actions/cache@v2
+        with:
+          path: /var/lib/docker
+          key: ${{ inputs.service-name }}-docker
+          restore-keys: ${{ inputs.service-name }}-docker
       - name: Build Docker image
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -Dversion.number=latest spring-boot:build-image --file pom.xml
       - name: Login to DockerHub
