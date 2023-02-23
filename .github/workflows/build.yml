@@ -30,8 +30,8 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
-      - name: Allow job user to access Docker directory
-        run: sudo chmod 777 /var/lib/docker
+      - name: Change ownership of Docker directory
+        run: sudo chown -R $USER:$USER /var/lib/docker
       - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
@@ -41,7 +41,7 @@ jobs:
       - name: Cache Docker Images
         uses: actions/cache@v2
         with:
-          path: /var/lib/docker
+          path: /var/lib/docker/image
           key: ${{ inputs.service-name }}-docker
           restore-keys: ${{ inputs.service-name }}-docker
       - name: Compile
@@ -62,8 +62,8 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
-      - name: Allow job user to access Docker directory
-        run: sudo chmod 777 /var/lib/docker
+      - name: Change ownership of Docker directory
+        run: sudo chown -R $USER:$USER /var/lib/docker
       - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
@@ -73,7 +73,7 @@ jobs:
       - name: Cache Docker Images
         uses: actions/cache@v2
         with:
-          path: /var/lib/docker
+          path: /var/lib/docker/image
           key: ${{ inputs.service-name }}-docker
           restore-keys: ${{ inputs.service-name }}-docker
       - name: Build Docker image
@@ -94,8 +94,8 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: maven
-      - name: Allow job user to access Docker directory
-        run: sudo chmod 777 /var/lib/docker
+      - name: Change ownership of Docker directory
+        run: sudo chown -R $USER:$USER /var/lib/docker
       - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
@@ -105,7 +105,7 @@ jobs:
       - name: Cache Docker Images
         uses: actions/cache@v2
         with:
-          path: /var/lib/docker
+          path: /var/lib/docker/image
           key: ${{ inputs.service-name }}-docker
           restore-keys: ${{ inputs.service-name }}-docker
       - name: Build Docker image
