@@ -1,0 +1,12 @@
+beer-service:
+  - beer-service/**/*
+core-common:
+  - common/**/*
+inventory-service:
+  - inventory-service/**/*
+core-model:
+  - model/**/*
+order-service:
+  - order-service/**/*
+scheduler:
+  - scheduler/**/*
