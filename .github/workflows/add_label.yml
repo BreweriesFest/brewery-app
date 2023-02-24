@@ -11,13 +11,12 @@ on:
         type: string
 jobs:
   add_label:
-    if: "!contains(github.event.pull_request.labels.*.name, ${{ inputs.label }})"
+    if: ${{!contains(github.event.pull_request.labels.*.name, "${{ inputs.label }}")}}
     runs-on: ubuntu-latest
     steps:
       - name: echo
         run: |
-          x=${{ toJson(github.event.pull_request.labels.*.name) }}
-          echo $x
+          ${{ github.event.pull_request.labels.*.name}}
       - uses: actions/github-script@v6
         with:
           script: |
@@ -29,13 +28,12 @@ jobs:
             })
 
   remove_label:
-    if: contains(github.event.pull_request.labels.*.name, ${{ inputs.remove-label }})
+    if: contains(github.event.pull_request.labels.*.name, "${{ inputs.remove-label" }})
     runs-on: ubuntu-latest
     steps:
       - name: echo
         run: |
-          x=${{ toJson(github.event.pull_request.labels.*.name) }}
-          echo $x
+          ${{github.event.pull_request.labels.*.name}}
       - uses: actions/github-script@v6
         with:
           script: |
