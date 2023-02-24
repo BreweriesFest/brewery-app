@@ -1,0 +1,37 @@
+name: Add Comment
+
+on:
+  workflow_call:
+    inputs:
+      comment:
+        required: true
+        type: string
+
+jobs:
+  add_comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get existing comments
+        id: get_existing_comments
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const response = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            const comments = response.data.map(comment => comment.body);
+            console.log(comments);
+            return comments;
+      - uses: actions/github-script@v6
+        if: ${{ !contains(steps.get_existing_comments.outputs.result, inputs.comment) }}
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '${{ inputs.comment }}'
+            })
