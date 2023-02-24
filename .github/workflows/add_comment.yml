@@ -23,8 +23,9 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.issue.number
             });
-            console.log(response.data);
-            return response.data;
+            const comments = response.data.map(comment => comment.body);
+            console.log(comments);
+            return comments;
         env:
           COMMENTS: ${{ steps.list-comments.outputs.returnValue }}
       - run: |
