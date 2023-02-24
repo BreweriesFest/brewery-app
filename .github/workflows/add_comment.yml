@@ -26,7 +26,7 @@ jobs:
             console.log(comments);
             return comments;
       - run: |
-          echo "Comment: ${{ steps.get_existing_comments.outputs.comments }}"
+          console.log("${{ steps.get_existing_comments.outputs.comments }}");
       - uses: actions/github-script@v6
         if: ${{ !contains(steps.get_existing_comments.outputs.comments, inputs.comment) }}
         with:
