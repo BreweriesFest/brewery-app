@@ -41,6 +41,7 @@ jobs:
         with:
           name: ${{ inputs.service-name }}-${{ github.run_id }}
           path: ~/.m2/repository/com/brewery/app
+          retention-days: 1
 
   docker:
     needs: build
