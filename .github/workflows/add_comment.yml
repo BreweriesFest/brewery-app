@@ -22,10 +22,13 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.issue.number
             });
-            console.log(response.data);
-            return response.data;
+            const comments = response.data.map(comment => comment.body);
+            console.log(comments);
+            return comments;
+      - run: |
+          echo "Comment: ${{ steps.get_existing_comments.outputs }}"
       - uses: actions/github-script@v6
-        if: ${{ !contains(steps.get_existing_comments.outputs['comments.*.body'], inputs.comment) }}
+        if: ${{ !contains(steps.get_existing_comments.outputs, inputs.comment) }}
         with:
           script: |
             github.rest.issues.createComment({
