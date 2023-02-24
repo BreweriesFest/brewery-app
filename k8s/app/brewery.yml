@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: brewery
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: brewery-secret
+  namespace: brewery
+type: Opaque
+data:
+  mongo-root-username: dXNlcm5hbWU=
+  mongo-root-password: cGFzc3dvcmQ=
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: brewery-configmap
+  namespace: brewery
+data:
+  mongo-host: 'mongodb-service.mongo'
+  kafka-servers: 'kafka-0.kafka-svc.kafka-kraft.svc.cluster.local:9092,kafka-1.kafka-svc.kafka-kraft.svc.cluster.local:9092,kafka-2.kafka-svc.kafka-kraft.svc.cluster.local:9092,kafka-3.kafka-svc.kafka-kraft.svc.cluster.local:9092,kafka-4.kafka-svc.kafka-kraft.svc.cluster.local:9092'
+  redis-host: 'redis-master.redis'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beer-service
+  namespace: brewery
+  labels:
+    app: beer-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beer-service
+  template:
+    metadata:
+      labels:
+        app: beer-service
+    spec:
+      containers:
+        - name: beer-service
+          image: shubhamgoel23/beer-service:4c1d61e
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: brewery-secret
+                  key: mongo-root-username
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: brewery-secret
+                  key: mongo-root-password
+            - name: MONGO_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: brewery-configmap
+                  key: mongo-host
+            - name: KAFKA_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: brewery-configmap
+                  key: kafka-servers
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: brewery-configmap
+                  key: redis-host
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beer-service
+  namespace: brewery
+spec:
+  selector:
+    app: beer-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

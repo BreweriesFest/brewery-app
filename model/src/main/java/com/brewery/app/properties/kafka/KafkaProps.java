@@ -4,8 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -13,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public abstract class KafkaProps {
 
-	private List<String> bootstrapServers = new ArrayList(Collections.singletonList("localhost:9092"));
+	private List<String> bootstrapServers;
 
 	private String topic;
 

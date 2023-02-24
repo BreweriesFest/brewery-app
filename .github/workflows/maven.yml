@@ -15,23 +15,6 @@ on:
     branches: [ "main" ]
 
 jobs:
-#  validate:
-#    runs-on: ubuntu-latest
-#    if: github.event_name == 'push'
-#    steps:
-#      - name: Check for previous workflow run
-#        run: |
-#          set -e
-#          status=$(curl -s https://api.github.com/repos/${{github.repository}}/actions/runs/${{github.run_id}} | jq -r '.status')
-#          if [ "$status" == "completed" ]; then
-#            echo "Previous workflow run has completed"
-#            echo "status value: $status"
-#          else
-#            echo "Previous workflow run still in progress"
-#            echo "status value: $status"
-#            exit 1
-#          fi
-
   env-setup:
     runs-on: ubuntu-latest
     outputs:
@@ -41,37 +24,42 @@ jobs:
         id: sha
         run: echo "SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-#  version-update:
-#    needs: env-setup
-#    concurrency: 1
-#    uses: BreweriesFest/brewery-app/.github/workflows/version.yml@main
-#    with:
-#      sha: ${{ needs.env-setup.outputs.sha }}
-
   inventory-service:
     needs: env-setup
-    uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
+    uses: ./.github/workflows/build.yml
     with:
       service-name: 'inventory-service'
-      sha: ${{ needs.version-update.outputs.sha }}
+      sha: ${{ needs.env-setup.outputs.sha }}
+    secrets:
+      docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
 
   beer-service:
     needs: env-setup
-    uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
+    uses: ./.github/workflows/build.yml
     with:
       service-name: 'beer-service'
-      sha: ${{ needs.version-update.outputs.sha }}
+      sha: ${{ needs.env-setup.outputs.sha }}
+    secrets:
+      docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
 
   order-service:
     needs: env-setup
-    uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
+    uses: ./.github/workflows/build.yml
     with:
       service-name: 'order-service'
-      sha: ${{ needs.version-update.outputs.sha }}
+      sha: ${{ needs.env-setup.outputs.sha }}
+    secrets:
+      docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
 
   scheduler:
     needs: env-setup
-    uses: BreweriesFest/brewery-app/.github/workflows/build.yml@main
+    uses: ./.github/workflows/build.yml
     with:
       service-name: 'scheduler'
-      sha: ${{ needs.version-update.outputs.sha }}
+      sha: ${{ needs.env-setup.outputs.sha }}
+    secrets:
+      docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      docker-username: ${{ secrets.DOCKERHUB_USERNAME }}

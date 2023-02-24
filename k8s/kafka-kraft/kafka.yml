@@ -4,40 +4,12 @@ metadata:
   name: kafka-kraft
 ---
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: kafka-pv-volume
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 10Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: '/mnt/data'
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: kafka-pv-claim
-  namespace: kafka-kraft
-spec:
-  storageClassName: manual
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 3Gi
----
-apiVersion: v1
 kind: Service
 metadata:
   name: kafka-svc
-  labels:
-    app: kafka-app
   namespace: kafka-kraft
+  labels:
+    app.kubernetes.io/name: kafka
 spec:
   clusterIP: None
   ports:
@@ -46,45 +18,64 @@ spec:
       protocol: TCP
       targetPort: 9092
   selector:
-    app: kafka-app
+    app.kubernetes.io/name: kafka
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: kafka
-  labels:
-    app: kafka-app
   namespace: kafka-kraft
+  labels:
+    app.kubernetes.io/name: kafka
 spec:
   serviceName: kafka-svc
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
-      app: kafka-app
+      app.kubernetes.io/name: kafka
   template:
     metadata:
       labels:
-        app: kafka-app
+        app.kubernetes.io/name: kafka
     spec:
-      volumes:
-        - name: kafka-storage
-          persistentVolumeClaim:
-            claimName: kafka-pv-claim
       containers:
         - name: kafka-container
-          image: bashj79/kafka-kraft
+          image: shubhamgoel23/kafka-kraft:5.0
+          imagePullPolicy: Always
           ports:
             - containerPort: 9092
             - containerPort: 9093
           env:
             - name: REPLICAS
-              value: '5'
+              value: '3'
             - name: SERVICE
               value: kafka-svc
             - name: NAMESPACE
               value: kafka-kraft
             - name: SHARE_DIR
               value: /mnt/kafka
+            - name: CLUSTER_ID
+              value: oh-sxaDRTcyAr6pFRbXyzA
+            - name: DEFAULT_REPLICATION_FACTOR
+              value: '3'
+            - name: DEFAULT_MIN_INSYNC_REPLICAS
+              value: '2'
           volumeMounts:
-            - name: kafka-storage
+            - name: data
               mountPath: /mnt/kafka
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: kafka
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "1Gi"

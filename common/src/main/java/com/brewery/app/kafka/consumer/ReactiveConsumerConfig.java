@@ -67,19 +67,22 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 
 				.receive().publishOn(Schedulers.boundedElastic())
 				// .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
-				.doOnSubscribe(subs -> {
-					reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
-						micrometerConsumerListener.consumerAdded("consuming::" + topic, consumer);
-						consumerToUnregister.set(consumer);
-						return Mono.empty();
-					}).subscribe();
-				}).onErrorResume(e -> {
-					Consumer<K, V> consumer = consumerToUnregister.getAndSet(null);
-					if (consumer != null) {
-						micrometerConsumerListener.consumerRemoved("consuming::" + topic, consumer);
-					}
-					return Mono.empty();
-				}).doOnNext(consumerRecord -> {
+				// .doOnSubscribe(subs -> {
+				// reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
+				// micrometerConsumerListener.consumerAdded("consuming::" + topic,
+				// consumer);
+				// consumerToUnregister.set(consumer);
+				// return Mono.empty();
+				// }).subscribe();
+				// }).onErrorResume(e -> {
+				// Consumer<K, V> consumer = consumerToUnregister.getAndSet(null);
+				// if (consumer != null) {
+				// micrometerConsumerListener.consumerRemoved("consuming::" + topic,
+				// consumer);
+				// }
+				// return Mono.empty();
+				// })
+				.doOnNext(consumerRecord -> {
 					log.info("received key={}, value={}, headers={} from topic={}, partition={}, offset={}",
 							consumerRecord.key(), consumerRecord.value(), consumerRecord.headers().toArray(),
 							consumerRecord.topic(), consumerRecord.partition(), consumerRecord.offset());

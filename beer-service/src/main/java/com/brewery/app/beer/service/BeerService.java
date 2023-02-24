@@ -45,7 +45,7 @@ public class BeerService {
 
 	private final CacheService cacheService;
 
-	@Value("${features.redis.enabled}")
+	@Value("${features.cache.enabled}")
 	private boolean redisEnabled;
 
 	public Flux<BeerDto> findBeerById(Collection<String> beerId) {
@@ -53,6 +53,7 @@ public class BeerService {
 
 		Mono<Map<String, BeerDto>> redisValues = redisEnabled
 				? cacheService.getMultipleKeysWithTimeout(uniqueBeerId, Duration.ofSeconds(20))
+						.onErrorResume(e -> Mono.just(new HashMap<>()))
 				: Mono.just(new HashMap<>());
 
 		return redisValues.flatMapMany(values -> {

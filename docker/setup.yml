@@ -1,0 +1,19 @@
+services:
+  mongo:
+    image: mongo:latest
+    hostname: mongo
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_ROOT_USERNAME: username
+  redis:
+    image: redis:latest
+    hostname: redis
+    ports:
+      - 6379:6379
+  kafka:
+    image: bashj79/kafka-kraft
+    hostname: kafka
+    ports:
+      - 9092:9092
