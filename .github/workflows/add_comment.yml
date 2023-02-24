@@ -9,12 +9,11 @@ on:
 
 jobs:
   add_comment:
-    if: '!contains(github.event.comment.body, inputs.comment)'
     runs-on: ubuntu-latest
     steps:
-      - name: List pull request comments
-        id: list-comments
-        uses: actions/github-script@v3
+      - name: Get existing comments
+        id: get_existing_comments
+        uses: actions/github-script@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -23,15 +22,10 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.issue.number
             });
-            const comments = response.data.map(comment => comment.body);
-            console.log(comments);
-            return comments;
-        env:
-          COMMENTS: ${{ steps.list-comments.outputs.returnValue }}
-      - run: |
-          echo "Comment: ${{ github.event.comment }}"
-          echo "Inputs Comment: ${{ inputs.comment }}"
+            console.log(response.data);
+            return response.data;
       - uses: actions/github-script@v6
+        if: ${{ !contains(steps.get_existing_comments.outputs['comments.*.body'], inputs.comment) }}
         with:
           script: |
             github.rest.issues.createComment({
