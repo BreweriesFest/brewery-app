@@ -46,7 +46,7 @@ jobs:
     needs: build
     uses: ./.github/workflows/labelWorkflow.yml
     with:
-      label: ${{ inputs.service-name }}_'build-complete'
+      label: ${{ inputs.service-name }}_build-complete
   docker:
     needs: build
     runs-on: ubuntu-latest
