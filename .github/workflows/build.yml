@@ -42,15 +42,21 @@ jobs:
           name: ${{ inputs.service-name }}-${{ github.run_id }}
           path: ~/.m2/repository/com/brewery/app
           retention-days: 1
-  label:
+  label-success:
     needs: build
-    if: github.event_name == 'pull_request'
+    if: ${{github.event_name == 'pull_request' &&  success()}}
     uses: ./.github/workflows/labelWorkflow.yml
     with:
       label: ${{ inputs.service-name }}_build-complete
+  label-failure:
+    needs: build
+    if: ${{github.event_name == 'pull_request' &&  failure()}}
+    uses: ./.github/workflows/labelWorkflow.yml
+    with:
+      label: ${{ inputs.service-name }}_build-fail
   docker:
     needs: build
-    if: github.event_name != 'pull_request'
+    if: ${{github.event_name != 'pull_request' &&  success()}}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -74,7 +80,7 @@ jobs:
 
   docker-latest:
     needs: build
-    if: github.event_name != 'pull_request'
+    if: ${{github.event_name != 'pull_request' &&  success()}}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
