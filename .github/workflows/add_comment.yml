@@ -27,6 +27,9 @@ jobs:
             return response.data;
         env:
           COMMENTS: ${{ steps.list-comments.outputs.returnValue }}
+      - run: |
+          echo "Comment: ${{ github.event.comment }}"
+          echo "Inputs Comment: ${{ inputs.comment }}"
       - uses: actions/github-script@v6
         with:
           script: |
