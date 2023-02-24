@@ -32,6 +32,9 @@ jobs:
           cache: 'maven'
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -am clean compile --file pom.xml
+      - uses: ./.github/workflows/labelWorkflow.yml
+        with:
+          label: 'build-complete'
       - name: Test
         run: mvn -B -pl ${{ inputs.service-name }} -am clean test --file pom.xml
       - name: Package
