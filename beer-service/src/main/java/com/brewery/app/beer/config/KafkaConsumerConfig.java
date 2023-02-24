@@ -18,7 +18,7 @@ import static com.brewery.app.util.AppConstant.LZ4_COMPRESSION;
 @Configuration
 public class KafkaConsumerConfig {
 
-	@Bean
+	@Bea
 	@ConfigurationProperties(prefix = "app.kafka.beer.consumer")
 	public KafkaConsumerProps kafkaConsumerProps() {
 		return new KafkaConsumerProps();
