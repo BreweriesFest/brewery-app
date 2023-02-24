@@ -12,6 +12,9 @@ jobs:
     if: '!contains(github.event.comment.body, inputs.comment)'
     runs-on: ubuntu-latest
     steps:
+      - run: |
+          echo "Comment: ${{ github.event.comment.body }}"
+          echo "Inputs Comment: ${{ inputs.comment }}"
       - uses: actions/github-script@v6
         with:
           script: |
