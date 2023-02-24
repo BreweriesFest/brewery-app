@@ -10,7 +10,8 @@ on:
         required: false
         type: string
 jobs:
-  label_issues:
+  add_label:
+    if: !contains(github.event.pull_request.labels.*.name, '${{ inputs.label }}')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
@@ -22,6 +23,14 @@ jobs:
               repo: context.repo.repo,
               labels: ["${{ inputs.label }}"]
             })
+
+  remove_label:
+    if: contains(github.event.pull_request.labels.*.name, '${{ inputs.remove-label }}')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
             github.rest.issues.removeLabel({
               issue_number: context.issue.number,
               owner: context.repo.owner,
