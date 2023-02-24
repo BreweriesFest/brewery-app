@@ -24,9 +24,9 @@ jobs:
             });
             const comments = response.data.map(comment => comment.body);
             console.log(comments);
-            echo 'SHA=comments' >> $GITHUB_OUTPUT
+            return comments;
       - uses: actions/github-script@v6
-        if: ${{ !contains(steps.get_existing_comments.outputs.SHA, inputs.comment) }}
+        if: ${{ !contains(steps.get_existing_comments.outputs.result, inputs.comment) }}
         with:
           script: |
             github.rest.issues.createComment({
