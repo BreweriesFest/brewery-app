@@ -63,3 +63,10 @@ jobs:
     secrets:
       docker-password: ${{ secrets.DOCKERHUB_PASSWORD }}
       docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+  comment:
+    needs: [inventory-service, beer-service, order-service, scheduler]
+    if: ${{ always() }}
+    uses: ./.github/workflows/add_comment.yml
+    with:
+      comment: '👋 Thanks for for raising PR!'
