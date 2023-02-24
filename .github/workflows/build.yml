@@ -44,6 +44,7 @@ jobs:
           retention-days: 1
   label:
     needs: build
+    if: github.event_name == 'pull_request'
     uses: ./.github/workflows/labelWorkflow.yml
     with:
       label: ${{ inputs.service-name }}_build-complete
