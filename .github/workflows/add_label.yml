@@ -1,10 +1,13 @@
-name: Label
+name: Add Label
 
 on:
   workflow_call:
     inputs:
       label:
         required: true
+        type: string
+      remove-label:
+        required: false
         type: string
 jobs:
   label_issues:
@@ -18,4 +21,10 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               labels: ["${{ inputs.label }}"]
+            })
+            github.rest.issues.removeLabel({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: ["${{ inputs.remove-label }}"]
             })
