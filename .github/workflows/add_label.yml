@@ -28,7 +28,7 @@ jobs:
             })
 
   remove_label:
-    if: contains(github.event.pull_request.labels.*.name, "${{ inputs.remove-label" }})
+    if: contains(github.event.pull_request.labels.*.name, "${{ inputs.remove-label }}")
     runs-on: ubuntu-latest
     steps:
       - name: echo
