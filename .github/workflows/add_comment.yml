@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Get existing comments
         id: get_existing_comments
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
