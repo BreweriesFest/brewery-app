@@ -66,7 +66,7 @@ jobs:
 
   comment:
     needs: [inventory-service, beer-service, order-service, scheduler]
-    if: ${{ always() }}
+    if: ${{ always() && github.event_name == 'pull_request' }}
     uses: ./.github/workflows/add_comment.yml
     with:
       comment: '👋 Thanks for for raising PR!'
