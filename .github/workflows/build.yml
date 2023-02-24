@@ -32,9 +32,6 @@ jobs:
           cache: 'maven'
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -am clean compile --file pom.xml
-      - uses: ./.github/workflows/labelWorkflow.yml
-        with:
-          label: 'build-complete'
       - name: Test
         run: mvn -B -pl ${{ inputs.service-name }} -am clean test --file pom.xml
       - name: Package
@@ -45,7 +42,11 @@ jobs:
           name: ${{ inputs.service-name }}-${{ github.run_id }}
           path: ~/.m2/repository/com/brewery/app
           retention-days: 1
-
+  label:
+    needs: build
+    uses: ./.github/workflows/labelWorkflow.yml
+    with:
+      label: ${{ inputs.service-name }}_'build-complete'
   docker:
     needs: build
     runs-on: ubuntu-latest
