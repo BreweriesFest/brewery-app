@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.brewery.app</groupId>
+        <groupId>com.brewery</groupId>
         <artifactId>parent</artifactId>
         <version>20230120-2b74739</version>
     </parent>
@@ -11,13 +11,17 @@
     <name>beer-service</name>
     <description>beer module for brewery app</description>
     <properties>
-
+        <sonar.coverage.exclusions>
+            **/com/brewery/app/beer/BeerServiceApplication.java,
+            **/com/brewery/app/beer/config/**
+        </sonar.coverage.exclusions>
     </properties>
+
 
     <dependencies>
 
         <dependency>
-            <groupId>com.brewery.app</groupId>
+            <groupId>com.brewery</groupId>
             <artifactId>common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -32,6 +36,16 @@
             <plugin>
                 <groupId>com.mysema.maven</groupId>
                 <artifactId>apt-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>com/brewery/app/beer/BeerServiceApplication.class</exclude>
+                        <exclude>com/brewery/app/beer/config/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

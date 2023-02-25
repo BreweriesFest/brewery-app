@@ -1,0 +1,7 @@
+package com.brewery.model.dto;
+
+public enum OrderEventStatus {
+
+	VALIDATION_PASSED, VALIDATION_FAILED, ALLOCATE_ORDER, ALLOCATION_SUCCESS, ALLOCATION_FAILED
+
+}

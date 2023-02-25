@@ -1,7 +1,0 @@
-package com.brewery.app.model;
-
-public enum OrderEventStatus {
-
-	VALIDATION_PASSED, VALIDATION_FAILED, ALLOCATE_ORDER, ALLOCATION_SUCCESS, ALLOCATION_FAILED
-
-}

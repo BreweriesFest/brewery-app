@@ -14,7 +14,7 @@ spring:
     password: ${MONGO_PASSWORD:password}
     database: ${MONGO_DATABASE:brewery}
   data.redis:
-    host: ${REDIS_HOST:test}
+    host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
     timeout: ${REDIS_TIMEOUT:60000}
   profiles:

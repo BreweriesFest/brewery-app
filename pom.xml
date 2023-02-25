@@ -8,7 +8,7 @@
         <version>3.0.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.brewery.app</groupId>
+    <groupId>com.brewery</groupId>
     <artifactId>parent</artifactId>
     <version>20230120-2b74739</version>
     <name>parent</name>
@@ -45,14 +45,12 @@
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.language>java</sonar.language>
-        <sonar.coverage.exclusions>
-            **/example/shoppinglist/ShoppinglistApplication.java,
-            **/example/shoppinglist/config/**,
-            **/example/shoppinglist/exception/**,
-            **/example/shoppinglist/util/**
-        </sonar.coverage.exclusions>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
@@ -244,12 +242,6 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
-                <configuration>
-                    <excludes>
-                        <exclude>com/example/shoppinglist/ShoppinglistApplication.class</exclude>
-                        <exclude>com/example/shoppinglist/config/**</exclude>
-                    </excludes>
-                </configuration>
                 <executions>
                     <execution>
                         <id>jacoco-initialize</id>

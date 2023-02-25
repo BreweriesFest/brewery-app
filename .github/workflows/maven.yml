@@ -65,7 +65,7 @@ jobs:
       docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
 
   comment:
-    needs: [inventory-service, beer-service, order-service, scheduler]
+    needs: [ inventory-service, beer-service, order-service, scheduler ]
     if: ${{ always() && github.event_name == 'pull_request' }}
     uses: ./.github/workflows/add_comment.yml
     with:
