@@ -5,15 +5,17 @@
     <parent>
         <groupId>com.brewery</groupId>
         <artifactId>parent</artifactId>
-        <version>20230120-2b74739</version>
+        <version>0.0.1</version>
     </parent>
     <artifactId>beer-service</artifactId>
     <name>beer-service</name>
     <description>beer module for brewery app</description>
     <properties>
         <sonar.coverage.exclusions>
-            **/com/brewery/app/beer/BeerServiceApplication.java,
-            **/com/brewery/app/beer/config/**
+            **/com/brewery/beer/BeerServiceApplication.java,
+            **/com/brewery/beer/config/**
+            **/com/brewery/common/**
+            **/com/brewery/model/**
         </sonar.coverage.exclusions>
     </properties>
 
@@ -42,8 +44,10 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>com/brewery/app/beer/BeerServiceApplication.class</exclude>
-                        <exclude>com/brewery/app/beer/config/**</exclude>
+                        <exclude>com/brewery/beer/BeerServiceApplication.class</exclude>
+                        <exclude>com/brewery/beer/config/**</exclude>
+                        <exclude>com/brewery/common/**</exclude>
+                        <exclude>com/brewery/model/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>

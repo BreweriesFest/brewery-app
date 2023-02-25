@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.brewery</groupId>
     <artifactId>parent</artifactId>
-    <version>20230120-2b74739</version>
+    <version>0.0.1</version>
     <name>parent</name>
     <description>Parent pom for brewery app</description>
     <packaging>pom</packaging>

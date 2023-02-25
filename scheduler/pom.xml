@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.brewery</groupId>
         <artifactId>parent</artifactId>
-        <version>20230120-2b74739</version>
+        <version>0.0.1</version>
     </parent>
 
     <artifactId>scheduler</artifactId>
@@ -13,6 +13,12 @@
     <description>Scheduler for Brewery</description>
 
     <properties>
+        <sonar.coverage.exclusions>
+            **/com/brewery/scheduler/SchedulerApplication.java,
+            **/com/brewery/scheduler/config/**
+            **/com/brewery/common/**
+            **/com/brewery/model/**
+        </sonar.coverage.exclusions>
     </properties>
 
     <dependencies>
@@ -37,6 +43,18 @@
             <plugin>
                 <groupId>com.mysema.maven</groupId>
                 <artifactId>apt-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>com/brewery/scheduler/SchedulerApplication.class</exclude>
+                        <exclude>com/brewery/scheduler/config/**</exclude>
+                        <exclude>com/brewery/common/**</exclude>
+                        <exclude>com/brewery/model/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
