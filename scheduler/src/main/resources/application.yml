@@ -35,3 +35,19 @@ app:
       bootstrapServers: ${KAFKA_INVENTORY_PRODUCER_BOOTSTRAP_SERVER:${spring.kafka.bootstrap-servers}}
       topic: ${KAFKA_INVENTORY_PRODUCER_TOPIC:check-inventory-event}
       idempotence: ${KAFKA_PRODUCER_IDEMPOTENCE:true}
+  client:
+    beer:
+      url: ${BEER_SERVICE_HOST:http://localhost:8080}/graphql
+      circuit-breaker:
+        failureRateThreshold: ${CB__BEER_CLIENT__FAILURE_RATE_THRESHOLD:10}
+        permittedNumberOfCallsInHalfOpenState: ${CB__BEER_CLIENT__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.permittedNumberOfCallsInHalfOpenState}}
+        slidingWindowSize: ${CB__BEER_CLIENT__SLIDING_WINDOW_SIZE:${app.default.circuit-breaker.slidingWindowSize}}
+        slidingWindowType: ${CB__BEER_CLIENT__SLIDING_WINDOW_TYPE:${app.default.circuit-breaker.slidingWindowType}}
+        minimumNumberOfCalls: ${CB__BEER_CLIENT__MIN_NO_OF_CALLS:${app.default.circuit-breaker.minimumNumberOfCalls}}
+        slowCallRateThreshold: ${CB__BEER_CLIENT__SLOW_CALL_RATE_THRESHOLD:${app.default.circuit-breaker.slowCallRateThreshold}}
+        slowCallDurationThreshold: ${CB__BEER_CLIENT__SLOW_CALL_DURATION_THRESHOLD:10000}
+        maxWaitDurationInHalfOpenState: ${CB__BEER_CLIENT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}
+      time-limiter:
+        timeoutDuration: ${TL__BEER_CLIENT__TIMEOUT_DURATION:500}
+      retry:
+        maxAttempts: ${RT__BEER_CLIENT__MAX_ATTEMPT:${app.default.retry.maxAttempts}}

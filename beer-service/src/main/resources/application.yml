@@ -2,33 +2,34 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
-  #      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
   application:
     name: beer-service
-  data.mongodb:
-    host: ${MONGO_HOST:localhost}
-    port: ${MONGO_PORT:27017}
-    #    uri: "mongodb://username:password@localhost:27017/?authSource=admin&minPoolSize=5"
-    authentication-database: ${MONGO_AUTH_DATABASE:admin}
-    username: ${MONGO_USERNAME:username}
-    password: ${MONGO_PASSWORD:password}
-    database: ${MONGO_DATABASE:brewery}
-  data.redis:
-    host: ${REDIS_HOST:test}
-    port: ${REDIS_PORT:6379}
-    timeout: ${REDIS_TIMEOUT:60000}
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
+  data:
+    mongodb:
+      host: ${MONGO_HOST:localhost}
+      port: ${MONGO_PORT:27017}
+      #    uri: "mongodb://username:password@localhost:27017/?authSource=admin&minPoolSize=5"
+      authentication-database: ${MONGO_AUTH_DATABASE:admin}
+      username: ${MONGO_USERNAME:username}
+      password: ${MONGO_PASSWORD:password}
+      database: ${MONGO_DATABASE:brewery}
   profiles:
     include:
       - common
     active:
       - mongo-reactive
       - inventory-client-service
+      - cache
 server:
   port: ${DEFAULT__APP__PORT:8080}
+
 features:
   cache:
-    enabled: ${CACHING_ENABLED:true}
-spring.kafka.bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
+    enabled: false
+
 app:
   kafka:
     beer:
@@ -40,3 +41,42 @@ app:
         bootstrapServers: ${spring.kafka.bootstrap-servers}
         topic: ${KAFKA_INVENTORY_CONSUMER_TOPIC:check-inventory-event}
         consumerGroup: ${KAFKA_INVENTORY_CONSUMER_GROUP:beer-consumer}
+  client:
+    inventory:
+      url: ${INVENTORY_SERVICE_HOST:http://localhost:8083}/graphql
+      circuit-breaker:
+        failureRateThreshold: ${CB__INVENTORY_CLIENT__FAILURE_RATE_THRESHOLD:10}
+        permittedNumberOfCallsInHalfOpenState: ${CB__INVENTORY_CLIENT__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.permittedNumberOfCallsInHalfOpenState}}
+        slidingWindowSize: ${CB__INVENTORY_CLIENT__SLIDING_WINDOW_SIZE:${app.default.circuit-breaker.slidingWindowSize}}
+        slidingWindowType: ${CB__INVENTORY_CLIENT__SLIDING_WINDOW_TYPE:${app.default.circuit-breaker.slidingWindowType}}
+        minimumNumberOfCalls: ${CB__INVENTORY_CLIENT__MIN_NO_OF_CALLS:${app.default.circuit-breaker.minimumNumberOfCalls}}
+        slowCallRateThreshold: ${CB__INVENTORY_CLIENT__SLOW_CALL_RATE_THRESHOLD:${app.default.circuit-breaker.slowCallRateThreshold}}
+        slowCallDurationThreshold: ${CB__INVENTORY_CLIENT__SLOW_CALL_DURATION_THRESHOLD:10000}
+        maxWaitDurationInHalfOpenState: ${CB__INVENTORY_CLIENT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}
+      time-limiter:
+        timeoutDuration: ${TL__INVENTORY_CLIENT__TIMEOUT_DURATION:500}
+      retry:
+        maxAttempts: ${RT__INVENTORY_CLIENT__MAX_ATTEMPT:${app.default.retry.maxAttempts}}
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - cache
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: ${REDIS_TIMEOUT:60000}
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 20
+          min-idle: 5
+
+features:
+  cache:
+    enabled: true

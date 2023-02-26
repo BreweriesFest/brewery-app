@@ -3,21 +3,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.brewery.app</groupId>
+        <groupId>com.brewery</groupId>
         <artifactId>parent</artifactId>
-        <version>20230120-2b74739</version>
+        <version>0.0.1</version>
     </parent>
     <artifactId>inventory-service</artifactId>
     <name>inventory-service</name>
     <description>inventory module for brewery app</description>
     <properties>
-
+        <sonar.coverage.exclusions>
+            **/com/brewery/inventory/InventoryServiceApplication.java,
+            **/com/brewery/inventory/config/**
+            **/com/brewery/common/**
+            **/com/brewery/model/**
+        </sonar.coverage.exclusions>
     </properties>
 
     <dependencies>
 
         <dependency>
-            <groupId>com.brewery.app</groupId>
+            <groupId>com.brewery</groupId>
             <artifactId>common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -32,6 +37,18 @@
             <plugin>
                 <groupId>com.mysema.maven</groupId>
                 <artifactId>apt-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>com/brewery/inventory/InventoryServiceApplication.class</exclude>
+                        <exclude>com/brewery/inventory/config/**</exclude>
+                        <exclude>com/brewery/common/**</exclude>
+                        <exclude>com/brewery/model/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -14,7 +14,7 @@ Redis, and MongoDB to manage the brewing and distribution of beer.
 The steps to set up the environment and start the services are common for all submodules. To get started:
 
 1. Clone the repository
-2. Follow the instructions in the [Environment Setup Guide](./SETUP_README.md) to set up the necessary tools and
+2. Follow the instructions in the [Environment Setup Guide](./docker/README.md) to set up the necessary tools and
    dependencies
 3. For information on starting a specific service, refer to the `README` file for that service
 
