@@ -30,10 +30,12 @@ public class AppConfig {
 
 	@Bean
 	public HttpClient httpClient() {
-		return HttpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 20000)
-				.responseTimeout(Duration.ofMillis(20000)).compress(true)
-				.doOnConnected(__ -> __.addHandlerLast(new ReadTimeoutHandler(20000, TimeUnit.MILLISECONDS))
-						.addHandlerLast(new WriteTimeoutHandler(20000, TimeUnit.MILLISECONDS)));
+		return HttpClient.create()
+			.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 20000)
+			.responseTimeout(Duration.ofMillis(20000))
+			.compress(true)
+			.doOnConnected(__ -> __.addHandlerLast(new ReadTimeoutHandler(20000, TimeUnit.MILLISECONDS))
+				.addHandlerLast(new WriteTimeoutHandler(20000, TimeUnit.MILLISECONDS)));
 	}
 
 	@Bean

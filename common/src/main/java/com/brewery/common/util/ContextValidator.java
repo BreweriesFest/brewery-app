@@ -12,8 +12,9 @@ public interface ContextValidator extends Function<ContextView, EnumSet<ContextV
 	static ContextValidator isTenantIdValid() {
 		return ctx -> {
 			var tenantIdOpt = Helper.getHeader(AppConstant.TENANT_ID, ctx);
-			var tenantId = tenantIdOpt.filter(Helper.isInstanceOfString).map(Helper.convertToString)
-					.filter(Helper.isNotBlankString);
+			var tenantId = tenantIdOpt.filter(Helper.isInstanceOfString)
+				.map(Helper.convertToString)
+				.filter(Helper.isNotBlankString);
 			return tenantId.isPresent() ? SUCCESS_ONLY : EnumSet.of(ContextValidationResult.INVALID_TENANT_ID);
 		};
 	}
@@ -21,8 +22,9 @@ public interface ContextValidator extends Function<ContextView, EnumSet<ContextV
 	static ContextValidator isCustomerIdValid() {
 		return ctx -> {
 			var tenantIdOpt = Helper.getHeader(AppConstant.CUSTOMER_ID, ctx);
-			var tenantId = tenantIdOpt.filter(Helper.isInstanceOfString).map(Helper.convertToString)
-					.filter(Helper.isNotBlankString);
+			var tenantId = tenantIdOpt.filter(Helper.isInstanceOfString)
+				.map(Helper.convertToString)
+				.filter(Helper.isNotBlankString);
 			return tenantId.isPresent() ? SUCCESS_ONLY : EnumSet.of(ContextValidationResult.INVALID_CUSTOMER_ID);
 		};
 	}

@@ -61,46 +61,51 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 
 	public Flux<ReceiverRecord<K, V>> consumerRecord(Function<ReceiverRecord<K, V>, Mono<?>> input) {
 		return reactiveKafkaConsumerTemplate
-				// .assignment().flatMap(a->reactiveKafkaConsumerTemplate.resume(a))
+			// .assignment().flatMap(a->reactiveKafkaConsumerTemplate.resume(a))
 
-				.receive().publishOn(Schedulers.boundedElastic())
-				// .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
-				// .doOnSubscribe(subs -> {
-				// reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
-				// micrometerConsumerListener.consumerAdded("consuming::" + topic,
-				// consumer);
-				// consumerToUnregister.set(consumer);
-				// return Mono.empty();
-				// }).subscribe();
-				// }).onErrorResume(e -> {
-				// Consumer<K, V> consumer = consumerToUnregister.getAndSet(null);
-				// if (consumer != null) {
-				// micrometerConsumerListener.consumerRemoved("consuming::" + topic,
-				// consumer);
-				// }
-				// return Mono.empty();
-				// })
-				.doOnNext(consumerRecord -> {
-					log.info("received key={}, value={}, headers={} from topic={}, partition={}, offset={}",
-							consumerRecord.key(), consumerRecord.value(), consumerRecord.headers().toArray(),
-							consumerRecord.topic(), consumerRecord.partition(), consumerRecord.offset());
+			.receive()
+			.publishOn(Schedulers.boundedElastic())
+			// .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
+			// .doOnSubscribe(subs -> {
+			// reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
+			// micrometerConsumerListener.consumerAdded("consuming::" + topic,
+			// consumer);
+			// consumerToUnregister.set(consumer);
+			// return Mono.empty();
+			// }).subscribe();
+			// }).onErrorResume(e -> {
+			// Consumer<K, V> consumer = consumerToUnregister.getAndSet(null);
+			// if (consumer != null) {
+			// micrometerConsumerListener.consumerRemoved("consuming::" + topic,
+			// consumer);
+			// }
+			// return Mono.empty();
+			// })
+			.doOnNext(consumerRecord -> {
+				log.info("received key={}, value={}, headers={} from topic={}, partition={}, offset={}",
+						consumerRecord.key(), consumerRecord.value(), consumerRecord.headers().toArray(),
+						consumerRecord.topic(), consumerRecord.partition(), consumerRecord.offset());
+			})
+			.flatMap(__ -> input.apply(__)
+				.contextWrite(ctx -> ctx
+					.putAllMap(Helper.extractHeaders(List.of(AppConstant.TENANT_ID, AppConstant.CUSTOMER_ID), __)))
+				.map(___ -> {
+					__.receiverOffset().acknowledge();
+					return __;
 				})
-				.flatMap(__ -> input.apply(__)
-						.contextWrite(ctx -> ctx.putAllMap(
-								Helper.extractHeaders(List.of(AppConstant.TENANT_ID, AppConstant.CUSTOMER_ID), __)))
-						.map(___ -> {
-							__.receiverOffset().acknowledge();
-							return __;
-						}).onErrorResume(error -> Mono.error(new ReceiverRecordException(__, error))).onErrorStop())
-				.retryWhen(Retry.backoff(3, Duration.ofSeconds(2)).transientErrors(true)
-						.onRetryExhaustedThrow((a, b) -> b.failure()))
+				.onErrorResume(error -> Mono.error(new ReceiverRecordException(__, error)))
+				.onErrorStop())
+			.retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
+				.transientErrors(true)
+				.onRetryExhaustedThrow((a, b) -> b.failure()))
 
-				.onErrorContinue((e, o) -> {
-					ReceiverRecordException ex = (ReceiverRecordException) e;
-					if (Objects.nonNull(deadLetterPublishingRecoverer))
-						deadLetterPublishingRecoverer.accept(ex.getRecord(), ex);
-					ex.getRecord().receiverOffset().acknowledge();
-				}).repeat();
+			.onErrorContinue((e, o) -> {
+				ReceiverRecordException ex = (ReceiverRecordException) e;
+				if (Objects.nonNull(deadLetterPublishingRecoverer))
+					deadLetterPublishingRecoverer.accept(ex.getRecord(), ex);
+				ex.getRecord().receiverOffset().acknowledge();
+			})
+			.repeat();
 
 	}
 
@@ -113,10 +118,12 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaProperties.getConsumerGroup());
 		props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-		return ReceiverOptions.<K, V>create(props).commitInterval(Duration.ZERO).commitBatchSize(0)
-				.addAssignListener(receiverPartitions -> log.info("assigned partition {}", receiverPartitions))
-				.addRevokeListener(receiverPartitions -> log.info("revoke partition {}", receiverPartitions))
-				.subscription(Collections.singletonList(kafkaProperties.getTopic()));
+		return ReceiverOptions.<K, V>create(props)
+			.commitInterval(Duration.ZERO)
+			.commitBatchSize(0)
+			.addAssignListener(receiverPartitions -> log.info("assigned partition {}", receiverPartitions))
+			.addRevokeListener(receiverPartitions -> log.info("revoke partition {}", receiverPartitions))
+			.subscription(Collections.singletonList(kafkaProperties.getTopic()));
 	}
 
 }

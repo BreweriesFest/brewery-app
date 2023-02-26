@@ -23,7 +23,7 @@ class OrderServiceApplicationTests {
 
 	@Container
 	static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:latest"))
-			.withExposedPorts(6379);
+		.withExposedPorts(6379);
 
 	@DynamicPropertySource
 	static void setProperties(DynamicPropertyRegistry registry) {

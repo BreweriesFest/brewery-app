@@ -36,12 +36,14 @@ public class OrderService {
 	private final BeerClient beerClient;
 
 	public Mono<OrderDto> placeOrder(Collection<OrderLineDto> orderLineDtos) {
-		var orderLineMono = Mono.just(orderLineDtos).map(orderMapper::fromOrderLineDto)
-				.map(orderLineRepository::saveAll);
+		var orderLineMono = Mono.just(orderLineDtos)
+			.map(orderMapper::fromOrderLineDto)
+			.map(orderLineRepository::saveAll);
 		return orderLineMono.flatMap(__ -> __.collectList())
-				.map(__ -> collectionAsStream(__).map(OrderLine::getId).collect(Collectors.toList()))
-				.flatMap(__ -> orderRepository.save(Order.builder().orderLineId(__).status(NEW).build()))
-				.map(orderMapper::fromOrder).subscribeOn(Schedulers.boundedElastic());
+			.map(__ -> collectionAsStream(__).map(OrderLine::getId).collect(Collectors.toList()))
+			.flatMap(__ -> orderRepository.save(Order.builder().orderLineId(__).status(NEW).build()))
+			.map(orderMapper::fromOrder)
+			.subscribeOn(Schedulers.boundedElastic());
 	}
 
 	public Flux<OrderDto> findOrderById(List<String> orderId) {
@@ -52,22 +54,29 @@ public class OrderService {
 	public Mono<Map<OrderDto, List<OrderLineDto>>> orderLine(List<OrderDto> orders) {
 		QOrderLine orderLine = QOrderLine.orderLine;
 
-		var orderLines = Flux.fromIterable(orders).map(OrderDto::orderLineId)
-				.flatMap(__ -> orderLineRepository.findAll(orderLine.id.in(__)));
+		var orderLines = Flux.fromIterable(orders)
+			.map(OrderDto::orderLineId)
+			.flatMap(__ -> orderLineRepository.findAll(orderLine.id.in(__)));
 		return orderLines.collectList()
-				.map(__ -> collectionAsStream(orders).collect(Collectors.toMap(Function.identity(),
-						o -> collectionAsStream(__).filter(___ -> o.orderLineId().contains(___.getId()))
-								.map(orderMapper::fromOrderLine).collect(Collectors.toList()))));
+			.map(__ -> collectionAsStream(orders).collect(Collectors.toMap(Function.identity(),
+					o -> collectionAsStream(__).filter(___ -> o.orderLineId().contains(___.getId()))
+						.map(orderMapper::fromOrderLine)
+						.collect(Collectors.toList()))));
 	}
 
 	public Mono<Map<OrderLineDto, BeerDto>> beer(List<OrderLineDto> orderLines) {
 
-		var beerCollection = Flux.fromIterable(orderLines).map(OrderLineDto::beerId).collectList()
-				.map(beerClient::getBeerById).flatMapMany(Flux::concat).collectList();
+		var beerCollection = Flux.fromIterable(orderLines)
+			.map(OrderLineDto::beerId)
+			.collectList()
+			.map(beerClient::getBeerById)
+			.flatMapMany(Flux::concat)
+			.collectList();
 
 		return beerCollection.map(__ -> collectionAsStream(orderLines).collect(Collectors.toMap(Function.identity(),
-				o -> collectionAsStream(__).filter(___ -> o.beerId().equals(___.id())).findFirst()
-						.orElse(new BeerDto(o.beerId(), null, null, null, null, null)))));
+				o -> collectionAsStream(__).filter(___ -> o.beerId().equals(___.id()))
+					.findFirst()
+					.orElse(new BeerDto(o.beerId(), null, null, null, null, null)))));
 
 	}
 

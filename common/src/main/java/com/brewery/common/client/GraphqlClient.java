@@ -47,27 +47,30 @@ public abstract class GraphqlClient {
 	protected <T> Mono<T> fromMono(Collection<String> headers, String document, Map<String, Object> variables,
 			ParameterizedTypeReference<T> entityType) {
 		return getHttpGraphQlClient(headers)
-				.flatMap(__ -> __.document(document).variables(variables).retrieve("data").toEntity(entityType))
-				.transform(it -> {
-					ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(resilienceId);
-					return rcb.run(it, throwable -> {
-						log.error("exception::{}", throwable.getMessage(), throwable);
-						return Mono.error(new BusinessException(ExceptionReason.INTERNAL_SERVER_ERROR));
-					});
-				}).transformDeferred(RetryOperator.of(retry));
+			.flatMap(__ -> __.document(document).variables(variables).retrieve("data").toEntity(entityType))
+			.transform(it -> {
+				ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(resilienceId);
+				return rcb.run(it, throwable -> {
+					log.error("exception::{}", throwable.getMessage(), throwable);
+					return Mono.error(new BusinessException(ExceptionReason.INTERNAL_SERVER_ERROR));
+				});
+			})
+			.transformDeferred(RetryOperator.of(retry));
 	}
 
 	protected <T> Flux<T> fromFlux(Collection<String> headers, String document, Map<String, Object> variables,
 			ParameterizedTypeReference<T> entityType) {
 		return getHttpGraphQlClient(headers)
-				.flatMap(__ -> __.document(document).variables(variables).retrieve("data").toEntityList(entityType))
-				.flatMapMany(Flux::fromIterable).transform(it -> {
-					ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(resilienceId);
-					return rcb.run(it, throwable -> {
-						log.error("exception::{}", throwable.getMessage(), throwable);
-						return Flux.error(new BusinessException(ExceptionReason.INTERNAL_SERVER_ERROR));
-					});
-				}).transformDeferred(RetryOperator.of(retry));
+			.flatMap(__ -> __.document(document).variables(variables).retrieve("data").toEntityList(entityType))
+			.flatMapMany(Flux::fromIterable)
+			.transform(it -> {
+				ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(resilienceId);
+				return rcb.run(it, throwable -> {
+					log.error("exception::{}", throwable.getMessage(), throwable);
+					return Flux.error(new BusinessException(ExceptionReason.INTERNAL_SERVER_ERROR));
+				});
+			})
+			.transformDeferred(RetryOperator.of(retry));
 	}
 
 }
