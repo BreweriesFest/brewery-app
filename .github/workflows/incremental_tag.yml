@@ -1,5 +1,8 @@
 name: Create Incremental Tag
 
+on:
+  workflow_call:
+
 jobs:
   create_tag:
     runs-on: ubuntu-latest
