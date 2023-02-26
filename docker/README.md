@@ -1,4 +1,4 @@
-# Local Environment Setup Guide
+# Environment Setup Guide
 
 ## Prerequisites
 - Java 17
