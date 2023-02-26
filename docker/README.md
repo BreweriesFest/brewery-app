@@ -17,8 +17,7 @@ Clone the repository to your local machine using the following command:
 ## Setting up Mongo, Kafka and Redis containers using `docker-compose`
 The setup.yml file is used to create and run the Mongo, Kafka and Redis containers. The docker-compose command is used to manage the containers.
 
-Open a terminal window and navigate to the folder containing the setup.yml file.
-
+Navigate to the `docker` directory.
 #### To create and run the Docker containers, run the following command:
 ```zsh
 ~ docker-compose -f setup.yml up -d
