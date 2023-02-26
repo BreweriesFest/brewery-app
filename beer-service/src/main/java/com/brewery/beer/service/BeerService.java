@@ -50,12 +50,13 @@ public class BeerService {
 	private boolean redisEnabled;
 
 	public Flux<BeerDto> findBeerById(Collection<String> beerId) {
+		var validateHeaders = validateContext();
 		Set<String> uniqueBeerId = new HashSet<>(beerId);
 
 		Mono<Map<String, BeerDto>> redisValues = redisEnabled ? reactiveCacheService.get(uniqueBeerId)
 				: Mono.just(new HashMap<>());
 
-		return redisValues.flatMapMany(values -> {
+		return validateHeaders.thenMany(redisValues.flatMapMany(values -> {
 			List<String> missingKeys = uniqueBeerId.stream().filter(key -> !values.containsKey(key))
 					.collect(Collectors.toList());
 
@@ -66,7 +67,7 @@ public class BeerService {
 				return fetchMissingValues(missingKeys).doOnNext(dbValue -> values.put(dbValue.id(), dbValue))
 						.thenMany(Flux.fromIterable(values.values()));
 			}
-		});
+		}));
 	}
 
 	private Flux<BeerDto> fetchMissingValues(List<String> missingKeys) {
@@ -97,18 +98,19 @@ public class BeerService {
 	}
 
 	public Mono<BeerDto> updateBeer(String beerId, BeerDto beerDto) {
-
-		return Mono.deferContextual(ctx -> {
+		var validateHeaders = validateContext();
+		return validateHeaders.then(Mono.deferContextual(ctx -> {
 			QBeer qBeer = QBeer.beer;
 			return beerRepository.findOne((qBeer.id.eq(beerId))
 					.and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
 		}).switchIfEmpty(Mono.error(new BusinessException(BEER_NOT_FOUND)))
 				.map(beer -> beerMapper.fromBeerDto(beerDto, beer)).flatMap(beerRepository::save)
-				.map(beerMapper::fromBeer);
+				.map(beerMapper::fromBeer));
 	}
 
 	public Mono<String> deleteById(String beerId) {
-		return Mono.deferContextual(ctx -> {
+		var validateHeaders = validateContext();
+		return validateHeaders.then(Mono.deferContextual(ctx -> {
 			QBeer qBeer = QBeer.beer;
 			return beerRepository.exists((qBeer.id.eq(beerId))
 					.and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
@@ -116,35 +118,38 @@ public class BeerService {
 			if (__.booleanValue())
 				return beerRepository.deleteById(beerId).map(___ -> beerId);
 			return Mono.error(new BusinessException(BEER_NOT_FOUND));
-		});
+		}));
 	}
 
 	public Mono<BeerDto> findBeerByUpc(String upc) {
-		return Mono.deferContextual(ctx -> {
+		var validateHeaders = validateContext();
+		return validateHeaders.then(Mono.deferContextual(ctx -> {
 			QBeer qBeer = QBeer.beer;
 			return beerRepository.findOne((qBeer.upc.equalsIgnoreCase(upc))
 					.and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
-		}).map(beerMapper::fromBeer);
+		}).map(beerMapper::fromBeer));
 	}
 
 	public Flux<BeerDto> findAllBeer() {
-		return Flux.deferContextual(ctx -> {
+		var validateHeaders = validateContext();
+		return validateHeaders.thenMany(Flux.deferContextual(ctx -> {
 			QBeer qBeer = QBeer.beer;
 			return beerRepository.findAll(
 					qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx)).and(qBeer.active.eq(true)));
-		}).map(beerMapper::fromBeer);
+		}).map(beerMapper::fromBeer));
 	}
 
 	public Mono<SenderResult<Void>> consumeCheckInventoryEvent(CheckInventoryEvent event) {
-		return Mono.deferContextual(ctx -> {
+		var validateHeaders = validateContext();
+		return validateHeaders.then(Mono.deferContextual(ctx -> {
 			QBeer qBeer = QBeer.beer;
 			return beerRepository.findOne((qBeer.id.eq(event.beerId()))
 					.and(qBeer.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))).and(qBeer.active.eq(true)));
-		}).flatMap(this::checkBeerInventory);
+		}).flatMap(this::checkBeerInventory));
 
 	}
 
-	public Mono<SenderResult<Void>> checkBeerInventory(Beer beer) {
+	private Mono<SenderResult<Void>> checkBeerInventory(Beer beer) {
 		return inventoryClient.getInventoryByBeerId(List.of(beer.getId()))
 				.single(new InventoryDTO(null, beer.getId(), 0)).filter(__ -> beer.getMinQty() > __.qtyOnHand())
 				.map(___ -> new BrewBeerEvent(uuid.get(), ___.beerId(), beer.getMinQty() - ___.qtyOnHand()))
