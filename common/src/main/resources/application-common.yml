@@ -81,35 +81,3 @@ app:
       timeoutDuration: ${TL__DEFAULT__TIMEOUT_DURATION:500}
     retry:
       maxAttempts: ${RT__DEFAULT__MAX_ATTEMPT:3}
-
-  client:
-    beer:
-      url: ${BEER_SERVICE_HOST:localhost:8080}/graphql
-      circuit-breaker:
-        failureRateThreshold: ${CB__BEER_CLIENT__FAILURE_RATE_THRESHOLD:10}
-        permittedNumberOfCallsInHalfOpenState: ${CB__BEER_CLIENT__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.permittedNumberOfCallsInHalfOpenState}}
-        slidingWindowSize: ${CB__BEER_CLIENT__SLIDING_WINDOW_SIZE:${app.default.circuit-breaker.slidingWindowSize}}
-        slidingWindowType: ${CB__BEER_CLIENT__SLIDING_WINDOW_TYPE:${app.default.circuit-breaker.slidingWindowType}}
-        minimumNumberOfCalls: ${CB__BEER_CLIENT__MIN_NO_OF_CALLS:${app.default.circuit-breaker.minimumNumberOfCalls}}
-        slowCallRateThreshold: ${CB__BEER_CLIENT__SLOW_CALL_RATE_THRESHOLD:${app.default.circuit-breaker.slowCallRateThreshold}}
-        slowCallDurationThreshold: ${CB__BEER_CLIENT__SLOW_CALL_DURATION_THRESHOLD:10000}
-        maxWaitDurationInHalfOpenState: ${CB__BEER_CLIENT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}
-      time-limiter:
-        timeoutDuration: ${TL__BEER_CLIENT__TIMEOUT_DURATION:500}
-      retry:
-        maxAttempts: ${RT__BEER_CLIENT__MAX_ATTEMPT:${app.default.retry.maxAttempts}}
-    inventory:
-      url: ${INVENTORY_SERVICE_HOST:localhost:8083}/graphql
-      circuit-breaker:
-        failureRateThreshold: ${CB__INVENTORY_CLIENT__FAILURE_RATE_THRESHOLD:10}
-        permittedNumberOfCallsInHalfOpenState: ${CB__INVENTORY_CLIENT__PERMIT_NO_OF_CALL_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.permittedNumberOfCallsInHalfOpenState}}
-        slidingWindowSize: ${CB__INVENTORY_CLIENT__SLIDING_WINDOW_SIZE:${app.default.circuit-breaker.slidingWindowSize}}
-        slidingWindowType: ${CB__INVENTORY_CLIENT__SLIDING_WINDOW_TYPE:${app.default.circuit-breaker.slidingWindowType}}
-        minimumNumberOfCalls: ${CB__INVENTORY_CLIENT__MIN_NO_OF_CALLS:${app.default.circuit-breaker.minimumNumberOfCalls}}
-        slowCallRateThreshold: ${CB__INVENTORY_CLIENT__SLOW_CALL_RATE_THRESHOLD:${app.default.circuit-breaker.slowCallRateThreshold}}
-        slowCallDurationThreshold: ${CB__INVENTORY_CLIENT__SLOW_CALL_DURATION_THRESHOLD:10000}
-        maxWaitDurationInHalfOpenState: ${CB__INVENTORY_CLIENT__MAX_WAIT_DURATION_IN_HALF_OPEN_STATE:${app.default.circuit-breaker.maxWaitDurationInHalfOpenState}}
-      time-limiter:
-        timeoutDuration: ${TL__INVENTORY_CLIENT__TIMEOUT_DURATION:500}
-      retry:
-        maxAttempts: ${RT__INVENTORY_CLIENT__MAX_ATTEMPT:${app.default.retry.maxAttempts}}

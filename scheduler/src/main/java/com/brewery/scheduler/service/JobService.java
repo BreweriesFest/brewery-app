@@ -35,10 +35,9 @@ public class JobService {
 	@Recurring(id = "my-recurring-job", cron = "*/10 * * * *")
 	@Job(name = "Check Beer Inventory")
 	public void getAllBeer() {
-		beerClient.getAllByTenant()
-				.contextWrite(
-						__ -> __.putAllMap(Map.of(TENANT_ID, Optional.of("txt"), CUSTOMER_ID, Optional.of("test"))))
-				.subscribe(__ -> scheduleJob(__.id(), "txt", "test"));
+		beerClient.getAllByTenant().contextWrite(
+				__ -> __.putAllMap(Map.of(TENANT_ID, Optional.of("tenant"), CUSTOMER_ID, Optional.of("customer"))))
+				.subscribe(__ -> scheduleJob(__.id(), "tenant", "customer"));
 	}
 
 	public void createCheckInventoryEvent(String beerId, String tenantId, String customerId) {

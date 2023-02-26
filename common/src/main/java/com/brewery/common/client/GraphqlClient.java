@@ -51,7 +51,7 @@ public abstract class GraphqlClient {
 				.transform(it -> {
 					ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(resilienceId);
 					return rcb.run(it, throwable -> {
-						log.error("exception::", throwable);
+						log.error("exception::{}", throwable.getMessage(), throwable);
 						return Mono.error(new BusinessException(ExceptionReason.INTERNAL_SERVER_ERROR));
 					});
 				}).transformDeferred(RetryOperator.of(retry));
@@ -64,7 +64,7 @@ public abstract class GraphqlClient {
 				.flatMapMany(Flux::fromIterable).transform(it -> {
 					ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(resilienceId);
 					return rcb.run(it, throwable -> {
-						log.error("exception::", throwable.getMessage());
+						log.error("exception::{}", throwable.getMessage(), throwable);
 						return Flux.error(new BusinessException(ExceptionReason.INTERNAL_SERVER_ERROR));
 					});
 				}).transformDeferred(RetryOperator.of(retry));

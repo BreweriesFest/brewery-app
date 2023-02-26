@@ -24,9 +24,8 @@ public class ConsumerService {
 
 	private BeerService beerService;
 
-	private Function<ReceiverRecord<String, CheckInventoryEvent>, Mono<?>> processRecord = record -> {
-		return this.beerService.consumeCheckInventoryEvent(record.value());
-	};
+	private Function<ReceiverRecord<String, CheckInventoryEvent>, Mono<?>> processRecord = record -> this.beerService
+			.consumeCheckInventoryEvent(record.value());
 
 	public ConsumerService(BeerService beerService) {
 		this.beerService = beerService;

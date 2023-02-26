@@ -16,6 +16,7 @@ import com.brewery.model.event.CheckInventoryEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -42,6 +43,7 @@ public class BeerService {
 
 	private final InventoryClient inventoryClient;
 
+	@Nullable
 	private final CacheService<String, BeerDto> reactiveCacheService;
 
 	@Value("${features.cache.enabled}")
