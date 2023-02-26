@@ -39,8 +39,9 @@ Open a terminal window and navigate to the folder containing the setup.yml file.
 You can verify the containers are running using the docker ps command.
 ```zsh
 ~ docker ps
-CONTAINER ID   IMAGE                 COMMAND                  CREATED         STATUS         PORTS                      NAMES
-f5b5897e8d57   mongo:latest          "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes   0.0.0.0:27017->27017/tcp   docker-mongo-1
-e457c94af421   redis:latest          "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes   0.0.0.0:6379->6379/tcp     docker-redis-1
-643c2d409be9   bashj79/kafka-kraft   "/bin/start_kafka.sh"    5 minutes ago   Up 5 minutes   0.0.0.0:9092->9092/tcp     docker-kafka-1
+CONTAINER ID   IMAGE                  COMMAND                  CREATED              STATUS              PORTS                      NAMES
+bac2d9e88025   mongo-express:latest       "tini -- /docker-ent…"   6 minutes ago   Up 6 minutes   0.0.0.0:8081->8081/tcp                           docker-mongo-express-1
+b8783af8fba6   bashj79/kafka-kraft        "/bin/start_kafka.sh"    6 minutes ago   Up 6 minutes   0.0.0.0:9092->9092/tcp                           docker-kafka-1
+126c559aa020   mongo:latest               "docker-entrypoint.s…"   6 minutes ago   Up 6 minutes   0.0.0.0:27017->27017/tcp                         docker-mongo-1
+878e6bbf029d   redis/redis-stack:latest   "/entrypoint.sh"         6 minutes ago   Up 6 minutes   0.0.0.0:6379->6379/tcp, 0.0.0.0:8001->8001/tcp   docker-redis-1
 ```
