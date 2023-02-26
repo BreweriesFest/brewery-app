@@ -25,7 +25,7 @@ with the Inventory Service, Scheduler, and Order Service to manage beer inventor
 
 ## Getting Started
 
-To run this service, you'll need to set up a local development environment as described in [Environment Setup Guide](./docker/README.md).
+To run this service, you'll need to set up a local development environment as described in [Environment Setup Guide](../docker/README.md).
 
 Once you've set up your environment, follow these steps to get started:
 
