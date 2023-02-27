@@ -1,6 +1,6 @@
 {
   "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "dockerComposeFile": "../docker/setup.yml",
+  "dockerComposeFile": "setup.yml",
   "features": {
     "ghcr.io/mpriscella/features/kind:1": {
       "version": "latest"
