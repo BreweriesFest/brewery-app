@@ -20,7 +20,6 @@
       "settings": {},
       "extensions": [
         "editorconfig.editorconfig",
-        "github.copilot",
         "github.vscode-pull-request-github",
         "donjayamanne.githistory",
         "waderyan.gitblame",
@@ -30,7 +29,9 @@
         "shengchen.vscode-checkstyle",
         "vscjava.vscode-java-pack",
         "vscjava.vscode-gradle",
-        "DavidAnson.vscode-markdownlint"
+        "DavidAnson.vscode-markdownlint",
+        "vmware.vscode-boot-dev-pack",
+        "vscjava.vscode-lombok"
       ]
     }
   },
