@@ -1,6 +1,6 @@
 {
-  "name": "Java",
-  "image": "mcr.microsoft.com/devcontainers/base:alpine",
+  "name": "BrewerySpace",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/java:1": {
       "version": "17",
