@@ -338,12 +338,6 @@
                                 <goal>build-info</goal>
                             </goals>
                         </execution>
-                        <execution>
-                            <goals>
-                                <goal>start</goal>
-                                <goal>stop</goal>
-                            </goals>
-                        </execution>
                     </executions>
                     <configuration>
                         <jvmArguments>-Dspring.application.admin.enabled=true</jvmArguments>
@@ -364,19 +358,6 @@
                             </exclude>
                         </excludes>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.springdoc</groupId>
-                    <artifactId>springdoc-openapi-maven-plugin</artifactId>
-                    <version>1.4</version>
-                    <executions>
-                        <execution>
-                            <id>integration-test</id>
-                            <goals>
-                                <goal>generate</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>com.mysema.maven</groupId>
