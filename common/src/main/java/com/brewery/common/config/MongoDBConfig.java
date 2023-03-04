@@ -29,7 +29,7 @@ public class MongoDBConfig {
 	@Profile({ "mongo-sync", "mongo-reactive" })
 	public MongoClientSettingsBuilderCustomizer mongoClientSettingsBuilderCustomizer() {
 		return builder -> builder.writeConcern(WriteConcern.ACKNOWLEDGED)
-				.applyToConnectionPoolSettings(builder1 -> builder1.minSize(10));
+			.applyToConnectionPoolSettings(builder1 -> builder1.minSize(10));
 	}
 
 }

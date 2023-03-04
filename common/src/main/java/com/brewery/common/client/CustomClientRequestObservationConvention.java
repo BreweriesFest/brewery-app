@@ -22,6 +22,11 @@ public class CustomClientRequestObservationConvention extends DefaultClientReque
 	private static final KeyValue URI_ROOT = KeyValue.of(ClientHttpObservationDocumentation.LowCardinalityKeyNames.URI,
 			ROOT_PATH);
 
+	private static String extractPath(String uriTemplate) {
+		String path = PATTERN_BEFORE_PATH.matcher(uriTemplate).replaceFirst("");
+		return (path.startsWith("/") ? path : "/" + path);
+	}
+
 	@Override
 	protected KeyValue uri(ClientRequestObservationContext context) {
 		if (context.getUriTemplate() != null) {
@@ -37,11 +42,6 @@ public class CustomClientRequestObservationConvention extends DefaultClientReque
 					extractPath(request.url().getPath()));
 		}
 		return URI_NONE;
-	}
-
-	private static String extractPath(String uriTemplate) {
-		String path = PATTERN_BEFORE_PATH.matcher(uriTemplate).replaceFirst("");
-		return (path.startsWith("/") ? path : "/" + path);
 	}
 
 }

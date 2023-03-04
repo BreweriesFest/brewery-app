@@ -1,0 +1,45 @@
+name: Create Incremental Tag
+
+on:
+  workflow_call:
+
+jobs:
+  create_tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Get previous tag
+        id: previous_tag
+        run: |
+          if git describe --tags --abbrev=0 > /dev/null 2>&1; then
+            echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+          else
+            echo "tag=v1.0.0" >> $GITHUB_OUTPUT
+          fi
+      - name: Get pull request labels
+        id: pr_labels
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: labels } = await github.rest.pulls.listLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            console.log(JSON.stringify(labels.map(label => label.name)));
+          outputs:
+            labels: ${{ steps.pr_labels.outputs.result }}
+      - name: Create incremental tag
+        id: new_tag
+        run: |
+          if echo "${{ steps.pr_labels.outputs.labels }}" | grep -q "override-version-[0-9.]*"; then
+            new_version=$(echo "${{ steps.pr_labels.outputs.labels }}" | grep -oE "override-version-[0-9.]*" | cut -d'-' -f3)
+            echo "tag=v$new_version" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$(echo ${{ steps.previous_tag.outputs.tag }} | awk -F. '{$NF++;print}' OFS=.)" >> $GITHUB_OUTPUT
+          fi
+      - name: Create Git tag
+        run: |
+          git tag ${{ steps.new_tag.outputs.tag }}
+          git push origin ${{ steps.new_tag.outputs.tag }}

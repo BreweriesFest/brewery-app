@@ -18,7 +18,7 @@ public class HeaderInterceptor implements WebGraphQlInterceptor {
 	@Override
 	public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
 		return chain.next(request)
-				.contextWrite(__ -> __.putAllMap(extractHeaders(List.of(TENANT_ID, CUSTOMER_ID), request)));
+			.contextWrite(__ -> __.putAllMap(extractHeaders(List.of(TENANT_ID, CUSTOMER_ID), request)));
 	}
 
 }

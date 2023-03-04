@@ -24,10 +24,10 @@ public class ConsumerService {
 	private static InventoryService INVENTORY_SERVICE;
 
 	private Function<ReceiverRecord<String, BrewBeerEvent>, Mono<?>> processBrewBeerEvent = record -> INVENTORY_SERVICE
-			.addInventory(record.value());
+		.addInventory(record.value());
 
 	private Function<ReceiverRecord<String, OrderEvent>, Mono<?>> processAllocateBeerEvent = record -> INVENTORY_SERVICE
-			.allocateInventory(record.value());
+		.allocateInventory(record.value());
 
 	private Disposable.Composite disposables = Disposables.composite();
 

@@ -33,8 +33,10 @@ public class Helper {
 	public static final Function<Object, String> convertToString = String::valueOf;
 
 	public static final BiFunction<String, ContextView, String> fetchHeaderFromContext = (header,
-			ctx) -> getHeader(header, ctx).filter(isInstanceOfString).map(convertToString).filter(isNotBlankString)
-					.orElse(null);
+			ctx) -> getHeader(header, ctx).filter(isInstanceOfString)
+				.map(convertToString)
+				.filter(isNotBlankString)
+				.orElse(null);
 
 	public static final Supplier<String> uuid = () -> UUID.randomUUID().toString();
 
@@ -63,8 +65,8 @@ public class Helper {
 	public static Map<String, Optional<String>> extractHeaders(Collection<String> headers,
 			ConsumerRecord<?, ?> receiverRecord) {
 		var headerMap = new HashMap<String, Optional<String>>();
-		headers.forEach(
-				__ -> headerMap.put(__, Optional.of(new String(receiverRecord.headers().lastHeader(__).value()))));
+		headers
+			.forEach(__ -> headerMap.put(__, Optional.of(new String(receiverRecord.headers().lastHeader(__).value()))));
 		return headerMap;
 	}
 

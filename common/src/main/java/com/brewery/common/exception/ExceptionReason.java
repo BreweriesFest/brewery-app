@@ -22,6 +22,8 @@ public enum ExceptionReason implements ErrorPolicy {
 	BEER_ALREADY_PRESENT("Beer already present", HttpStatus.BAD_REQUEST, ExceptionType.ValidationException),
 	BEER_NOT_FOUND("Beer not found", HttpStatus.BAD_REQUEST, ExceptionType.ValidationException),
 	INTERNAL_SERVER_ERROR("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, ExceptionType.ServerException),
+
+	UPSTREAM_SERVER_ERROR("Upstream server error", HttpStatus.FAILED_DEPENDENCY, ExceptionType.ServerException),
 	CUSTOMIZE_REASON("%s", HttpStatus.BAD_REQUEST, ExceptionType.ValidationException),
 
 	VALIDATION_REASON("Validation Exception", HttpStatus.BAD_REQUEST, ExceptionType.ValidationException),

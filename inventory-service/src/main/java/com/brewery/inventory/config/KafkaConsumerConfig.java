@@ -49,15 +49,21 @@ public class KafkaConsumerConfig {
 
 	@Bean
 	public NewTopic brewBeerTopic(KafkaConsumerProps brewBeerConsumerProps) {
-		return TopicBuilder.name(brewBeerConsumerProps.getTopic()).partitions(3).replicas(1)
-				.config(TopicConfig.COMPRESSION_TYPE_CONFIG, LZ4_COMPRESSION).build();
+		return TopicBuilder.name(brewBeerConsumerProps.getTopic())
+			.partitions(3)
+			.replicas(1)
+			.config(TopicConfig.COMPRESSION_TYPE_CONFIG, LZ4_COMPRESSION)
+			.build();
 
 	}
 
 	@Bean
 	public NewTopic allocateBeerTopic(KafkaConsumerProps allocateBeerConsumerProps) {
-		return TopicBuilder.name(allocateBeerConsumerProps.getTopic()).partitions(3).replicas(1)
-				.config(TopicConfig.COMPRESSION_TYPE_CONFIG, LZ4_COMPRESSION).build();
+		return TopicBuilder.name(allocateBeerConsumerProps.getTopic())
+			.partitions(3)
+			.replicas(1)
+			.config(TopicConfig.COMPRESSION_TYPE_CONFIG, LZ4_COMPRESSION)
+			.build();
 
 	}
 

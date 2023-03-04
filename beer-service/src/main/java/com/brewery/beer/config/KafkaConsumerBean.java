@@ -34,8 +34,11 @@ public class KafkaConsumerBean {
 
 	@Bean
 	public NewTopic newUserTopic(KafkaConsumerProps kafkaConsumerProps) {
-		return TopicBuilder.name(kafkaConsumerProps.getTopic()).partitions(3).replicas(1)
-				.config(TopicConfig.COMPRESSION_TYPE_CONFIG, LZ4_COMPRESSION).build();
+		return TopicBuilder.name(kafkaConsumerProps.getTopic())
+			.partitions(3)
+			.replicas(1)
+			.config(TopicConfig.COMPRESSION_TYPE_CONFIG, LZ4_COMPRESSION)
+			.build();
 
 	}
 
@@ -43,8 +46,9 @@ public class KafkaConsumerBean {
 	public NewTopic deadLetterTopic(KafkaConsumerProps kafkaConsumerProps) {
 		// https://docs.spring.io/spring-kafka/docs/2.8.2/reference/html/#configuring-topics
 		return TopicBuilder.name(kafkaConsumerProps.getTopic() + "_dlt")
-				// Use only one partition for infrequently used Dead Letter Topic
-				.partitions(1).build();
+			// Use only one partition for infrequently used Dead Letter Topic
+			.partitions(1)
+			.build();
 	}
 
 }

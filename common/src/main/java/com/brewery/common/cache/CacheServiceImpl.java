@@ -23,13 +23,16 @@ public abstract class CacheServiceImpl<K, V extends Record<K>> extends CacheConf
 	}
 
 	public Mono<Map<K, V>> get(Collection<K> keys) {
-		return reactiveRedisTemplate
-				.opsForValue().multiGet(keys).timeout(timeout).map(cache -> Helper.collectionAsStream(cache)
-						.filter(Objects::nonNull).collect(Collectors.toMap(V::key, Function.identity())))
-				.onErrorResume(e -> {
-					log.error("error in cache", e);
-					return Mono.just(new HashMap<>());
-				});
+		return reactiveRedisTemplate.opsForValue()
+			.multiGet(keys)
+			.timeout(timeout)
+			.map(cache -> Helper.collectionAsStream(cache)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toMap(V::key, Function.identity())))
+			.onErrorResume(e -> {
+				log.error("error in cache", e);
+				return Mono.just(new HashMap<>());
+			});
 	}
 
 	public Mono<V> get(K key) {

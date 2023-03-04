@@ -23,7 +23,11 @@ public abstract class CacheConfig<K, V extends Record<K>> {
 	public CacheConfig(ReactiveRedisConnectionFactory factory, RedisSerializer<K> keySerializer,
 			RedisSerializer<V> valueSerializer) {
 		RedisSerializationContext<K, V> serializationContext = RedisSerializationContext.<K, V>newSerializationContext()
-				.key(keySerializer).value(valueSerializer).hashKey(keySerializer).hashValue(valueSerializer).build();
+			.key(keySerializer)
+			.value(valueSerializer)
+			.hashKey(keySerializer)
+			.hashValue(valueSerializer)
+			.build();
 		this.reactiveRedisTemplate = new ReactiveRedisTemplate<>(factory, serializationContext);
 		this.timeout = Duration.ofMillis(50);
 		this.expiration = Duration.ofSeconds(50);

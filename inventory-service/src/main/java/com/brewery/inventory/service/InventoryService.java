@@ -69,31 +69,39 @@ public class InventoryService {
 		var persist = Mono.deferContextual(ctx -> {
 			QInventory inventory = QInventory.inventory;
 			return inventoryRepository
-					.findOne(inventory.beerId.eq(brewBeerEvent.beerId())
-							.and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))))
-					.transformDeferred(RetryOperator.of(mongoServiceRetry));
+				.findOne(inventory.beerId.eq(brewBeerEvent.beerId())
+					.and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))))
+				.transformDeferred(RetryOperator.of(mongoServiceRetry));
 		}).map(inventory -> {
 			inventory.setQtyOnHand(inventory.getQtyOnHand() + brewBeerEvent.qtyToBrew());
 			return inventory;
-		}).switchIfEmpty(Mono.just(inventoryMapper.fromBrewBeerEvent(brewBeerEvent)))
-				.flatMap(__ -> inventoryRepository.save(__).transformDeferred(RetryOperator.of(mongoServiceRetry)))
-				.flatMap(__ -> inventoryLedgerRepository.save(
-						InventoryLedger.builder().inventoryId(__.getId()).type(BREW).referenceId(brewBeerEvent.id())
-								.qty(brewBeerEvent.qtyToBrew()).totQty(__.getQtyOnHand()).build())
-						.map(ledger -> __))
-				.map(inventoryMapper::fromInventory).transform(it -> {
-					ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(RESILIENCE_ID_MONGO);
-					return rcb.run(it, throwable -> {
-						log.error("exception::", throwable);
-						return Mono.error(new BusinessException(INTERNAL_SERVER_ERROR));
-					});
-				})
+		})
+			.switchIfEmpty(Mono.just(inventoryMapper.fromBrewBeerEvent(brewBeerEvent)))
+			.flatMap(__ -> inventoryRepository.save(__).transformDeferred(RetryOperator.of(mongoServiceRetry)))
+			.flatMap(__ -> inventoryLedgerRepository
+				.save(InventoryLedger.builder()
+					.inventoryId(__.getId())
+					.type(BREW)
+					.referenceId(brewBeerEvent.id())
+					.qty(brewBeerEvent.qtyToBrew())
+					.totQty(__.getQtyOnHand())
+					.build())
+				.map(ledger -> __))
+			.map(inventoryMapper::fromInventory)
+			.transform(it -> {
+				ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(RESILIENCE_ID_MONGO);
+				return rcb.run(it, throwable -> {
+					log.error("exception::", throwable);
+					return Mono.error(new BusinessException(INTERNAL_SERVER_ERROR));
+				});
+			})
 		// .as(transactionalOperator::transactional)
 		// .transformDeferred(RetryOperator.of(mongoServiceRetry))
 		;
 
-		return validateHeaders.then(validateRequest).then(persist).onErrorResume(
-				throwable -> Mono.error(new BusinessException(CUSTOMIZE_REASON, throwable.getMessage())));
+		return validateHeaders.then(validateRequest)
+			.then(persist)
+			.onErrorResume(throwable -> Mono.error(new BusinessException(CUSTOMIZE_REASON, throwable.getMessage())));
 	}
 
 	public Flux<InventoryDTO> inventoryByBeerId(Collection<String> beerId) {
@@ -103,7 +111,7 @@ public class InventoryService {
 		var beerInventory = Flux.deferContextual(ctx -> {
 			QInventory inventory = QInventory.inventory;
 			return inventoryRepository.findAll(inventory.beerId.in(beerId)
-					.and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))));
+				.and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))));
 		}).map(inventoryMapper::fromInventory).transform(it -> {
 			var rcb = reactiveCircuitBreakerFactory.create(RESILIENCE_ID_MONGO);
 			return rcb.run(it, throwable -> {
@@ -121,17 +129,17 @@ public class InventoryService {
 
 		var persist = Flux.deferContextual(ctx -> {
 			var beerId = collectionAsStream(value.orderDto().orderLine()).map(OrderLineDto::beerId)
-					.collect(Collectors.toList());
+				.collect(Collectors.toList());
 			QInventory inventory = QInventory.inventory;
 			return inventoryRepository
-					.findAll(inventory.beerId.in(beerId)
-							.and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))))
-					.transformDeferred(RetryOperator.of(mongoServiceRetry));
+				.findAll(inventory.beerId.in(beerId)
+					.and(inventory.tenantId.eq(fetchHeaderFromContext.apply(TENANT_ID, ctx))))
+				.transformDeferred(RetryOperator.of(mongoServiceRetry));
 		}).collectList().flatMap(__ -> {
 			var inventoryList = new ArrayList<Inventory>();
 			var inventoryLedgerList = new ArrayList<InventoryLedger>();
 			var map = collectionAsStream(value.orderDto().orderLine())
-					.collect(Collectors.toMap(OrderLineDto::beerId, Function.identity()));
+				.collect(Collectors.toMap(OrderLineDto::beerId, Function.identity()));
 			var updateOrderLine = new ArrayList<OrderLineDto>();
 			collectionAsStream(__).forEach(o -> {
 				var orderLine = map.get(o.getBeerId());
@@ -140,22 +148,26 @@ public class InventoryService {
 				o.setQtyOnHand(o.getQtyOnHand() - allocated);
 				updateOrderLine.add(new OrderLineDto(orderLine.beerId(), orderLine.orderQuantity(), allocated));
 				inventoryList.add(o);
-				inventoryLedgerList.add(InventoryLedger.builder().inventoryId(o.getId()).type(ALLOCATE).qty(allocated)
-						.totQty(o.getQtyOnHand()).build());
+				inventoryLedgerList.add(InventoryLedger.builder()
+					.inventoryId(o.getId())
+					.type(ALLOCATE)
+					.qty(allocated)
+					.totQty(o.getQtyOnHand())
+					.build());
 			});
 
 			var inventoryMono = inventoryRepository.saveAll(inventoryList);
 			var inventoryLedgerMono = inventoryLedgerRepository.saveAll(inventoryLedgerList);
 			return inventoryMono.thenMany(inventoryLedgerMono)
-					.then(orderStatusProducer.send(
-							new OrderEvent(uuid.get(),
-									new OrderDto(value.orderDto().id(), null, updateOrderLine, OrderStatus.ALLOCATED)),
-							Map.of()));
+				.then(orderStatusProducer.send(
+						new OrderEvent(uuid.get(),
+								new OrderDto(value.orderDto().id(), null, updateOrderLine, OrderStatus.ALLOCATED)),
+						Map.of()));
 		});
 
-		return validateHeaders.then(persist).onErrorResume(__ -> orderStatusProducer.send(new OrderEvent(uuid.get(),
-				new OrderDto(value.orderDto().id(), null, value.orderDto().orderLine(), OrderStatus.ALLOCATION_ERROR)),
-				Map.of()));
+		return validateHeaders.then(persist)
+			.onErrorResume(__ -> orderStatusProducer.send(new OrderEvent(uuid.get(), new OrderDto(value.orderDto().id(),
+					null, value.orderDto().orderLine(), OrderStatus.ALLOCATION_ERROR)), Map.of()));
 
 	}
 

@@ -29,8 +29,9 @@ public class ErrorInterceptor implements WebGraphQlInterceptor {
 				return response;
 			}
 			List<GraphQLError> graphQLErrors = Helper.collectionAsStream(response.getErrors())
-					.filter(responseError -> !(responseError.getErrorType() instanceof ExceptionType))
-					.map(this::resolveException).collect(Collectors.toList());
+				.filter(responseError -> !(responseError.getErrorType() instanceof ExceptionType))
+				.map(this::resolveException)
+				.collect(Collectors.toList());
 
 			if (!graphQLErrors.isEmpty()) {
 				log.info("[ErrorInterceptor] Found invalid syntax error! Overriding the message.");
@@ -50,14 +51,14 @@ public class ErrorInterceptor implements WebGraphQlInterceptor {
 			log.info("[ErrorInterceptor] Returning invalid field error ");
 
 			if (ValidationErrorType.MissingFieldArgument
-					.equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
+				.equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
 				String errorMessage = "Field " + StringUtils.substringBetween(message, "argument ", " @")
 						+ " cannot be null";
 				return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
 						ExceptionType.ValidationException, errorMessage);
 			}
 			if (ValidationErrorType.WrongType
-					.equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
+				.equals(extractValidationErrorFromErrorMessage(responseError.getMessage()))) {
 				String errorMessage = "Field " + StringUtils.substringBetween(message, "fields ", " @")
 						+ " cannot be null";
 				return new BusinessException(ExceptionReason.CUSTOMIZE_REASON, HttpStatus.BAD_REQUEST,
