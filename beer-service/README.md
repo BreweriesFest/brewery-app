@@ -1,5 +1,12 @@
 # Beer Service
 
+## Table of Content
+
+* [Description](#description)
+* [Features](#features)
+* [Technologies Used](#technologies-used)
+* [Getting Started](#getting-started)
+
 ## Description
 
 The Beer Service is a microservice that provides basic information about beers, including details such as name, style,
