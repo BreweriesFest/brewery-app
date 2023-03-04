@@ -33,9 +33,7 @@ jobs:
       - name: Compile
         run: mvn -B -pl ${{ inputs.service-name }} -DskipTests -am clean compile --file pom.xml
       - name: Test
-        run: mvn -B -pl ${{ inputs.service-name }} -am clean test --file pom.xml
-      - name: Package
-        run: mvn -B -pl ${{ inputs.service-name }} -am -DskipTests clean install --file pom.xml
+        run: mvn -B -pl ${{ inputs.service-name }} -am clean install --file pom.xml
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
