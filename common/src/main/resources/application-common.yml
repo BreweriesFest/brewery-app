@@ -50,7 +50,12 @@ management:
     git:
       enabled: true
       mode: full
-
+springdoc:
+  show-actuator: true
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
 resilience4j.circuitbreaker:
   configs:
     default:
