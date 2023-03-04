@@ -1,75 +1,83 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/docker-in-docker
 {
-	"name": "Docker in Docker",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
+  "name": "Docker in Docker",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "image": "mcr.microsoft.com/devcontainers/base:bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "enableNonRootDocker": "true",
+      "moby": "true"
+    },
+    "ghcr.io/devcontainers/features/java:1": {
+      "installMaven": true,
+      "version": "17",
+      "jdkDistro": "tem",
+      "gradleVersion": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-boot-dev-pack",
+        "vscjava.vscode-lombok",
+        "SonarSource.sonarlint-vscode"
+      ]
+    }
+  },
+  "portsAttributes": {
+    "6379": {
+      "label": "redis-port"
+    },
+    "8000": {
+      "label": "JobRunr"
+    },
+    "8001": {
+      "label": "Redis"
+    },
+    "8080": {
+      "label": "BeerService"
+    },
+    "8081": {
+      "label": "Mongo"
+    },
+    "8082": {
+      "label": "OrderService"
+    },
+    "8083": {
+      "label": "InventoryService"
+    },
+    "8084": {
+      "label": "SchedulerService"
+    },
+    "9092": {
+      "label": "kafka-port"
+    },
+    "27017": {
+      "label": "mongo-port"
+    }
+  },
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  "forwardPorts": [
+    6379,
+    8000,
+    8001,
+    8080,
+    8081,
+    8082,
+    8083,
+    8084,
+    9092,
+    27017
+  ],
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "docker compose -f docker/setup.yml up -d"
 
-	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {
-			"version": "latest",
-			"enableNonRootDocker": "true",
-			"moby": "true"
-		},
-		"ghcr.io/devcontainers/features/java:1": {
-			"installMaven": true,
-			"version": "17",
-			"jdkDistro": "tem",
-			"gradleVersion": "latest"
-		}
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"vscjava.vscode-java-pack",
-				"vmware.vscode-boot-dev-pack",
-				"vscjava.vscode-lombok",
-				"SonarSource.sonarlint-vscode"
-			]
-		}
-	},
-	"portsAttributes": {
-		"6379": {
-			"label": "redis-port"
-		},
-		"8000": {
-			"label": "JobRunr"
-		},
-		"8001": {
-			"label": "Redis"
-		},
-		"8080": {
-			"label": "BeerService"
-		},
-		"8081": {
-			"label": "Mongo"
-		},
-		"8082": {
-			"label": "OrderService"
-		},
-		"8083": {
-			"label": "InventoryService"
-		},
-		"8084": {
-			"label": "SchedulerService"
-		},
-		"9092": {
-			"label": "kafka-port"
-		},
-		"27017": {
-			"label": "mongo-port"
-		}
-	},
+  // Configure tool-specific properties.
+  // "customizations": {},
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [6379,8000,8001,8080,8081,8082,8083,8084,9092,27017],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-   "postCreateCommand": "docker compose -f docker/setup.yml up -d"
-
-	// Configure tool-specific properties.
-	// "customizations": {},
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
 }

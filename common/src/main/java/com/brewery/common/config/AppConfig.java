@@ -40,7 +40,9 @@ public class AppConfig {
 
 	@Bean
 	public WebClient webClient(WebClient.Builder webClientBuilder, HttpClient httpClient) {
-		return webClientBuilder.clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+		return webClientBuilder.codecs(config -> config.defaultCodecs().maxInMemorySize(262144))
+			.clientConnector(new ReactorClientHttpConnector(httpClient))
+			.build();
 	}
 
 	@Bean
