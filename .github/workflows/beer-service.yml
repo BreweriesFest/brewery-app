@@ -18,6 +18,7 @@ jobs:
       service-name: $service
     secrets: inherit
 
+
   docker:
     needs: beer-service
     if: ${{github.event_name != 'pull_request' &&  success()}}
