@@ -43,14 +43,14 @@ jobs:
   label-success:
     needs: build
     if: ${{github.event_name == 'pull_request' &&  success()}}
-    uses: ./.github/workflows/add_label.yml
+    uses: ./.github/workflows/common-add-label.yml
     with:
       label: ${{ inputs.service-name }}_build-complete
       remove-label: ${{ inputs.service-name }}_build-fail
   label-failure:
     needs: build
     if: ${{github.event_name == 'pull_request' &&  failure()}}
-    uses: ./.github/workflows/add_label.yml
+    uses: ./.github/workflows/common-add-label.yml
     with:
       label: ${{ inputs.service-name }}_build-fail
       remove-label: ${{ inputs.service-name }}_build-complete

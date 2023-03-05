@@ -12,7 +12,7 @@ jobs:
 
   beer-service:
     needs: env-setup
-    uses: ./.github/workflows/common/build.yml
+    uses: ./.github/workflows/common-build.yml
     with:
       service-name: 'beer-service'
     secrets: inherit
@@ -22,7 +22,7 @@ jobs:
     if: ${{github.event_name != 'pull_request' &&  success()}}
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    uses: ./.github/workflows/common/docker.yml
+    uses: ./.github/workflows/common-docker.yml
     with:
       service-name: ${{ inputs.service-name }}
       version: ${{ needs.build.outputs.sha }}
@@ -33,7 +33,7 @@ jobs:
     if: ${{github.event_name != 'pull_request' &&  success() && github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    uses: ./.github/workflows/common/docker.yml
+    uses: ./.github/workflows/common-docker.yml
     with:
       service-name: ${{ inputs.service-name }}
       version: latest
