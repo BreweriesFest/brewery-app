@@ -1,0 +1,36 @@
+name: inventory-service
+
+on:
+  push:
+    branches: [ "**" ]
+    paths: [ "pom.xml","model/**","common/**","inventory-service/**",".github/workflows/service-inventory.yml" ]
+  pull_request:
+    branches: [ "**" ]
+    paths: [ "pom.xml","model/**","common/**","inventory-service/**",".github/workflows/service-inventory.yml" ]
+
+
+jobs:
+
+  inventory-service:
+    uses: ./.github/workflows/common-build.yml
+    with:
+      service-name: 'inventory-service'
+    secrets: inherit
+
+  docker:
+    needs: inventory-service
+    if: ${{github.event_name != 'pull_request' &&  success()}}
+    uses: ./.github/workflows/common-docker.yml
+    with:
+      service-name: 'inventory-service'
+      version: ${{ needs.inventory-service.outputs.sha }}
+    secrets: inherit
+
+  docker-latest:
+    needs: inventory-service
+    if: ${{github.event_name != 'pull_request' &&  success() && github.ref == 'refs/heads/main'}}
+    uses: ./.github/workflows/common-docker.yml
+    with:
+      service-name: 'inventory-service'
+      version: latest
+    secrets: inherit

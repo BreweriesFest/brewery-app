@@ -1,15 +1,14 @@
 name: Add Comment
 
 on:
-  workflow_call:
-    inputs:
-      comment:
-        required: true
-        type: string
+  pull_request:
+    branches: [ "**" ]
 
 jobs:
   add_comment:
     runs-on: ubuntu-latest
+    env:
+      comment: '👋 Thanks for for raising PR!'
     steps:
       - name: Get existing comments
         id: get_existing_comments
@@ -26,12 +25,12 @@ jobs:
             console.log(comments);
             return comments;
       - uses: actions/github-script@v6
-        if: ${{ !contains(steps.get_existing_comments.outputs.result, inputs.comment) }}
+        if: ${{ !contains(steps.get_existing_comments.outputs.result, env.comment) }}
         with:
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '${{ inputs.comment }}'
+              body: '${{ env.comment }}'
             })
