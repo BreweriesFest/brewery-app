@@ -1,11 +1,11 @@
 name: Add Comment
 
 on:
-  workflow_call:
-    inputs:
-      comment:
-        required: true
-        type: string
+  pull_request:
+    branches: [ "**" ]
+
+env:
+  comment: '👋 Thanks for for raising PR!'
 
 jobs:
   add_comment:
@@ -26,12 +26,12 @@ jobs:
             console.log(comments);
             return comments;
       - uses: actions/github-script@v6
-        if: ${{ !contains(steps.get_existing_comments.outputs.result, inputs.comment) }}
+        if: ${{ !contains(steps.get_existing_comments.outputs.result, comment) }}
         with:
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '${{ inputs.comment }}'
+              body: '${{ comment }}'
             })

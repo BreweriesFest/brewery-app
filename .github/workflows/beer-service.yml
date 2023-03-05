@@ -1,0 +1,40 @@
+name: beer-service
+
+on:
+  push:
+    branches: [ "**" ]
+    paths: [ "pom.xml","model/**","common/**","beer-service/**",".github/workflows/beer-service.yml" ]
+  pull_request:
+    branches: [ "**" ]
+    paths: [ "pom.xml","model/**","common/**","beer-service/**",".github/workflows/beer-service.yml" ]
+
+jobs:
+
+  beer-service:
+    needs: env-setup
+    uses: ./.github/workflows/common/build.yml
+    with:
+      service-name: 'beer-service'
+    secrets: inherit
+
+  docker:
+    needs: build
+    if: ${{github.event_name != 'pull_request' &&  success()}}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    uses: ./.github/workflows/common/docker.yml
+    with:
+      service-name: ${{ inputs.service-name }}
+      version: ${{ needs.build.outputs.sha }}
+    secrets: inherit
+
+  docker-latest:
+    needs: build
+    if: ${{github.event_name != 'pull_request' &&  success() && github.ref == 'refs/heads/main'}}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    uses: ./.github/workflows/common/docker.yml
+    with:
+      service-name: ${{ inputs.service-name }}
+      version: latest
+    secrets: inherit
