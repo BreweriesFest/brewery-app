@@ -8,23 +8,21 @@ on:
     branches: [ "**" ]
     paths: [ "pom.xml","model/**","common/**","beer-service/**",".github/workflows/beer-service.yml" ]
 
-env:
-  service: 'beer-service'
+
 jobs:
 
   beer-service:
     uses: ./.github/workflows/common-build.yml
     with:
-      service-name: $service
+      service-name: 'beer-service'
     secrets: inherit
-
 
   docker:
     needs: beer-service
     if: ${{github.event_name != 'pull_request' &&  success()}}
     uses: ./.github/workflows/common-docker.yml
     with:
-      service-name: $service
+      service-name: 'beer-service'
       version: ${{ needs.beer-service.outputs.sha }}
     secrets: inherit
 
@@ -33,6 +31,6 @@ jobs:
     if: ${{github.event_name != 'pull_request' &&  success() && github.ref == 'refs/heads/main'}}
     uses: ./.github/workflows/common-docker.yml
     with:
-      service-name: $service
+      service-name: 'beer-service'
       version: latest
     secrets: inherit
