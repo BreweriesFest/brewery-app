@@ -1,0 +1,36 @@
+name: order-service
+
+on:
+  push:
+    branches: [ "**" ]
+    paths: [ "pom.xml","model/**","common/**","order-service/**",".github/workflows/service-order.yml" ]
+  pull_request:
+    branches: [ "**" ]
+    paths: [ "pom.xml","model/**","common/**","order-service/**",".github/workflows/service-order.yml" ]
+
+
+jobs:
+
+  order-service:
+    uses: ./.github/workflows/common-build.yml
+    with:
+      service-name: 'order-service'
+    secrets: inherit
+
+  docker:
+    needs: order-service
+    if: ${{github.event_name != 'pull_request' &&  success()}}
+    uses: ./.github/workflows/common-docker.yml
+    with:
+      service-name: 'order-service'
+      version: ${{ needs.order-service.outputs.sha }}
+    secrets: inherit
+
+  docker-latest:
+    needs: order-service
+    if: ${{github.event_name != 'pull_request' &&  success() && github.ref == 'refs/heads/main'}}
+    uses: ./.github/workflows/common-docker.yml
+    with:
+      service-name: 'order-service'
+      version: latest
+    secrets: inherit

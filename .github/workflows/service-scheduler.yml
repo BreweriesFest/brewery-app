@@ -1,36 +1,36 @@
-name: beer-service
+name: scheduler
 
 on:
   push:
     branches: [ "**" ]
-    paths: [ "pom.xml","model/**","common/**","beer-service/**",".github/workflows/beer-service.yml" ]
+    paths: [ "pom.xml","model/**","common/**","scheduler/**",".github/workflows/service-scheduler.yml" ]
   pull_request:
     branches: [ "**" ]
-    paths: [ "pom.xml","model/**","common/**","beer-service/**",".github/workflows/beer-service.yml" ]
+    paths: [ "pom.xml","model/**","common/**","scheduler/**",".github/workflows/service-scheduler.yml" ]
 
 
 jobs:
 
-  beer-service:
+  scheduler:
     uses: ./.github/workflows/common-build.yml
     with:
-      service-name: 'beer-service'
+      service-name: 'scheduler'
     secrets: inherit
 
   docker:
-    needs: beer-service
+    needs: scheduler
     if: ${{github.event_name != 'pull_request' &&  success()}}
     uses: ./.github/workflows/common-docker.yml
     with:
-      service-name: 'beer-service'
-      version: ${{ needs.beer-service.outputs.sha }}
+      service-name: 'scheduler'
+      version: ${{ needs.scheduler.outputs.sha }}
     secrets: inherit
 
   docker-latest:
-    needs: beer-service
+    needs: scheduler
     if: ${{github.event_name != 'pull_request' &&  success() && github.ref == 'refs/heads/main'}}
     uses: ./.github/workflows/common-docker.yml
     with:
-      service-name: 'beer-service'
+      service-name: 'scheduler'
       version: latest
     secrets: inherit
