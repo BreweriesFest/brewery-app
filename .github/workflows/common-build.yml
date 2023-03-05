@@ -10,6 +10,10 @@ on:
       service-name:
         required: true
         type: string
+    outputs:
+      sha:
+        description: "latest commit"
+        value: ${{ jobs.build.outputs.sha }}
 
 jobs:
   build:
