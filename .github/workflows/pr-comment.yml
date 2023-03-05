@@ -26,12 +26,12 @@ jobs:
             console.log(comments);
             return comments;
       - uses: actions/github-script@v6
-        if: ${{ !contains(steps.get_existing_comments.outputs.result, comment) }}
+        if: ${{ !contains(steps.get_existing_comments.outputs.result, env.comment) }}
         with:
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '${{ comment }}'
+              body: '${{ env.comment }}'
             })

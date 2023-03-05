@@ -15,7 +15,7 @@ jobs:
   beer-service:
     uses: ./.github/workflows/common-build.yml
     with:
-      service-name: ${{ service }}
+      service-name: ${{ env.service }}
     secrets: inherit
 
   docker:
@@ -23,7 +23,7 @@ jobs:
     if: ${{github.event_name != 'pull_request' &&  success()}}
     uses: ./.github/workflows/common-docker.yml
     with:
-      service-name: ${{ service }}
+      service-name: ${{ env.service }}
       version: ${{ needs.beer-service.outputs.sha }}
     secrets: inherit
 
@@ -32,6 +32,6 @@ jobs:
     if: ${{github.event_name != 'pull_request' &&  success() && github.ref == 'refs/heads/main'}}
     uses: ./.github/workflows/common-docker.yml
     with:
-      service-name: ${{ service }}
+      service-name: ${{ env.service }}
       version: latest
     secrets: inherit
