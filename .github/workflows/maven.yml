@@ -26,7 +26,7 @@ jobs:
 
   inventory-service:
     needs: env-setup
-    uses: ./.github/workflows/common-build.yml
+    uses: ./.github/workflows/build.yml
     with:
       service-name: 'inventory-service'
       sha: ${{ needs.env-setup.outputs.sha }}
@@ -36,7 +36,7 @@ jobs:
 
   beer-service:
     needs: env-setup
-    uses: ./.github/workflows/common-build.yml
+    uses: ./.github/workflows/build.yml
     with:
       service-name: 'beer-service'
       sha: ${{ needs.env-setup.outputs.sha }}
@@ -46,7 +46,7 @@ jobs:
 
   order-service:
     needs: env-setup
-    uses: ./.github/workflows/common-build.yml
+    uses: ./.github/workflows/build.yml
     with:
       service-name: 'order-service'
       sha: ${{ needs.env-setup.outputs.sha }}
@@ -56,7 +56,7 @@ jobs:
 
   scheduler:
     needs: env-setup
-    uses: ./.github/workflows/common-build.yml
+    uses: ./.github/workflows/build.yml
     with:
       service-name: 'scheduler'
       sha: ${{ needs.env-setup.outputs.sha }}

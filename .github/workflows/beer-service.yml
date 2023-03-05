@@ -18,9 +18,8 @@ jobs:
     secrets: inherit
 
   docker:
-    needs: build
+    needs: beer-service
     if: ${{github.event_name != 'pull_request' &&  success()}}
-    runs-on: ubuntu-latest
     timeout-minutes: 5
     uses: ./.github/workflows/common-docker.yml
     with:
@@ -29,9 +28,8 @@ jobs:
     secrets: inherit
 
   docker-latest:
-    needs: build
+    needs: beer-service
     if: ${{github.event_name != 'pull_request' &&  success() && github.ref == 'refs/heads/main'}}
-    runs-on: ubuntu-latest
     timeout-minutes: 5
     uses: ./.github/workflows/common-docker.yml
     with:
