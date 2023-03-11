@@ -19,6 +19,7 @@ spring:
     active:
       - mongo-sync
       - beer-client-service
+      - json-logs
 server:
   port: ${DEFAULT__APP__PORT:8084}
 
