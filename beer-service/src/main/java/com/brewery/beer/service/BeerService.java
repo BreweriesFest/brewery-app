@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import static com.brewery.common.exception.ExceptionReason.BEER_NOT_FOUND;
 import static com.brewery.common.util.AppConstant.TENANT_ID;
 import static com.brewery.common.util.Helper.*;
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Service
 @RequiredArgsConstructor
@@ -98,7 +99,7 @@ public class BeerService {
 			.map(beerMapper::fromBeerDto)
 			.flatMap(beerRepository::save)
 			.map(beerMapper::fromBeer)
-			.doOnError(exc -> log.error("exception {}", exc));
+			.doOnError(exc -> log.error("exception", kv("beerDto", beerDto), exc));
 		return validateHeaders.then(persist);
 
 	}

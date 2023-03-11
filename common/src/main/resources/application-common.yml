@@ -3,6 +3,7 @@ logging:
     dateformat: yyyy-MM-dd HH:mm:ss.SSS,${app.default.timezone}
     # ongoing issue sleuth to micrometer transition
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+  #    console: "{\"time\": \"%d\", \"level\": \"%p\", \"correlation-id\": \"%X{X-Correlation-Id}\", \"source\": \"%logger{63}:%L\", \"message\": \"%replace(%m%wEx{6}){'[\r\n]+', '\\n'}%nopex\"}%n"
   level:
     root: info
     web: info
@@ -12,6 +13,8 @@ logging:
       mongodb.driver.connection: DEBUG
 
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   graphql:
     graphiql:
       enabled: true
@@ -40,6 +43,11 @@ management:
       show-details: always
       probes:
         enabled: true
+      group:
+        custom:
+          include:
+            - livenessState
+            - custom
   endpoints:
     web:
       exposure:
@@ -50,6 +58,13 @@ management:
     git:
       enabled: true
       mode: full
+    os:
+      enabled: true
+    env:
+      enabled: true
+info:
+  message: "Brewery Project"
+  project-version: "@project.version@"
 springdoc:
   show-actuator: true
   api-docs:

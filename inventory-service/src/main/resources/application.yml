@@ -20,6 +20,7 @@ spring:
       - common
     active:
       - mongo-reactive
+      - json-logs
 
 server:
   port: ${DEFAULT__APP__PORT:8083}

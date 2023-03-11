@@ -23,6 +23,7 @@ spring:
       - mongo-reactive
       - inventory-client-service
       - cache
+      - json-logs
 server:
   port: ${DEFAULT__APP__PORT:8080}
 

@@ -15,6 +15,7 @@ spring:
     active:
       - mongo-reactive
       - beer-client-service
+      - json-logs
 
 server:
   port: ${DEFAULT__APP__PORT:8082}
