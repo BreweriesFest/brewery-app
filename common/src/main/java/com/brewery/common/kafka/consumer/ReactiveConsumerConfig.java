@@ -74,7 +74,7 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 						// consumerRecord.headers().toArray(),
 						consumerRecord.topic(), consumerRecord.partition(), consumerRecord.offset());
 			})
-			.map(__ -> {
+			.doOnNext(__ -> {
 				input.apply(__)
 					.contextWrite(ctx -> ctx
 						.putAllMap(Helper.extractHeaders(List.of(AppConstant.TENANT_ID, AppConstant.CUSTOMER_ID), __)))
@@ -86,18 +86,18 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 					.retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
 						.transientErrors(true)
 						.onRetryExhaustedThrow((a, b) -> b.failure()))
-					.doOnError(e -> {
+					.onErrorResume(e -> {
 						log.error("publish to dlq", e);
 						// ReceiverRecordException ex = (ReceiverRecordException) e;
 						// if (Objects.nonNull(deadLetterPublishingRecoverer))
 						// deadLetterPublishingRecoverer.accept(ex.getRecord(), ex);
-					})
-					.map(___ -> {
-						log.info("acknowledge record");
-						__.receiverOffset().acknowledge();
-						return __;
+						return Mono.empty();
 					})
 					.subscribe();
+			})
+			.map(__ -> {
+				log.info("acknowledge record");
+				__.receiverOffset().acknowledge();
 				return __;
 			})
 			.doOnSubscribe(subs -> {
@@ -124,7 +124,8 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, serializer);
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deSerializer);
-		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaProperties.getConsumerGroup());
 		props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 		return ReceiverOptions.<K, V>create(props)
