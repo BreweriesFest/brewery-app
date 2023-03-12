@@ -64,47 +64,56 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 			// .assignment().flatMap(a->reactiveKafkaConsumerTemplate.resume(a))
 
 			.receive()
-			.publishOn(Schedulers.boundedElastic())
+			.parallel(10)
+			.runOn(Schedulers.parallel())
 			// .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
-			// .doOnSubscribe(subs -> {
-			// reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
-			// micrometerConsumerListener.consumerAdded("consuming::" + topic,
-			// consumer);
-			// consumerToUnregister.set(consumer);
-			// return Mono.empty();
-			// }).subscribe();
-			// }).onErrorResume(e -> {
-			// Consumer<K, V> consumer = consumerToUnregister.getAndSet(null);
-			// if (consumer != null) {
-			// micrometerConsumerListener.consumerRemoved("consuming::" + topic,
-			// consumer);
-			// }
-			// return Mono.empty();
-			// })
+
 			.doOnNext(consumerRecord -> {
-				log.info("received key={}, value={}, headers={} from topic={}, partition={}, offset={}",
-						consumerRecord.key(), consumerRecord.value(), consumerRecord.headers().toArray(),
+				log.info("received  topic={}, partition={}, offset={}",
+						// consumerRecord.key(), consumerRecord.value(),
+						// consumerRecord.headers().toArray(),
 						consumerRecord.topic(), consumerRecord.partition(), consumerRecord.offset());
 			})
-			.flatMap(__ -> input.apply(__)
-				.contextWrite(ctx -> ctx
-					.putAllMap(Helper.extractHeaders(List.of(AppConstant.TENANT_ID, AppConstant.CUSTOMER_ID), __)))
-				.map(___ -> {
-					__.receiverOffset().acknowledge();
-					return __;
-				})
-				.onErrorResume(error -> Mono.error(new ReceiverRecordException(__, error)))
-				.onErrorStop())
-			.retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
-				.transientErrors(true)
-				.onRetryExhaustedThrow((a, b) -> b.failure()))
-
-			.onErrorContinue((e, o) -> {
-				ReceiverRecordException ex = (ReceiverRecordException) e;
-				if (Objects.nonNull(deadLetterPublishingRecoverer))
-					deadLetterPublishingRecoverer.accept(ex.getRecord(), ex);
-				ex.getRecord().receiverOffset().acknowledge();
+			.map(__ -> {
+				input.apply(__)
+					.contextWrite(ctx -> ctx
+						.putAllMap(Helper.extractHeaders(List.of(AppConstant.TENANT_ID, AppConstant.CUSTOMER_ID), __)))
+					.map(mono -> __)
+					.onErrorResume(error -> {
+						log.error("exception in consuming {}", error.getMessage(), error);
+						return Mono.error(new ReceiverRecordException(__, error));
+					})
+					.retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
+						.transientErrors(true)
+						.onRetryExhaustedThrow((a, b) -> b.failure()))
+					.doOnError(e -> {
+						log.error("publish to dlq", e);
+						// ReceiverRecordException ex = (ReceiverRecordException) e;
+						// if (Objects.nonNull(deadLetterPublishingRecoverer))
+						// deadLetterPublishingRecoverer.accept(ex.getRecord(), ex);
+					})
+					.map(___ -> {
+						log.info("acknowledge record");
+						__.receiverOffset().acknowledge();
+						return __;
+					})
+					.subscribe();
+				return __;
 			})
+			.doOnSubscribe(subs -> {
+				reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
+					micrometerConsumerListener.consumerAdded("consuming::" + topic, consumer);
+					consumerToUnregister.set(consumer);
+					return Mono.empty();
+				}).subscribe();
+			})
+			.doOnError(e -> {
+				Consumer<K, V> consumer = consumerToUnregister.getAndSet(null);
+				if (consumer != null) {
+					micrometerConsumerListener.consumerRemoved("consuming::" + topic, consumer);
+				}
+			})
+			.sequential()
 			.repeat();
 
 	}
