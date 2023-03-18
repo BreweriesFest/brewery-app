@@ -15,6 +15,9 @@
       "version": "17",
       "jdkDistro": "tem",
       "gradleVersion": "latest"
+    },
+    "ghcr.io/devcontainers/features/sshd:1": {
+        "version": "latest"
     }
   },
   "customizations": {
