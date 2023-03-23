@@ -13,6 +13,8 @@ spring:
     username: username
     password: password
     database: brewery
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
   profiles:
     include:
       - common
@@ -23,13 +25,19 @@ spring:
 server:
   port: ${DEFAULT__APP__PORT:8084}
 
-org.jobrunr.background-job-server.enabled: true
 org:
   jobrunr:
+    background-job-server:
+      enabled: true
+      metrics:
+        enabled: true
     dashboard:
       enabled: true
       port: 8000
-spring.kafka.bootstrap-servers: 'localhost:9092'
+    jobs:
+      metrics:
+        enabled: true
+
 app:
   kafka:
     producer:

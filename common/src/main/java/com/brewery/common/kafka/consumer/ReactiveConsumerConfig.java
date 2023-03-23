@@ -64,47 +64,56 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 			// .assignment().flatMap(a->reactiveKafkaConsumerTemplate.resume(a))
 
 			.receive()
-			.publishOn(Schedulers.boundedElastic())
+			.parallel(10)
+			.runOn(Schedulers.parallel())
 			// .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
-			// .doOnSubscribe(subs -> {
-			// reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
-			// micrometerConsumerListener.consumerAdded("consuming::" + topic,
-			// consumer);
-			// consumerToUnregister.set(consumer);
-			// return Mono.empty();
-			// }).subscribe();
-			// }).onErrorResume(e -> {
-			// Consumer<K, V> consumer = consumerToUnregister.getAndSet(null);
-			// if (consumer != null) {
-			// micrometerConsumerListener.consumerRemoved("consuming::" + topic,
-			// consumer);
-			// }
-			// return Mono.empty();
-			// })
+
 			.doOnNext(consumerRecord -> {
-				log.info("received key={}, value={}, headers={} from topic={}, partition={}, offset={}",
-						consumerRecord.key(), consumerRecord.value(), consumerRecord.headers().toArray(),
+				log.info("received  topic={}, partition={}, offset={}",
+						// consumerRecord.key(), consumerRecord.value(),
+						// consumerRecord.headers().toArray(),
 						consumerRecord.topic(), consumerRecord.partition(), consumerRecord.offset());
 			})
-			.flatMap(__ -> input.apply(__)
-				.contextWrite(ctx -> ctx
-					.putAllMap(Helper.extractHeaders(List.of(AppConstant.TENANT_ID, AppConstant.CUSTOMER_ID), __)))
-				.map(___ -> {
-					__.receiverOffset().acknowledge();
-					return __;
-				})
-				.onErrorResume(error -> Mono.error(new ReceiverRecordException(__, error)))
-				.onErrorStop())
-			.retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
-				.transientErrors(true)
-				.onRetryExhaustedThrow((a, b) -> b.failure()))
-
-			.onErrorContinue((e, o) -> {
-				ReceiverRecordException ex = (ReceiverRecordException) e;
-				if (Objects.nonNull(deadLetterPublishingRecoverer))
-					deadLetterPublishingRecoverer.accept(ex.getRecord(), ex);
-				ex.getRecord().receiverOffset().acknowledge();
+			.doOnNext(__ -> {
+				input.apply(__)
+					.contextWrite(ctx -> ctx
+						.putAllMap(Helper.extractHeaders(List.of(AppConstant.TENANT_ID, AppConstant.CUSTOMER_ID), __)))
+					.map(mono -> __)
+					.onErrorResume(error -> {
+						log.error("exception in consuming {}", error.getMessage(), error);
+						return Mono.error(new ReceiverRecordException(__, error));
+					})
+					.retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
+						.transientErrors(true)
+						.onRetryExhaustedThrow((a, b) -> b.failure()))
+					.onErrorResume(e -> {
+						log.error("publish to dlq", e);
+						// ReceiverRecordException ex = (ReceiverRecordException) e;
+						// if (Objects.nonNull(deadLetterPublishingRecoverer))
+						// deadLetterPublishingRecoverer.accept(ex.getRecord(), ex);
+						return Mono.empty();
+					})
+					.subscribe();
 			})
+			.map(__ -> {
+				log.info("acknowledge record");
+				__.receiverOffset().acknowledge();
+				return __;
+			})
+			.doOnSubscribe(subs -> {
+				reactiveKafkaConsumerTemplate.doOnConsumer(consumer -> {
+					micrometerConsumerListener.consumerAdded("consuming::" + topic, consumer);
+					consumerToUnregister.set(consumer);
+					return Mono.empty();
+				}).subscribe();
+			})
+			.doOnError(e -> {
+				Consumer<K, V> consumer = consumerToUnregister.getAndSet(null);
+				if (consumer != null) {
+					micrometerConsumerListener.consumerRemoved("consuming::" + topic, consumer);
+				}
+			})
+			.sequential()
 			.repeat();
 
 	}
@@ -115,7 +124,8 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, serializer);
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deSerializer);
-		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaProperties.getConsumerGroup());
 		props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 		return ReceiverOptions.<K, V>create(props)
