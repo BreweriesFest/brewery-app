@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 import static com.brewery.common.util.AppConstant.RESILIENCE_ID_MONGO;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @RequiredArgsConstructor
 public class CustomResilience4JConfig {
 

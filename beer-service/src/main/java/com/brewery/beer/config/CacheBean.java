@@ -10,7 +10,7 @@ import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Profile("cache")
 public class CacheBean {
 

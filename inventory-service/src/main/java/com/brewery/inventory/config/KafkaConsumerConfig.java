@@ -16,7 +16,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import static com.brewery.common.util.AppConstant.LZ4_COMPRESSION;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class KafkaConsumerConfig {
 
 	@Bean
