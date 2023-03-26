@@ -3,6 +3,7 @@ package com.brewery.common.client;
 import com.brewery.common.util.AppConstant;
 import com.brewery.model.domain.InventoryDTO;
 import io.github.resilience4j.retry.Retry;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
@@ -22,9 +23,10 @@ import java.util.Map;
 public class InventoryClient extends GraphqlClient {
 
 	public InventoryClient(@Value("${app.client.inventory.url}") String url, HttpGraphQlClient httpGraphQlClient,
-			ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry inventoryClientRetry) {
+			ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry inventoryClientRetry,
+			ObservationRegistry registry) {
 		super(httpGraphQlClient, url, reactiveCircuitBreakerFactory, inventoryClientRetry,
-				AppConstant.RESILIENCE_ID_INVENTORY_CLIENT);
+				AppConstant.RESILIENCE_ID_INVENTORY_CLIENT, registry);
 	}
 
 	public Flux<InventoryDTO> getInventoryByBeerId(Collection<String> beerId) {

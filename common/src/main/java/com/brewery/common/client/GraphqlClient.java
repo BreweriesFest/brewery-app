@@ -5,11 +5,13 @@ import com.brewery.common.exception.ExceptionReason;
 import com.brewery.common.util.Helper;
 import io.github.resilience4j.reactor.retry.RetryOperator;
 import io.github.resilience4j.retry.Retry;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.graphql.client.HttpGraphQlClient;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -29,13 +31,17 @@ public abstract class GraphqlClient {
 
 	private final String url;
 
+	private final ObservationRegistry registry;
+
 	protected GraphqlClient(HttpGraphQlClient httpGraphQlClient, String url,
-			ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry retry, String resilienceId) {
+			ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry retry, String resilienceId,
+			ObservationRegistry registry) {
 		this.httpGraphQlClient = httpGraphQlClient;
 		this.url = url;
 		this.reactiveCircuitBreakerFactory = reactiveCircuitBreakerFactory;
 		this.retry = retry;
 		this.resilienceId = resilienceId;
+		this.registry = registry;
 	}
 
 	protected Mono<HttpGraphQlClient> getHttpGraphQlClient(Collection<String> headers) {
@@ -63,6 +69,9 @@ public abstract class GraphqlClient {
 		return getHttpGraphQlClient(headers)
 			.flatMap(__ -> __.document(document).variables(variables).retrieve("data").toEntityList(entityType))
 			.flatMapMany(Flux::fromIterable)
+			.name("graphql.call")
+			.tag("client", resilienceId)
+			.tap(Micrometer.observation(registry))
 			.transform(it -> {
 				ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(resilienceId);
 				return rcb.run(it, throwable -> {
@@ -71,6 +80,7 @@ public abstract class GraphqlClient {
 				});
 			})
 			.transformDeferred(RetryOperator.of(retry));
+
 	}
 
 }

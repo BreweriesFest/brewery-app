@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Slf4j
 public class Resilience4JConfig {
 

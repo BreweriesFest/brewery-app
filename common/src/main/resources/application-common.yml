@@ -22,6 +22,9 @@ spring:
       locations: 'classpath*:graphql/**/'
 
 management:
+  mongo:
+    command:
+      enabled: false
   health:
     circuitbreakers:
       enabled: true

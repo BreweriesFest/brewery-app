@@ -3,6 +3,7 @@ package com.brewery.common.client;
 import com.brewery.common.util.AppConstant;
 import com.brewery.model.dto.BeerDto;
 import io.github.resilience4j.retry.Retry;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
@@ -22,9 +23,10 @@ import java.util.Map;
 public class BeerClient extends GraphqlClient {
 
 	public BeerClient(@Value("${app.client.beer.url}") String url, HttpGraphQlClient httpGraphQlClient,
-			ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry beerClientRetry) {
+			ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory, Retry beerClientRetry,
+			ObservationRegistry registry) {
 		super(httpGraphQlClient, url, reactiveCircuitBreakerFactory, beerClientRetry,
-				AppConstant.RESILIENCE_ID_BEER_CLIENT);
+				AppConstant.RESILIENCE_ID_BEER_CLIENT, registry);
 	}
 
 	public Flux<BeerDto> getBeerById(Collection<String> beerId) {

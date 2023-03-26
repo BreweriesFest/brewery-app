@@ -1,5 +1,7 @@
 package com.brewery.common.config;
 
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.aop.ObservedAspect;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
@@ -10,13 +12,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Hooks;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class AppConfig {
 
 	@Value("${app.default.timezone}")
@@ -25,6 +28,7 @@ public class AppConfig {
 	@PostConstruct
 	public void init() {
 		// Setting Spring Boot SetTimeZone
+		Hooks.enableAutomaticContextPropagation();
 		TimeZone.setDefault(TimeZone.getTimeZone(timezone));
 	}
 
@@ -48,6 +52,13 @@ public class AppConfig {
 	@Bean
 	public HttpGraphQlClient httpGraphQlClient(WebClient webClient) {
 		return HttpGraphQlClient.builder(webClient).build();
+	}
+
+	@Bean
+	public ObservedAspect observedAspect(ObservationRegistry observationRegistry) {
+		observationRegistry.observationConfig().observationHandler(new SimpleLoggingHandler());
+
+		return new ObservedAspect(observationRegistry);
 	}
 
 }
