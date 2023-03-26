@@ -51,6 +51,7 @@ public class BeerService {
 	private boolean redisEnabled;
 
 	public Flux<BeerDto> findBeerById(Collection<String> beerId) {
+		log.info("find beer {}",beerId);
 		var validateHeaders = validateContext();
 		Set<String> uniqueBeerId = new HashSet<>(beerId);
 
