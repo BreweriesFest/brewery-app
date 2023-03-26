@@ -54,11 +54,12 @@ public class AppConfig {
 		return HttpGraphQlClient.builder(webClient).build();
 	}
 
-//	@Bean
-//	public ObservedAspect observedAspect(ObservationRegistry observationRegistry) {
-//		observationRegistry.observationConfig().observationHandler(new SimpleLoggingHandler());
-//
-//		return new ObservedAspect(observationRegistry);
-//	}
+	// @Bean
+	// public ObservedAspect observedAspect(ObservationRegistry observationRegistry) {
+	// observationRegistry.observationConfig().observationHandler(new
+	// SimpleLoggingHandler());
+	//
+	// return new ObservedAspect(observationRegistry);
+	// }
 
 }

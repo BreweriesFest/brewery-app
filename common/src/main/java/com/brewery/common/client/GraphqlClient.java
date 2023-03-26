@@ -18,6 +18,9 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.Map;
 
+import static com.brewery.common.util.AppConstant.CUSTOMER_ID;
+import static com.brewery.common.util.AppConstant.TENANT_ID;
+
 @Slf4j
 public abstract class GraphqlClient {
 
@@ -47,7 +50,12 @@ public abstract class GraphqlClient {
 	protected Mono<HttpGraphQlClient> getHttpGraphQlClient(Collection<String> headers) {
 		return Mono.deferContextual(ctx -> Mono.just(httpGraphQlClient.mutate().url(url).headers(httpHeaders -> {
 			headers.forEach(__ -> httpHeaders.add(__, Helper.fetchHeaderFromContext.apply(__, ctx)));
-		}).build()));
+		}).build())
+			.name("graphql.call")
+			.tag("client", resilienceId)
+			.tag(TENANT_ID, Helper.fetchHeaderFromContext.apply(TENANT_ID, ctx))
+			.tag(CUSTOMER_ID, Helper.fetchHeaderFromContext.apply(CUSTOMER_ID, ctx))
+			.tap(Micrometer.observation(registry)));
 	}
 
 	protected <T> Mono<T> fromMono(Collection<String> headers, String document, Map<String, Object> variables,
@@ -69,9 +77,6 @@ public abstract class GraphqlClient {
 		return getHttpGraphQlClient(headers)
 			.flatMap(__ -> __.document(document).variables(variables).retrieve("data").toEntityList(entityType))
 			.flatMapMany(Flux::fromIterable)
-			.name("graphql.call")
-			.tag("client", resilienceId)
-			.tap(Micrometer.observation(registry))
 			.transform(it -> {
 				ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create(resilienceId);
 				return rcb.run(it, throwable -> {

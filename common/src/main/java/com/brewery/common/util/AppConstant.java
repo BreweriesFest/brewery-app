@@ -5,9 +5,9 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class AppConstant {
 
-	public static final String TENANT_ID = "tenantId";
+	public static final String TENANT_ID = "tenant_id";
 
-	public static final String CUSTOMER_ID = "customerId";
+	public static final String CUSTOMER_ID = "customer_id";
 
 	public static final String RESILIENCE_ID_MONGO = "mongo";
 
