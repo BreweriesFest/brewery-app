@@ -64,9 +64,9 @@ public abstract class ReactiveConsumerConfig<K, V extends Record<K>> {
 			// .assignment().flatMap(a->reactiveKafkaConsumerTemplate.resume(a))
 
 			.receive()
+			.delayElements(Duration.ofMillis(100L)) // BACKPRESSURE
 			.parallel(10)
 			.runOn(Schedulers.parallel())
-			// .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
 
 			.doOnNext(consumerRecord -> {
 				log.info("received  topic={}, partition={}, offset={}",
