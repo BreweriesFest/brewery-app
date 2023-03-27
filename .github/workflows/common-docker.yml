@@ -6,7 +6,7 @@ on:
       java-version:
         required: false
         type: string
-        default: '17'
+        default: '20'
       service-name:
         required: true
         type: string
