@@ -36,7 +36,7 @@
         <dependency-check-maven.version>8.1.2</dependency-check-maven.version>
         <bcpkix-jdk15on.version>1.70</bcpkix-jdk15on.version>
         <guava.version>31.1-jre</guava.version>
-        <jacoco.version>0.8.8</jacoco.version>
+        <jacoco.version>0.8.9</jacoco.version>
         <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
         <maven-pmd-plugin.version>3.20.0</maven-pmd-plugin.version>
         <querydsl-mongodb.version>5.0.0</querydsl-mongodb.version>
