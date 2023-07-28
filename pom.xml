@@ -26,7 +26,7 @@
         <!--suppress UnresolvedMavenProperty -->
         <version.number>${git.commit.id.abbrev}</version.number>
         <java.version>17</java.version>
-        <spring-cloud.version>2022.0.3</spring-cloud.version>
+        <spring-cloud.version>2022.0.4</spring-cloud.version>
         <testcontainers.version>1.18.1</testcontainers.version>
         <springdoc-openapi-starter-webflux-ui.version>2.1.0</springdoc-openapi-starter-webflux-ui.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
